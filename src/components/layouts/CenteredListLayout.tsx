@@ -7,12 +7,28 @@ type Props = {
 };
 
 const CenteredListLayout = ({ title, children }: Props) => (
-  <div className="flex justify-center items-start min-h-screen pt-16 bg-gray-50">
-    <div className="w-full max-w-md p-4 bg-white rounded shadow">
-      {title && <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>}
-      <ul className="space-y-2">{children}</ul>
+
+
+
+<div className="bg-gray-400 flex flex-col h-full w-full p-1">
+      {/* Top div - natural height, always visible */}
+      
+      {/* Sticky title */}
+      <div>
+        {title && (
+          <div className="bg-gray-300 text-center font-bold text-xl p-1">
+            {title}
+          </div>
+        )}
+      </div>
+
+      {/* Bottom div - fills remaining space, scrolls if overflow */}
+      <div className="bg-gray-200 flex-1 overflow-auto p-1 text-center">
+          {children}
+      </div>
+    
     </div>
-  </div>
 );
+
 
 export default CenteredListLayout;

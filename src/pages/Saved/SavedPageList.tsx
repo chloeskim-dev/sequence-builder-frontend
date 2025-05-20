@@ -4,11 +4,52 @@ import CenteredListLayout from "../../components/layouts/CenteredListLayout";
 const SavedPageList = () => {
   return (
     <div>
-      <h1>SavedPageList Component</h1>
-        <CenteredListLayout title="Available Exercises">
+        <CenteredListLayout title="My Saved Sequences">
           <li>Push-ups</li>
           <li>Squats</li>
           <li>Plank</li>
+                    <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>          <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>          <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>          <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>          <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>          <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>          <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>          <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>          <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>          <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>          <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>          <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>          <li>Push-ups</li>
+          <li>Squats</li>
+          <li>Plank</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </CenteredListLayout>
     </div>
   )

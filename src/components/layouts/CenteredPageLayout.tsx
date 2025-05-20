@@ -7,21 +7,25 @@ type Props = {
 
 const CenteredPageLayout = ({ title, children }: Props) => {
   return (
-    <div className="flex flex-col h-full w-full p-4 overflow-hidden">
-      <div className="flex flex-col h-full overflow-auto bg-white rounded shadow">
-        {/* Sticky title */}
+
+<div className="bg-purple-300 flex flex-col h-full w-full p-1">
+      {/* Top div - natural height, always visible */}
+      <div>
         {title && (
-          <div className="sticky top-0 z-10 bg-white p-4 border-b font-bold text-xl">
+          <div className="bg-purple-200 text-center p-1 border-b font-bold text-xl">
             {title}
           </div>
         )}
+      </div>
 
-        {/* Scrollable content */}
-        <div className="p-4">
-          {children}
-        </div>
+      {/* Bottom div - fills remaining space, scrolls if overflow */}
+      <div className="bg-purple-100 flex-1 overflow-auto p-1">
+        {children}
       </div>
     </div>
+
+
+
   );
 };
 
