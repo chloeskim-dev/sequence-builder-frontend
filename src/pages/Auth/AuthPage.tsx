@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button } from "../components/ui/Button";
+import { Button } from "../../components/ui/Button";
 
 const AuthPage = ({ onLogin }: { onLogin: () => void }) => {
   const [isSignup, setIsSignup] = useState(false);

@@ -1,15 +1,16 @@
 import React, { ReactElement, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Layout from "./components/Layout";
-import AuthPage from "./pages/AuthPage";
-import Home from "./pages/Home";
+import Layout from "./components/layouts/NavbarLayout";
+
+import AuthPage from "./pages/Auth/AuthPage";
+import HomePage from "./pages/Home/HomePage";
 import PrivateRoute from "./components/PrivateRoute";
-import Dashboard from "./pages/Dashboard";
-import Settings from "./pages/Settings";
-import New from "./pages/New"
-import Saved from "./pages/Saved"
-import Exercises from "./pages/Exercises"
-import Help from "./pages/Help"
+import DashboardPage from "./pages/Dashboard/DashboardPage";
+import SettingsPage from "./pages/Settings/SettingsPage";
+import NewPage from "./pages/New/NewPage"
+import SavedPage from "./pages/Saved/SavedPage"
+import ExercisesPage from "./pages/Exercises/ExercisesPage"
+import HelpPage from "./pages/Help/HelpPage"
 
 
 const App = () => {
@@ -40,7 +41,7 @@ const App = () => {
           element={
             <PrivateRoute authorized={authorized}>
               <Layout>
-                <Dashboard/>
+                <DashboardPage/>
               </Layout>
             </PrivateRoute>
           }
@@ -53,7 +54,7 @@ const App = () => {
           element={
             <PrivateRoute authorized={authorized}>
               <Layout>
-                <Settings />
+                <SettingsPage />
               </Layout>
             </PrivateRoute>
           }
@@ -65,7 +66,7 @@ const App = () => {
           element={
             <PrivateRoute authorized={authorized}>
               <Layout>
-                <Help/>
+                <HelpPage />
               </Layout>
             </PrivateRoute>
           }
@@ -78,7 +79,7 @@ const App = () => {
           element={
             <PrivateRoute authorized={authorized}>
               <Layout>
-                <New />
+                <NewPage />
               </Layout>
             </PrivateRoute>
           }
@@ -90,7 +91,7 @@ const App = () => {
           element={
             <PrivateRoute authorized={authorized}>
               <Layout>
-                <Saved />
+                <SavedPage />
               </Layout>
             </PrivateRoute>
           }
@@ -102,7 +103,7 @@ const App = () => {
           element={
             <PrivateRoute authorized={authorized}>
               <Layout>
-                <Exercises/>
+                <ExercisesPage/>
               </Layout>
             </PrivateRoute>
           }

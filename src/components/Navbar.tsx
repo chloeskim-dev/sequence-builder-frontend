@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const Navbar = () => (
-  <nav className="bg-blue-600 p-4 text-white flex justify-between items-center">
+    <nav className="bg-blue-600 p-4 text-white flex justify-between sticky top-0 z-50">
     <span className="font-bold">Sequence Builder Pro</span>
     <div className="space-x-4">
 
