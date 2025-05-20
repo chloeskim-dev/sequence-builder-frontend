@@ -5,7 +5,6 @@ const ExercisesPageList = () => {
   return (
     <>
     {/* DO NOT MAKE THIS A DIV - OTHERWISE WILL NOT BE INDEPENDENTLY SCROLLABLE */}
-      <h2>ExercisesPageList Component</h2>
         <CenteredListLayout title="Available Exercises">
           <li>Push-ups</li>
           <li>Squats</li>

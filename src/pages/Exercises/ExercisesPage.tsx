@@ -1,14 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import ExercisesPageList from "./ExercisesPagesList";
 import ExercisesPageSearchbar from "./ExercisesPageSearchbar";
 import CenteredPageLayout from "../../components/layouts/CenteredPageLayout";
 
 const ExercisesPage = () => {
+  const [exerciseQuery, setEequenceQuery] = useState("");
+  
   return (
     <CenteredPageLayout title="Exercises">
-      <ExercisesPageSearchbar />
+      <ExercisesPageSearchbar
+        exerciseQuery={exerciseQuery}
+        setExerciseQuery={setEequenceQuery}
+      />
       <ExercisesPageList />
     </CenteredPageLayout>
+
   )
 };
 
