@@ -4,6 +4,8 @@ import Layout from "./components/Layout";
 import AuthPage from "./pages/AuthPage";
 import Home from "./pages/Home";
 import PrivateRoute from "./components/PrivateRoute";
+import Dashboard from "./pages/Dashboard";
+import Settings from "./pages/Settings";
 
 const App = () => {
   const [authorized, setAuthorized] = useState(false);
@@ -11,22 +13,39 @@ const App = () => {
   return (
     <Router>
       <Routes>
+        
+      {/* '/' PATH */} 
         <Route
           path="/"
           element={
             authorized ? (
-              <Navigate to="/home" />
+              <Navigate to="/dashboard" />
             ) : (
               <AuthPage onLogin={() => setAuthorized(true)} />
             )
           }
         />
+
+      {/* '/dashboard' PATH */} 
         <Route
-          path="/home"
+          path="/dashboard"
           element={
             <PrivateRoute authorized={authorized}>
               <Layout>
-                <Home />
+                <Dashboard/>
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+      
+      {/* '/settings' PATH */} 
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute authorized={authorized}>
+              <Layout>
+                <Settings />
               </Layout>
             </PrivateRoute>
           }
@@ -38,30 +57,3 @@ const App = () => {
 
 export default App;
 
-
-// import React from 'react';
-// import logo from './logo.svg';
-// import './App.css';
-//
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.tsx</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-//
-// export default App;

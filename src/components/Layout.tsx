@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import Navbar from "./Navbar";
 
+
 const Layout = ({ children }: { children: ReactNode }) => (
   <div>
     <Navbar />
