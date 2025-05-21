@@ -7,8 +7,7 @@ type Props = {
 
 const CenteredPageLayout = ({ title, children }: Props) => {
   return (
-
-<div className="bg-purple-300 flex flex-col h-full w-full p-1">
+   <div className="bg-purple-300 flex flex-col h-full w-full p-1">
       {/* Top div - natural height, always visible */}
       <div>
         {title && (
@@ -23,9 +22,6 @@ const CenteredPageLayout = ({ title, children }: Props) => {
         {children}
       </div>
     </div>
-
-
-
   );
 };
 

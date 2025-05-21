@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button"
 import CenteredPageLayout from "../../components/layouts/CenteredPageLayout";
 
-
 const DashboardPage = () => {
   const navigate = useNavigate();
 
@@ -24,8 +23,6 @@ const DashboardPage = () => {
         </Button>
        
     </div>
-
-
     </CenteredPageLayout>
   )
 };

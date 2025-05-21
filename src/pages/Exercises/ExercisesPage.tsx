@@ -5,6 +5,7 @@ import CenteredPageLayout from "../../components/layouts/CenteredPageLayout";
 
 const ExercisesPage = () => {
   const [exerciseQuery, setEequenceQuery] = useState("");
+
   
   return (
     <CenteredPageLayout title="Exercises">
