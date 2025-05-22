@@ -6,6 +6,10 @@ const Navbar = () => (
     <span className="font-bold">Sequence Builder Pro</span>
     <div className="space-x-4">
 
+      <Link to="/test" className="hover:underline">
+        Test
+      </Link>
+
       <Link to="/dashboard" className="hover:underline">
         Dashboard
       </Link>

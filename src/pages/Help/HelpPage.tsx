@@ -1,13 +1,9 @@
-import React from "react";
-import CenteredPageLayout from "../../components/layouts/CenteredPageLayout";
+import React from 'react'
 
 const HelpPage = () => {
   return (
-    <CenteredPageLayout title="Help">
-    </CenteredPageLayout>
+    <div>HelpPage</div>
   )
-};
+}
 
-export default HelpPage;
-
-
+export default HelpPage
