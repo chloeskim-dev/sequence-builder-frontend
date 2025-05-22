@@ -8,20 +8,33 @@ import {
 
 interface Item {
   id: string;
-  col1: string;
-  col2: 'left' | 'right' | null;
+  name: string;
+  direction: 'left' | 'right' | null;
   duration: {
     min: number;
     sec: number;
   };
 }
 
-const initialItems: Item[] = Array.from({ length: 5 }).map((_, i) => ({
-  id: `item-${i}`,
-  col1: `ex ${i + 1}`,
-  col2: null,
-  duration: { min: 0, sec: 0 },
-}));
+// const initialItems: Item[] = Array.from({ length: 5 }).map((_, i) => ({
+//   id: `item-${i}`,
+//   name: `ex ${i + 1}`,
+//   col2: null,
+//   duration: { min: 0, sec: 0 },
+// }));
+
+const animationDurationInMs = 1500;
+
+const initialItems : Item[] = [];
+const initialNewItem: Item = {
+  id: '',
+  name: '',
+  direction: null,
+  duration: {
+    min: 0,
+    sec: 0 
+  },
+}
 
 const getTotalDuration = (items: Item[]) => {
   const totalSeconds = items.reduce((acc, item) => {
@@ -36,15 +49,9 @@ const getTotalDuration = (items: Item[]) => {
 
 export default function DragDropTable() {
   const [items, setItems] = useState(initialItems);
-
-  const [newItem, setNewItem] = useState<Item>({
-    id: '',
-    col1: '',
-    col2: null,
-    duration: { min: 0, sec: 0 },
-  });
-
-  const [newlyAddedId, setNewlyAddedId] = React.useState<string | null>(null);
+  const [newItem, setNewItem] = useState<Item>(initialNewItem);
+  const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
+  const [newlyDuplicatedId, setNewlyDuplicatedId] = useState<string | null>(null);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -54,10 +61,10 @@ export default function DragDropTable() {
     setItems(reordered);
   };
 
-  const toggleOption = (id: string, value: 'left' | 'right') => {
+  const toggleDirection = (id: string, value: 'left' | 'right') => {
     setItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, col2: item.col2 === value ? null : value } : item
+        item.id === id ? { ...item, direction: item.direction === value ? null : value } : item
       )
     );
   };
@@ -97,37 +104,42 @@ export default function DragDropTable() {
   };
 
   const duplicateItem = (index: number) => {
-    setItems(prevItems => {
-      const itemToDuplicate = prevItems[index];
-      const newItem = {
-        ...itemToDuplicate,
-        id: `${itemToDuplicate.id}-copy-${Date.now()}`,
-      };
+    const itemToDuplicate = items[index];
 
+    const currentCount = countByNameInsensitive(itemToDuplicate.name);
+
+    const newItem = {
+      ...itemToDuplicate,
+      id: `${itemToDuplicate.name.toLowerCase()}-${currentCount + 1}`,
+    };
+    
+    
+    setItems(prevItems => {
       const updatedItems = [...prevItems];
       updatedItems.splice(index + 1, 0, newItem);
       return updatedItems;
      });
 
-    const newId = `${items[index].id}-copy-${Date.now()}`;
-    setNewlyAddedId(newId);
-    setTimeout(() => setNewlyAddedId(null), 2000);
+    setNewlyAddedId(newItem.id);
+    setNewlyDuplicatedId(itemToDuplicate.id); 
+    setTimeout(() => setNewlyAddedId(null), animationDurationInMs + 50);
+    setTimeout(() => setNewlyDuplicatedId(null), animationDurationInMs);
   };
 
   const duplicateItemOnOtherSide = (index: number) => {
     setItems((prev) => {
       const itemToDuplicate = prev[index];
       const newOption =
-        itemToDuplicate.col2 === 'left'
+        itemToDuplicate.direction === 'left'
           ? 'right'
-          : itemToDuplicate.col2 === 'right'
+          : itemToDuplicate.direction === 'right'
           ? 'left'
-          : itemToDuplicate.col2; // leave unchanged if neither
+          : itemToDuplicate.direction; // leave unchanged if neither
 
       const newItem: Item = {
         ...itemToDuplicate,
         id: `item-${Date.now()}`,
-        col2: newOption,
+        direction: newOption,
       };
 
       const updatedItems = [...prev];
@@ -159,10 +171,15 @@ export default function DragDropTable() {
     });
   };
 
-  const addNewExercise = () => {
-    if (newItem.col1.trim() === '') return;
+  const countByNameInsensitive = (name: string): number => {
+    return items.filter(item => item.name.toLowerCase() === name.toLowerCase()).length;
+  };
 
-    const newItemId = `item-${Date.now()}` 
+  const addNewItemToSequence = () => {
+    if (newItem.name.trim() === '') return;
+    
+    const currentCount: number = countByNameInsensitive(newItem.name);
+    const newItemId = `${newItem.name.toLowerCase()}-${currentCount + 1}` 
 
     setItems(
       prev => [
@@ -175,16 +192,16 @@ export default function DragDropTable() {
 
     setNewlyAddedId(newItemId);
 
-    // Automatically clear after 2 seconds
+    // Automatically clear after 1.5 seconds
     setTimeout(() => {
       setNewlyAddedId(null);
-    }, 2000);
+    }, animationDurationInMs);
 
     // Reset the blank row
     setNewItem({
       id: '',
-      col1: '',
-      col2: 'left',
+      name: '',
+      direction: 'left',
       duration: { min: 0, sec: 0 },
     });
   };
@@ -212,6 +229,8 @@ export default function DragDropTable() {
 
   return (
     <div className={containerClass}>
+      <h1>Newly Added Id: {newlyAddedId}</h1>
+      <h1>Newly Duplicated Id: {newlyDuplicatedId}</h1>
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="table">
           {(provided) => (
@@ -222,8 +241,9 @@ export default function DragDropTable() {
             >
               <thead className={theadClass}>
                 <tr>
-                  <th className={thClass}>Col 1</th>
-                  <th className={thClass}>Options</th>
+                  <th className={thClass}>Id</th>
+                  <th className={thClass}>Exercise</th>
+                  <th className={thClass}>Direction</th>
                   <th className={thClass}>Duration</th>
                   <th className={thClass}>Actions</th>
                 </tr>
@@ -236,32 +256,30 @@ export default function DragDropTable() {
                     
                     {(provided, snapshot) => (
                       <tr
-                        key={item.id === newlyAddedId ? `${item.id}-pulse` : item.id}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        className={`${snapshot.isDragging ? trDraggingClass : trClass} ${item.id === newlyAddedId ? 'animate-flash-once' : ''}`}
-                        onAnimationEnd={() => {
-                          if (item.id === newlyAddedId) setNewlyAddedId(null);
-                        }}
+                        className={`${snapshot.isDragging ? trDraggingClass : trClass} ${item.id === newlyAddedId ? 'bg-green-200' : ''} ${item.id === newlyDuplicatedId ? 'bg-green-300' : ''}`}
                       >
+                        {/* COL NAME0 - Id */}
+                        <td className={tdClass}>{item.id}</td>
                         {/* COL NAME1 - EXERCISE NAME */}
-                        <td className={tdClass}>{item.col1}</td>
+                        <td className={tdClass}>{item.name}</td>
                         {/* COL 2 - LEFT/RIGHT CHECKBOXES */}
                         <td className={optionsTdClass}>
                           <label className={checkboxLabelClass}>
                             <input
                               type="checkbox"
-                              checked={item.col2 === 'left'}
-                              onChange={() => toggleOption(item.id, 'left')}
+                              checked={item.direction === 'left'}
+                              onChange={() => toggleDirection(item.id, 'left')}
                             />
                             <span>L</span>
                           </label>
                           <label className={checkboxLabelClass}>
                             <input
                               type="checkbox"
-                              checked={item.col2 === 'right'}
-                              onChange={() => toggleOption(item.id, 'right')}
+                              checked={item.direction === 'right'}
+                              onChange={() => toggleDirection(item.id, 'right')}
                             />
                             <span>R</span>
                           </label>
@@ -360,10 +378,12 @@ export default function DragDropTable() {
 
                 <tr className={trClass}>
                   <td className={tdClass}>
+                  </td>
+                  <td className={tdClass}>
                     <input
                       type="text"
-                      value={newItem.col1}
-                      onChange={(e) => handleNewItemChange('col1', e.target.value)}
+                      value={newItem.name}
+                      onChange={(e) => handleNewItemChange('name', e.target.value)}
                       className={newItemInputClass}
                       placeholder="New exercise name"
                     />
@@ -373,8 +393,8 @@ export default function DragDropTable() {
                       <input
                         type="radio"
                         value="left"
-                        checked={newItem.col2 === 'left'}
-                        onChange={() => handleNewItemChange('col2', 'left')}
+                        checked={newItem.direction === 'left'}
+                        onChange={() => handleNewItemChange('direction', 'left')}
                       />
                       <span>L</span>
                     </label>
@@ -382,8 +402,8 @@ export default function DragDropTable() {
                       <input
                         type="radio"
                         value="right"
-                        checked={newItem.col2 === 'right'}
-                        onChange={() => handleNewItemChange('col2', 'right')}
+                        checked={newItem.direction === 'right'}
+                        onChange={() => handleNewItemChange('direction', 'right')}
                       />
                       <span>R</span>
                     </label>
@@ -444,7 +464,7 @@ export default function DragDropTable() {
                   </td>
                   <td className={tdClass}>
                     <button
-                      onClick={addNewExercise}
+                      onClick={addNewItemToSequence}
                       className={addBtnClass}
                     >
                       Add
