@@ -14,7 +14,18 @@ interface Item {
     min: number;
     sec: number;
   };
+  textColor: string
 }
+
+const tailwindColorFamilies = [
+  "slate", "gray", "zinc", "neutral", "stone",
+  "red", "orange", "amber", "yellow", "lime",
+  "green", "emerald", "teal", "cyan", "sky",
+  "blue", "indigo", "violet", "purple", "fuchsia",
+  "pink", "rose",
+];
+
+
 
 // const initialItems: Item[] = Array.from({ length: 5 }).map((_, i) => ({
 //   id: `item-${i}`,
@@ -34,6 +45,7 @@ const initialNewItem: Item = {
     min: 0,
     sec: 0 
   },
+  textColor: ''
 }
 
 const getTotalDuration = (items: Item[]) => {
@@ -175,24 +187,54 @@ export default function DragDropTable() {
     return items.filter(item => item.name.toLowerCase() === name.toLowerCase()).length;
   };
 
+
+  const tailwindColorClasses = [
+    "text-red-500", "text-emerald-500", "text-amber-500", "text-yellow-500", "text-lime-500",
+    "text-green-500", "text-teal-500", "text-cyan-500", "text-sky-500",
+    "text-blue-500", "text-indigo-500", "text-violet-500", "text-purple-500", "text-fuchsia-500", "text-orange-500",
+    "text-pink-500", "text-rose-500",
+  ];
+
+
+  const getTextColorForNewItem = (newItemName: string): string => {
+    const nameSet = new Set<string>();
+
+    for (const item of items) {
+      nameSet.add(item.name.toLowerCase());
+    }
+
+    // Find index:
+    // - If new, index is at the end (uniqueNames.length)
+    // - If existing, find its existing index
+    const uniqueNames = Array.from(nameSet);
+    const isNew = !nameSet.has(newItemName.toLowerCase());
+
+    // Pick color by cycling through color families
+    const index = isNew ? uniqueNames.length : uniqueNames.indexOf(newItemName.toLowerCase());
+    return tailwindColorClasses[index % tailwindColorClasses.length];
+  };
+
+
   const addNewItemToSequence = () => {
     if (newItem.name.trim() === '') return;
     
     const currentCount: number = countByNameInsensitive(newItem.name);
-    const newItemId = `${newItem.name.toLowerCase()}-${currentCount + 1}` 
-
+    const newItemId = `${newItem.name.toLowerCase()}-${currentCount + 1}`
+    const newItemTextColor = getTextColorForNewItem(newItem.name);
+    
     setItems(
       prev => [
       ...prev,
       {
         ...newItem,
         id: newItemId,
+        textColor: newItemTextColor
       },
     ]);
 
     setNewlyAddedId(newItemId);
 
-    // Automatically clear after 1.5 seconds
+    // Automatically clear after animationDurationInMs
     setTimeout(() => {
       setNewlyAddedId(null);
     }, animationDurationInMs);
@@ -201,8 +243,9 @@ export default function DragDropTable() {
     setNewItem({
       id: '',
       name: '',
-      direction: 'left',
+      direction: null,
       duration: { min: 0, sec: 0 },
+      textColor: ''
     });
   };
 
@@ -229,7 +272,7 @@ export default function DragDropTable() {
 
   return (
     <div className={containerClass}>
-      <h1>Newly Added Id: {newlyAddedId}</h1>
+      <h1 className="text-green-500">Newly Added Id: {newlyAddedId}</h1>
       <h1>Newly Duplicated Id: {newlyDuplicatedId}</h1>
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="table">
@@ -241,7 +284,7 @@ export default function DragDropTable() {
             >
               <thead className={theadClass}>
                 <tr>
-                  <th className={thClass}>Id</th>
+                  <th className={`${thClass} text-green-500`}>Id</th>
                   <th className={thClass}>Exercise</th>
                   <th className={thClass}>Direction</th>
                   <th className={thClass}>Duration</th>
@@ -261,12 +304,13 @@ export default function DragDropTable() {
                         {...provided.dragHandleProps}
                         className={`${snapshot.isDragging ? trDraggingClass : trClass} ${item.id === newlyAddedId ? 'bg-green-200' : ''} ${item.id === newlyDuplicatedId ? 'bg-green-300' : ''}`}
                       >
-                        {/* COL NAME0 - Id */}
-                        <td className={tdClass}>{item.id}</td>
-                        {/* COL NAME1 - EXERCISE NAME */}
-                        <td className={tdClass}>{item.name}</td>
+                        {/* COL 0 - Id */}
+                        <td className={`border p-2 ${item.textColor || "text-red-800"}`}>{item.id}</td>
+                        {/* <td className={`${tdClass} ${item.textColor}`}>{item.id}</td> */}
+                        {/* COL 1 - EXERCISE NAME */}
+                        <td className={`${tdClass} ${item.textColor}`}>{item.name}</td>
                         {/* COL 2 - LEFT/RIGHT CHECKBOXES */}
-                        <td className={optionsTdClass}>
+                        <td className={`${optionsTdClass} ${item.textColor}`}>
                           <label className={checkboxLabelClass}>
                             <input
                               type="checkbox"
@@ -285,7 +329,7 @@ export default function DragDropTable() {
                           </label>
                         </td>
                         {/* COL 3 - DURATION */}
-                        <td className={tdClass}>
+                        <td className={`${tdClass} ${item.textColor}`}>
                           <div className={durationContainerClass}>
                             {/* Minutes */}
                             <div className={durationPartClass}>
@@ -346,7 +390,7 @@ export default function DragDropTable() {
                           </div>
                         </td>
                         {/* COL 4 - DELETE/DUPLICATE BUTTONS */}
-                        <td className={tdClass + " space-x-2"}>
+                        <td className={`${tdClass} ${item.textColor} space-x-2`}>
                           <div className="flex">
                             <button
                               onClick={() => duplicateItem(index)}
