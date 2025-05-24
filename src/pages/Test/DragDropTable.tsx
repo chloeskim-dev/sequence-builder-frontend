@@ -139,7 +139,7 @@ export default function DragDropTable() {
 
     const newItem = {
       ...itemToDuplicate,
-      id: `${itemToDuplicate.name.toLowerCase()}-${currentCount + 1}`,
+      id: `${replaceWhitespacesWithDashes(itemToDuplicate.name.toLowerCase())}-${currentCount + 1}`,
     };
     
     
@@ -211,12 +211,17 @@ export default function DragDropTable() {
     "text-pink-500", "text-rose-500",
   ];
 
+  const replaceWhitespacesWithDashes = (sourceString: string): string => {
+    return sourceString.replace(/\s+/g, "-");
+  };
+
+
 
   const getTextColorForNewItem = (newItemName: string): string => {
     const nameSet = new Set<string>();
 
     for (const item of items) {
-      nameSet.add(item.name.toLowerCase().replace(/\s+/g, "-"));
+      nameSet.add(replaceWhitespacesWithDashes(item.name.toLowerCase()));
     }
 
     // Find index:
@@ -236,7 +241,7 @@ export default function DragDropTable() {
 
     
     const currentCount: number = countByNameInsensitive(newItem.name);
-    const newItemId = `${newItem.name.toLowerCase().replace(/\s+/g, "-")}-${currentCount + 1}`
+    const newItemId = `${replaceWhitespacesWithDashes(newItem.name.toLowerCase())}-${currentCount + 1}`
     const newItemTextColor = getTextColorForNewItem(newItem.name);
 
     setItems(
@@ -271,7 +276,8 @@ export default function DragDropTable() {
   const tableClass = "w-full border border-gray-300";
   const theadClass = "bg-gray-200";
   const thClass = "p-2 text-left";
-  const trClass = "border-t bg-white";
+  // const trClass = "border-t bg-white";
+  const trClass = "border-t";
   const trDraggingClass = "border-t bg-green-100";
   const tdClass = "p-2";
   const optionsTdClass = "p-2 space-x-4";
