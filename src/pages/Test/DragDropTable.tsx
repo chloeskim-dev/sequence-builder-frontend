@@ -1,10 +1,21 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
+import { RiDeleteBin2Line } from "react-icons/ri";
+import { HiOutlineDocumentDuplicate } from "react-icons/hi";
+
+
 import {
   DragDropContext,
   Droppable,
   Draggable,
   DropResult,
 } from '@hello-pangea/dnd';
+
+
+type UserOptionsType = {
+  secondsInputStepSize: number,
+  autoDuplicateOnOtherSide: boolean
+}
+
 
 interface Item {
   id: string;
@@ -59,11 +70,17 @@ const getTotalDuration = (items: Item[]) => {
   return { minutes, seconds };
 };
 
+const initialUserOptions: UserOptionsType = {
+  secondsInputStepSize: 15,
+  autoDuplicateOnOtherSide: false
+}
+
 export default function DragDropTable() {
   const [items, setItems] = useState(initialItems);
   const [newItem, setNewItem] = useState<Item>(initialNewItem);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   const [newlyDuplicatedId, setNewlyDuplicatedId] = useState<string | null>(null);
+  const [userOptions, setUserOptions] = useState<UserOptionsType>(initialUserOptions);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -187,7 +204,6 @@ export default function DragDropTable() {
     return items.filter(item => item.name.toLowerCase() === name.toLowerCase()).length;
   };
 
-
   const tailwindColorClasses = [
     "text-red-500", "text-emerald-500", "text-amber-500", "text-yellow-500", "text-lime-500",
     "text-green-500", "text-teal-500", "text-cyan-500", "text-sky-500",
@@ -200,7 +216,7 @@ export default function DragDropTable() {
     const nameSet = new Set<string>();
 
     for (const item of items) {
-      nameSet.add(item.name.toLowerCase());
+      nameSet.add(item.name.toLowerCase().replace(/\s+/g, "-"));
     }
 
     // Find index:
@@ -217,11 +233,12 @@ export default function DragDropTable() {
 
   const addNewItemToSequence = () => {
     if (newItem.name.trim() === '') return;
+
     
     const currentCount: number = countByNameInsensitive(newItem.name);
-    const newItemId = `${newItem.name.toLowerCase()}-${currentCount + 1}`
+    const newItemId = `${newItem.name.toLowerCase().replace(/\s+/g, "-")}-${currentCount + 1}`
     const newItemTextColor = getTextColorForNewItem(newItem.name);
-    
+
     setItems(
       prev => [
       ...prev,
@@ -274,6 +291,8 @@ export default function DragDropTable() {
     <div className={containerClass}>
       <h1 className="text-green-500">Newly Added Id: {newlyAddedId}</h1>
       <h1>Newly Duplicated Id: {newlyDuplicatedId}</h1>
+      {/* <IconComponent icon={RiDeleteBin2Line}/> */}
+     
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="table">
           {(provided) => (
@@ -392,24 +411,21 @@ export default function DragDropTable() {
                         {/* COL 4 - DELETE/DUPLICATE BUTTONS */}
                         <td className={`${tdClass} ${item.textColor} space-x-2`}>
                           <div className="flex">
-                            <button
+                            <RiDeleteBin2Line
+                              size={40}
+                              onClick={() => {deleteItem(index)}}
+                            />
+                            <HiOutlineDocumentDuplicate
+                              size={40}
                               onClick={() => duplicateItem(index)}
-                              className={actionBtnClass}
-                            >
-                              Duplicate
-                            </button>
-                            <button
+                            />
+                            {/* <button
                               onClick={() => duplicateItemOnOtherSide(index)}
                               className={actionBtnClass}
                             >
                               Duplicate On Other Side
-                            </button>
-                            <button
-                              onClick={() => deleteItem(index)}
-                              className={deleteBtnClass}
-                            >
-                              Delete
-                            </button>
+                            </button> */}
+
                           </div>
                         </td>
                       </tr>
