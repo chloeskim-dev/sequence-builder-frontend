@@ -10,6 +10,8 @@ import {
 } from "@hello-pangea/dnd";
 import exampleItems from "../../constants/exampleItems";
 import tailwindColorClasses from "../../constants/tailwindColorClasses";
+import BoxTitle from "../../components/ui/BoxTitle";
+import { Item, Sequence } from "../../constants/types";
 
 const containerClass = "p-4 mx-auto";
 const tableClass = "w-full border border-gray-300";
@@ -18,38 +20,29 @@ const thClass = "p-2 text-left";
 const trDraggingClass = "border-t bg-green-100";
 const itemRowClass = "text-center";
 const optionsitemRowClass = "p-2 space-x-4";
-const radioLabelClass = "inline-flex items-center space-x-1";
+const radioLabelClass = "space-x-1 pl-2";
 const btnClass = "px-2 bg-gray-200 rounded hover:bg-gray-300";
 const inputNumberClass = "w-12 text-center border rounded";
-const durationContainerClass = "flex items-center gap-2";
+const durationContainerClass = "flex items-center gap-6";
 const durationPartClass = "flex items-center gap-1";
 const actionBtnClass = "text-blue-500 hover:underline";
 const deleteBtnClass = "text-red-500 hover:underline";
-const newItemInputClass = "border rounded p-2 w-full text-center ";
+const textInputClass = "border rounded p-2 w-full text-center ";
+const sequenceTitleInputClass = "w-full border rounded p-2 text-center ";
 const newItemNumberInputClass = "w-12 border p-1";
 const addBtnClass = "text-green-600 hover:underline";
 const borderedButtonClass =
   "border-2 border-solid border-black rounded px-2 hover:outline-2 hover:bg-violet-200";
-const borderedInputClass = "border-2 border-solid border-black rounded px-2";
+const borderedInputClass =
+  "border-2 border-solid border-black rounded font-bold";
 const disabledInputClass =
-  "border-2 border-solid border-transparent rounded px-2";
-const settingsBoxClass = "border-2 border-black border-solid rounded p-2 my-2";
+  "border-2 border-solid border-transparent rounded font-bold";
+const settingsBoxClass = "border-2 border-black border-solid bg-rose-100 pb-2";
 
 type UserOptionsType = {
   secondsInputStepSize: number;
   autoDuplicateOnOtherSide: boolean;
 };
-
-interface Item {
-  id: string;
-  name: string;
-  direction: "left" | "right" | null;
-  duration: {
-    min: number;
-    sec: number;
-  };
-  textColor: string;
-}
 
 const animationDurationInMs = 1500;
 
@@ -88,12 +81,15 @@ export default function NewPageSequenceTable() {
   const [newItem, setNewItem] = useState<Item>(initialNewItem);
   const [secondsStepSizeIsEditable, setSecondsStepSizeIsEditable] =
     useState<boolean>(false);
+  const [secondsStepSizeInputIsValid, setSecondsStepSizeInputIsValid] =
+    useState<boolean>(true);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   const [newlyDuplicatedId, setNewlyDuplicatedId] = useState<string | null>(
     null
   );
   const [userOptions, setUserOptions] =
     useState<UserOptionsType>(initialUserOptions);
+  const [newSequenceNameInput, setNewSequenceNameInput] = useState<string>("");
 
   const [stepSizeInput, setStepSizeInput] = useState(
     String(userOptions.secondsInputStepSize)
@@ -105,13 +101,28 @@ export default function NewPageSequenceTable() {
     setStepSizeInput(e.target.value); // no parse yet
   };
 
+  const checkStepSizeValidity = () => {
+    const parsed = parseInt(stepSizeInput, 10);
+    if (isNaN(parsed) || parsed < 1 || parsed > 59) return false;
+    return true;
+  };
+
+  useEffect(() => {
+    if (checkStepSizeValidity()) {
+      setSecondsStepSizeInputIsValid(true);
+    } else {
+      setSecondsStepSizeInputIsValid(false);
+    }
+  }, [stepSizeInput]); // Triggers when items are added/removed
+
   const applyStepSize = () => {
     const parsed = parseInt(stepSizeInput, 10);
 
-    if (isNaN(parsed) || parsed < 1 || parsed > 59) {
-      // optionally show validation error
-      return;
-    }
+    // if (isNaN(parsed) || parsed < 1 || parsed > 59) {
+    //   // optionally show validation error
+    //   setSecondsStepSizeInputIsValid(false);
+    //   return;
+    // }
 
     setUserOptions((prev) => ({
       ...prev,
@@ -277,6 +288,7 @@ export default function NewPageSequenceTable() {
       )
     );
   };
+
   const addNewItemToSequence = () => {
     if (newItem.name.trim() === "") return;
 
@@ -403,14 +415,17 @@ export default function NewPageSequenceTable() {
     return tailwindColorClasses[index % tailwindColorClasses.length];
   };
 
-  // const saveSecondsStepEdit = () => {
-  //   setUserOptions((prev) => {
-  //     ...prev,
-  //     secondsInputStepSize:
-  //   })
-  //   setSecondsStepSizeIsEditable(false);
-  // }
-
+  const saveSequence = () => {
+    const newSequence: Sequence = {
+      userId: "",
+      name: newSequenceNameInput,
+      items: items,
+      createdDate: Date.now(),
+      lastEditDate: null,
+    };
+    console.log(newSequence);
+  };
+  // ============================================================================================
   return (
     <div
       style={{
@@ -419,45 +434,69 @@ export default function NewPageSequenceTable() {
         height: "90vh", // or a fixed height if needed
       }}
     >
-      {/* SETTINGS BOX */}
+      {/* === SETTINGS BOX === */}
       <div className={settingsBoxClass}>
-        <h1 className="w-full text-center font-bold mx-auto mb-2">SETTINGS</h1>
-        <div className="flex gap-4">
-          {/* <h1>Seconds step size: {userOptions.secondsInputStepSize}</h1> */}
-          <label>
-            <span className="mr-4">Adjust seconds by:</span>
-            <input
-              type="number"
-              min={1}
-              max={59}
-              value={stepSizeInput}
-              disabled={!secondsStepSizeIsEditable}
-              onChange={handleStepSizeInputChange}
-              className={
-                secondsStepSizeIsEditable
-                  ? borderedInputClass
-                  : disabledInputClass
-              }
-            />
-          </label>
-          <button
-            className={borderedButtonClass}
-            onClick={() => setSecondsStepSizeIsEditable(true)}
-          >
-            Edit
-          </button>
-          <button className={borderedButtonClass} onClick={applyStepSize}>
-            Apply
-          </button>
-        </div>
+        <BoxTitle title="Settings" position="center" />
 
-        <div>
-          <div className={"flex"}>
-            <label className={radioLabelClass}>
-              <span>Automatically duplicate on other side</span>
+        <div className="grid grid-cols-[1fr_auto_1fr]">
+          {/* <h1>Seconds step size: {userOptions.secondsInputStepSize}</h1> */}
+
+          {/* SETTING OPTION 1: SECONDS STEP SIZE */}
+          <div className="justify-self-start">
+            <label className="pl-2">
+              <span className="mr-1">Adjust seconds at intervals of </span>
+              <input
+                type="number"
+                min={1}
+                max={59}
+                value={stepSizeInput}
+                disabled={!secondsStepSizeIsEditable}
+                onChange={handleStepSizeInputChange}
+                className={
+                  secondsStepSizeIsEditable
+                    ? borderedInputClass
+                    : disabledInputClass
+                }
+              />
+            </label>
+            {!secondsStepSizeIsEditable && (
+              <button
+                className={`${borderedButtonClass}`}
+                onClick={() => setSecondsStepSizeIsEditable(true)}
+              >
+                Edit
+              </button>
+            )}
+
+            {secondsStepSizeInputIsValid && secondsStepSizeIsEditable ? (
+              <button
+                className={`${
+                  secondsStepSizeInputIsValid ? "visible" : "invisible"
+                } ${borderedButtonClass}`}
+                onClick={applyStepSize}
+              >
+                Apply
+              </button>
+            ) : (
+              <h1
+                className={`${
+                  secondsStepSizeInputIsValid ? "invisible" : "visible"
+                } font-bold text-red-700`}
+              >
+                Seconds intervals between 1 an 59 allowed
+              </h1>
+            )}
+          </div>
+
+          {/* DIVIDER */}
+
+          <div className="h-full w-px bg-gray-400 mx-auto"></div>
+          {/* SETTING OPTION 2: AUTO DUPLICATE ON OTHER SIDE */}
+          <div className="justify-self-end">
+            <label className={`${radioLabelClass} justify-center pr-2`}>
               <input
                 className={"mr-1"}
-                type="radio"
+                type="checkbox"
                 checked={userOptions.autoDuplicateOnOtherSide}
                 onChange={() =>
                   setUserOptions((prevOptions) => {
@@ -469,6 +508,7 @@ export default function NewPageSequenceTable() {
                   })
                 }
               />
+              <span>Automatically duplicate on other side</span>
             </label>
           </div>
         </div>
@@ -477,45 +517,43 @@ export default function NewPageSequenceTable() {
       {/* Header (non-scrollable) */}
       <div
         className={
-          "grid place-items-center grid-cols-[2fr_1fr_2fr_1fr] font-bold p-1 border-b-2 border-gray-300"
+          "grid place-items-center grid-cols-[2fr_1fr_2fr_1fr] font-bold p-1 border-b-2 border-gray-300 my-2"
         }
       >
-        <div>Exercise</div>
-        <div>Direction</div>
-        <div>Duration</div>
-        <div>Actions</div>
+        <div>EXERCISE</div>
+        <div>DIRECTION</div>
+        <div>DURATION</div>
+        <div>ACTIONS</div>
       </div>
 
-      {/*=================  Add new item row (non-scrollable) ================= */}
-      {/* <div className="border-2 border-black border-solid">
-        <h1 className="font-bold text-center">Add a new exercise:</h1>
-      </div> */}
-      <div className={"border-2 border-solid bg-green-100 border-black"}>
-        {/* <legend className="text-center p-1">Add a new exercise</legend> */}
-        <h1 className="font-bold text-center">ADD NEW:</h1>
+      {/* ===  ADD NEW ITEM ROW (non-scrollable) === */}
+      <div className={"border-2 border-solid bg-green-100 border-gray-500"}>
+        <BoxTitle title="Add new exercise" position="center" />
         <div
           className={`grid place-items-center grid-cols-[2fr_1fr_2fr_1fr] mb-2 mr-2 ml-2`}
         >
+          {/* COL 1 - NEW ITEM NAME */}
           <input
             type="text"
             value={newItem.name}
             onChange={(e) => handleNewItemChange("name", e.target.value)}
-            className={newItemInputClass}
+            className={textInputClass}
             placeholder="New exercise name"
           />
+          {/* COL 2 - NEW ITEM DIRECTION */}
           <div className={optionsitemRowClass}>
-            <label className={radioLabelClass}>
+            <label className={`${radioLabelClass} pl-2`}>
               <input
-                type="radio"
+                type="checkbox"
                 value="left"
                 checked={newItem.direction === "left"}
                 onChange={() => handleNewItemChange("direction", "left")}
               />
               <span>L</span>
             </label>
-            <label className={radioLabelClass}>
+            <label className={`${radioLabelClass} pl-2`}>
               <input
-                type="radio"
+                type="checkbox"
                 value="right"
                 checked={newItem.direction === "right"}
                 onChange={() => handleNewItemChange("direction", "right")}
@@ -523,7 +561,7 @@ export default function NewPageSequenceTable() {
               <span>R</span>
             </label>
           </div>
-          {/* COL 3 - DURATION */}
+          {/* COL 3 - NEW ITEM DURATION */}
           <div className={itemRowClass}>
             <div className={durationContainerClass}>
               {/* Minutes */}
@@ -602,22 +640,21 @@ export default function NewPageSequenceTable() {
               </div>
             </div>
           </div>
+          {/* COL 3 - NEW ITEM ADD BUTTON */}
           <div>
-            {/* <button onClick={addNewItemToSequence} className={addBtnClass}>
-            Add
-          </button> */}
             <RiAddCircleLine size={30} onClick={addNewItemToSequence} />
           </div>
         </div>
       </div>
 
-      {/* Scrollable list */}
+      {/* === SEQUENCE GRID === */}
       <div
         ref={gridRef}
         style={{
           flex: 1,
           overflowY: "auto",
-          border: "1px solid #ccc",
+          borderLeft: "2px solid gray",
+          borderRight: "2px solid gray",
         }}
       >
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -631,11 +668,6 @@ export default function NewPageSequenceTable() {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        // className={`${
-                        //   snapshot.isDraggingOver ? trDraggingClass : trClass
-                        // } ${item.id === newlyAddedId ? "bg-green-200" : ""} ${
-                        //   item.id === newlyDuplicatedId ? "bg-green-300" : ""
-                        // }`}
                         className={`grid place-items-center grid-cols-[2fr_1fr_2fr_1fr] m-2 p-1 border-b border-gray-200 bg-white ${
                           item.id === newlyAddedId ? "bg-green-200" : ""
                         } ${
@@ -654,28 +686,28 @@ export default function NewPageSequenceTable() {
                         >
                           {item.name}
                         </div>
-                        {/* COL 2 - LEFT/RIGHT CHECKBOXES */}
+                        {/* COL 2 - ITEM DIRECTION */}
                         <div
                           className={`${optionsitemRowClass} ${item.textColor}`}
                         >
-                          <label className={radioLabelClass}>
+                          <label className={`${radioLabelClass} pl-2`}>
                             <input
-                              type="radio"
+                              type="checkbox"
                               checked={item.direction === "left"}
                               onChange={() => toggleDirection(item.id, "left")}
                             />
                             <span>L</span>
                           </label>
-                          <label className={radioLabelClass}>
+                          <label className={`${radioLabelClass} pl-2`}>
                             <input
-                              type="radio"
+                              type="checkbox"
                               checked={item.direction === "right"}
                               onChange={() => toggleDirection(item.id, "right")}
                             />
                             <span>R</span>
                           </label>
                         </div>
-                        {/* COL 3 - DURATION */}
+                        {/* COL 3 - ITEM DURATION */}
                         <div className={`${itemRowClass} ${item.textColor}`}>
                           <div className={durationContainerClass}>
                             {/* Minutes */}
@@ -692,21 +724,7 @@ export default function NewPageSequenceTable() {
                               >
                                 –
                               </button>
-                              {/* <input
-                                type="number"
-                                readOnly
-                                min={0}
-                                max={60}
-                                className={inputNumberClass}
-                                value={item.duration.min}
-                                onChange={(e) =>
-                                  updateDuration(
-                                    item.id,
-                                    "min",
-                                    parseInt(e.target.value || "0", 10)
-                                  )
-                                }
-                              /> */}
+
                               <span>{item.duration.min}</span>
                               <button
                                 className={btnClass}
@@ -737,21 +755,7 @@ export default function NewPageSequenceTable() {
                               >
                                 –
                               </button>
-                              {/* <input
-                                type="number"
-                                min={0}
-                                max={60}
-                                className={inputNumberClass}
-                                value={item.duration.sec}
-                                step={userOptions.secondsInputStepSize}
-                                onChange={(e) =>
-                                  updateDuration(
-                                    item.id,
-                                    "sec",
-                                    parseInt(e.target.value || "0", 10)
-                                  )
-                                }
-                              /> */}
+
                               <span>{item.duration.sec}</span>
                               <button
                                 className={btnClass}
@@ -769,7 +773,7 @@ export default function NewPageSequenceTable() {
                             </div>
                           </div>
                         </div>
-                        {/* COL 4 - DELETE/DUPLICATE BUTTONS */}
+                        {/* COL 4 - ITEM BUTTONS */}
                         <div
                           className={`${itemRowClass} ${item.textColor} space-x-2`}
                         >
@@ -803,21 +807,43 @@ export default function NewPageSequenceTable() {
         </DragDropContext>
       </div>
 
-      {/* === Sticky Footer === */}
+      {/* === STICKY FOOTER === */}
       {/* TOTAL DURATION */}
-      <div className="mt-4 text-lg text-center font-medium">
-        Total Duration: {getTotalDuration(items).minutes} min{" "}
-        {getTotalDuration(items).seconds} sec
+      <div className={"border-2 border-solid bg-blue-100 border-black"}>
+        <BoxTitle title="Save sequence" position="center" />
+        <div
+          className={`grid place-items-center grid-cols-[1fr_3fr_1fr] mb-2 mr-2 ml-2`}
+        >
+          <div className="text-center font-bold whitespace-nowrap">
+            <text>Total Duration: </text>
+            <div>
+              {getTotalDuration(items).minutes} min{" "}
+              {getTotalDuration(items).seconds} sec
+            </div>
+          </div>
+          {/* SEQUENCE TITLE INPUT */}
+          <input
+            placeholder="New sequence name"
+            type="text"
+            className={sequenceTitleInputClass}
+            value={newSequenceNameInput}
+            onChange={(e) => setNewSequenceNameInput(e.target.value)}
+          />
+          <div>
+            <button
+              className={`${borderedButtonClass} whitespace-nowrap`}
+              onClick={() => {
+                saveSequence();
+              }}
+            >
+              Save
+              {/* to do: onClick save sequence by sending to db */}
+            </button>
+          </div>
+        </div>
       </div>
-      {/* <div
-        style={{
-          padding: "12px",
-          borderTop: "2px solid #ccc",
-          background: "#f9f9f9",
-        }}
-      >
-        <button>Save Changes</button> */}
     </div>
+
     // </div>
   );
 }
