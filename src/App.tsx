@@ -12,6 +12,7 @@ import SavedPage from "./pages/Saved/SavedPage"
 import ExercisesPage from "./pages/Exercises/ExercisesPage"
 import HelpPage from "./pages/Help/HelpPage"
 
+import TestPage from "./pages/Test/TestPage";
 
 const App = () => {
   const [authorized, setAuthorized] = useState(false);
@@ -109,6 +110,18 @@ const App = () => {
           }
         />
       
+      {/* '/test' PATH */} 
+        <Route
+          path="/test"
+          element={
+            <PrivateRoute authorized={authorized}>
+              <Layout>
+                <TestPage/>
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
       </Routes>
     </Router>
   );
