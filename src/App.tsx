@@ -1,5 +1,10 @@
 import React, { ReactElement, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Layout from "./components/layouts/NavbarLayout";
 
 import AuthPage from "./pages/Auth/AuthPage";
@@ -7,10 +12,10 @@ import HomePage from "./pages/Home/HomePage";
 import PrivateRoute from "./components/PrivateRoute";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import SettingsPage from "./pages/Settings/SettingsPage";
-import NewPage from "./pages/New/NewPage"
-import SavedPage from "./pages/Saved/SavedPage"
-import ExercisesPage from "./pages/Exercises/ExercisesPage"
-import HelpPage from "./pages/Help/HelpPage"
+import NewPage from "./pages/New/NewPage";
+import SequencesPage from "./pages/Sequences/SequencesPage";
+import HelpPage from "./pages/Help/HelpPage";
+import FavoriteExercisesPage from "./pages/FavoriteExercises/FavoriteExercisesPage";
 
 import TestPage from "./pages/Test/TestPage";
 
@@ -20,11 +25,10 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        
-      {/* '/' PATH
+        {/* '/' PATH
         - if authorized: navigate to '/dashboard'
         - else: stay at '/' and display <AuthPage />
-      */} 
+      */}
         <Route
           path="/"
           element={
@@ -36,20 +40,19 @@ const App = () => {
           }
         />
 
-      {/* '/dashboard' PATH */} 
+        {/* '/dashboard' PATH */}
         <Route
           path="/dashboard"
           element={
             <PrivateRoute authorized={authorized}>
               <Layout>
-                <DashboardPage/>
+                <DashboardPage />
               </Layout>
             </PrivateRoute>
           }
         />
 
-      
-      {/* '/settings' PATH */} 
+        {/* '/settings' PATH */}
         <Route
           path="/settings"
           element={
@@ -60,8 +63,8 @@ const App = () => {
             </PrivateRoute>
           }
         />
-      
-      {/* '/help' PATH */} 
+
+        {/* '/help' PATH */}
         <Route
           path="/help"
           element={
@@ -73,8 +76,7 @@ const App = () => {
           }
         />
 
-
-      {/* '/new' PATH */} 
+        {/* '/new' PATH */}
         <Route
           path="/new"
           element={
@@ -86,46 +88,44 @@ const App = () => {
           }
         />
 
-      {/* '/saved' PATH */} 
+        {/* '/sequences' PATH */}
         <Route
-          path="/saved"
+          path="/sequences"
           element={
             <PrivateRoute authorized={authorized}>
               <Layout>
-                <SavedPage />
+                <SequencesPage />
               </Layout>
             </PrivateRoute>
           }
         />
 
-      {/* '/exercises' PATH */} 
+        {/* '/favorite-exercises' PATH */}
         <Route
-          path="/exercises"
+          path="/favorite-exercises"
           element={
             <PrivateRoute authorized={authorized}>
               <Layout>
-                <ExercisesPage/>
+                <FavoriteExercisesPage />
               </Layout>
             </PrivateRoute>
           }
         />
-      
-      {/* '/test' PATH */} 
+
+        {/* '/test' PATH */}
         <Route
           path="/test"
           element={
             <PrivateRoute authorized={authorized}>
               <Layout>
-                <TestPage/>
+                <TestPage />
               </Layout>
             </PrivateRoute>
           }
         />
-
       </Routes>
     </Router>
   );
 };
 
 export default App;
-

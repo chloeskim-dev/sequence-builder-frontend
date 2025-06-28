@@ -6,17 +6,16 @@ type Props = {
   setSequenceQuery: React.Dispatch<React.SetStateAction<string>>;
 };
 
-
-const SavedPageSearchbar = ({ sequenceQuery, setSequenceQuery }: Props) => {
+const SequencesSearchbar = ({ sequenceQuery, setSequenceQuery }: Props) => {
   return (
     <div>
-      <h1>SavedPageSearchbar Component</h1>
       <Searchbar
-        placeholder="Enter a sequence name..."
+        placeholder="Search by name"
         query={sequenceQuery}
-        setQuery={setSequenceQuery} />
+        setQuery={setSequenceQuery}
+      />
     </div>
-  )
+  );
 };
 
-export default SavedPageSearchbar;
+export default SequencesSearchbar;
