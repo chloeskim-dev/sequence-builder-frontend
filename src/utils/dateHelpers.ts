@@ -1,10 +1,8 @@
 export function formatUtcToLocalTrimmed(utcString: string): string {
-  // Remove the fractional seconds first:
+  // Remove the fractional seconds
   const trimmed = utcString.split(".")[0].replace(" ", "T") + "Z";
-
-  // Convert to local time:
+  // Convert to local time
   const localDate = new Date(trimmed);
-
   // Format as 'YYYY-MM-DD HH:MM:SS' in local time:
   const yyyy = localDate.getFullYear();
   const mm = String(localDate.getMonth() + 1).padStart(2, "0");

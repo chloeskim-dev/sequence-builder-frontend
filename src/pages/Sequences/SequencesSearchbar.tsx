@@ -10,7 +10,7 @@ const SequencesSearchbar = ({ sequenceQuery, setSequenceQuery }: Props) => {
   return (
     <div>
       <Searchbar
-        placeholder="Search by name"
+        placeholder="Search by name..."
         query={sequenceQuery}
         setQuery={setSequenceQuery}
       />

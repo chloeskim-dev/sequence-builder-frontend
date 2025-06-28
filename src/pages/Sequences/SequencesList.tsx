@@ -1,86 +1,176 @@
-import { useState } from "react";
-import { FavoriteExercise, Sequence } from "../../constants/types";
-import { FiEdit, FiTrash } from "react-icons/fi";
+import { SetStateAction, useState } from "react";
+import { Sequence } from "../../constants/types";
 import { formatUtcToLocalTrimmed } from "../../utils/dateHelpers";
+import Modal from "../../components/layouts/Modal";
+import { api } from "../../utils/api";
+import { useUser } from "../../contexts/UserContext";
 
-type Props = {
-  // savedSequence: FavoriteExercise[];
-  // setsavedSequence: React.Dispatch<React.SetStateAction<FavoriteExercise[]>>;
-  // setEditItem: React.Dispatch<React.SetStateAction<FavoriteExercise>>;
-  handleEditItemClick: (index: number) => void;
+type SequencesListTestProps = {
   sequences: Sequence[];
+  handleEditItemClick: (index: number) => void;
+  setSequences: React.Dispatch<SetStateAction<Sequence[]>>;
+  setRunItem: React.Dispatch<SetStateAction<Sequence>>;
 };
 
-export const SequencesList = ({
-  // favoriteExercises,
-  // setFavoriteExercises,
-  // setEditItem,
-  handleEditItemClick,
+export default function SequencesList({
   sequences,
-}: Props) => {
-  const handleDeleteButtonClick = (id: string) => {
-    console.log(id);
-    // send request to delete favorite exercise by id
-  };
-
+  handleEditItemClick,
+  setSequences,
+  setRunItem,
+}: SequencesListTestProps) {
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full border border-gray-200">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="text-left px-4 py-2">Name</th>
-            <th className="text-left px-4 py-2">Description</th>
-            <th className="text-left px-4 py-2">Notes</th>
-            <th className="text-left px-4 py-2">Created</th>
-            <th className="text-left px-4 py-2">Updated</th>
-            <th className="text-left px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sequences &&
-            sequences.map((sequence, index) => (
-              <tr key={sequence.id} className="border-t border-gray-200">
-                <td className="px-4 py-2">{sequence.name}</td>
-                <td className="px-4 py-2">{sequence.description}</td>
-                <td className="px-4 py-2">{sequence.notes}</td>
-                <td className="px-4 py-2">
-                  {formatUtcToLocalTrimmed(sequence.createdAt)}
-                </td>
-                <td className="px-4 py-2">
-                  {formatUtcToLocalTrimmed(sequence.updatedAt)}
-                </td>
-                <td className="px-4 py-2 flex gap-2">
-                  <button
-                    onClick={() => handleEditItemClick(index)}
-                    className="text-blue-600 hover:text-blue-800"
-                    title="Edit"
-                  >
-                    <FiEdit size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteButtonClick(sequence.id)}
-                    className="text-red-600 hover:text-red-800"
-                    title="Delete"
-                  >
-                    <FiTrash size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+    <div className="border border-black mx-4 my-2">
+      <div className="hidden md:flex bg-gray-200 p-2 font-bold text-xs">
+        <div className="flex-[2] px-2">Name</div>
+        <div className="flex-1 px-2">Description</div>
+        <div className="flex-[2] px-2">Notes</div>
+        <div className="flex-1 px-2">Created at</div>
+        <div className="flex-1 px-2">Updated at</div>
+        <div className="w-[128px] px-2">Actions</div>
+      </div>
+
+      {sequences &&
+        sequences.map((sequence, i) => (
+          <SequenceRow
+            index={i}
+            sequence={sequence}
+            handleEditItemClick={handleEditItemClick}
+            setSequences={setSequences}
+            setRunItem={setRunItem}
+          />
+        ))}
     </div>
   );
+}
+
+type SequenceRowProps = {
+  sequence: Sequence;
+  handleEditItemClick: (index: number) => void;
+  setSequences: React.Dispatch<SetStateAction<Sequence[]>>;
+  setRunItem: React.Dispatch<SetStateAction<Sequence>>;
+  index: number;
 };
+function SequenceRow({
+  sequence,
+  handleEditItemClick,
+  index,
+  setSequences,
+  setRunItem,
+}: SequenceRowProps) {
+  const rowContainerStyles =
+    "border-t border-black flex flex-col items-start md:flex-row  md:gap-4 p-2";
+  const fieldsContainerStyles =
+    "flex flex-col md:flex-row md:flex-wrap md:items-start gap-2 flex-1";
+  const actionButtonsContainerStyle = "mt-2 md:mt-0";
+  const actionButtonStyles = "text-xs font-bold p-2 border-2 border-black";
+  const labelStyles = "text-xs font-bold md:hidden";
+  const rowTextStyles = "text-xs";
 
-export default SequencesList;
+  const { user, isAuthenticated } = useUser();
+  const userId = user?.id ?? null;
 
-// let favorite_exercise_1: FavoriteExercise = {
-//   id: "44444444-4444-4444-444444444444",
-//   name: "favorite exercise 1 name",
-//   direction: "favorite exercise 1 direction",
-//   duration_secs: 20,
-//   resistance: "favorite exercise 1 resistance",
-//   notes: "favorite exercise 1 notes",
-//   created_at: "2025-06-13 21:38:17.099782",
-// };
+  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] =
+    useState(false);
+
+  const handleDeleteItemClick = async (sequenceId: string) => {
+    console.log("user wants to delete sequence with id ", sequenceId);
+    setIsDeleteConfirmModalOpen(true);
+  };
+
+  const deleteItem = async (sequenceId: string) => {
+    const res = await api.delete(`/v1/sequences/${sequenceId}`);
+    const updatedSequences = await api.get(`/v1/sequences/user/${userId}`);
+    setSequences(updatedSequences);
+    setIsDeleteConfirmModalOpen(false);
+  };
+
+  const handleRunItemClick = async (sequenceId: string) => {
+    console.log(sequenceId);
+
+    const res = await api.get(`/v1/sequences/${sequenceId}/full`);
+    console.log(`fetched full sequence with id: ${sequenceId}`, res);
+    setRunItem(res);
+  };
+  return (
+    <div id="rowContainer" className={rowContainerStyles}>
+      <div id="fieldsContainer" className={fieldsContainerStyles}>
+        <div className="flex-[2] px-2">
+          <label className={labelStyles}>Name*</label>
+          <div className={rowTextStyles}>{sequence.name}</div>
+        </div>
+        <div className="flex-1 px-2">
+          <label className={labelStyles}>Direction</label>
+          <div className={rowTextStyles}>{sequence.description}</div>
+        </div>
+        <div className="flex-[2] px-2">
+          <label className={labelStyles}>Notes</label>
+          <div className={rowTextStyles}>{sequence.notes}</div>
+        </div>
+        <div className="flex-1 px-2">
+          <label className={labelStyles}>Created at</label>
+          <div className={rowTextStyles}>
+            {formatUtcToLocalTrimmed(sequence.created_at)}
+          </div>
+        </div>
+        <div className="flex-1 px-2">
+          <label className={labelStyles}>Updated at</label>
+          <div className={rowTextStyles}>
+            {formatUtcToLocalTrimmed(sequence.updated_at)}
+          </div>
+        </div>
+      </div>
+
+      <div id="actionButtonsContainer" className={actionButtonsContainerStyle}>
+        <div className="flex gap-2 justify-center">
+          <button
+            className={actionButtonStyles}
+            onClick={() => handleEditItemClick(index)}
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => handleDeleteItemClick(sequence.id)}
+            className={actionButtonStyles}
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => {
+              handleRunItemClick(sequence.id);
+            }}
+            className={actionButtonStyles}
+          >
+            Run
+          </button>
+        </div>
+      </div>
+
+      {isDeleteConfirmModalOpen && (
+        <Modal
+          isOpen={isDeleteConfirmModalOpen}
+          onClose={() => setIsDeleteConfirmModalOpen(false)}
+          title={`Delete '${sequence.name}'?`}
+          buttons={[
+            {
+              label: "Cancel",
+              onClick: () => setIsDeleteConfirmModalOpen(false),
+              variant: "secondary",
+            },
+            {
+              label: "Delete",
+              onClick: () => deleteItem(sequence.id),
+              variant: "danger",
+            },
+          ]}
+        >
+          <div className="text-sm">
+            <p>
+              Are you sure you want to delete this sequence? This action cannot
+              be undone.
+            </p>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}

@@ -5,22 +5,20 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Layout from "./components/layouts/NavbarLayout";
 
 import AuthPage from "./pages/Auth/AuthPage";
 import HomePage from "./pages/Home/HomePage";
 import PrivateRoute from "./components/PrivateRoute";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import SettingsPage from "./pages/Settings/SettingsPage";
-import NewPage from "./pages/New/NewPage";
 import SequencesPage from "./pages/Sequences/SequencesPage";
 import HelpPage from "./pages/Help/HelpPage";
 import FavoriteExercisesPage from "./pages/FavoriteExercises/FavoriteExercisesPage";
 
-import TestPage from "./pages/Test/TestPage";
+import PageLayout from "./components/layouts/PageLayout";
 
 const App = () => {
-  const [authorized, setAuthorized] = useState(false);
+  const [authorized, setAuthorized] = useState(false); // set to true for dev
 
   return (
     <Router>
@@ -45,9 +43,9 @@ const App = () => {
           path="/dashboard"
           element={
             <PrivateRoute authorized={authorized}>
-              <Layout>
+              <PageLayout pageTitle={"Dashboard"}>
                 <DashboardPage />
-              </Layout>
+              </PageLayout>
             </PrivateRoute>
           }
         />
@@ -57,9 +55,9 @@ const App = () => {
           path="/settings"
           element={
             <PrivateRoute authorized={authorized}>
-              <Layout>
+              <PageLayout pageTitle={"Settings"}>
                 <SettingsPage />
-              </Layout>
+              </PageLayout>
             </PrivateRoute>
           }
         />
@@ -69,21 +67,9 @@ const App = () => {
           path="/help"
           element={
             <PrivateRoute authorized={authorized}>
-              <Layout>
+              <PageLayout pageTitle={"Help"}>
                 <HelpPage />
-              </Layout>
-            </PrivateRoute>
-          }
-        />
-
-        {/* '/new' PATH */}
-        <Route
-          path="/new"
-          element={
-            <PrivateRoute authorized={authorized}>
-              <Layout>
-                <NewPage />
-              </Layout>
+              </PageLayout>
             </PrivateRoute>
           }
         />
@@ -93,9 +79,9 @@ const App = () => {
           path="/sequences"
           element={
             <PrivateRoute authorized={authorized}>
-              <Layout>
+              <PageLayout pageTitle={"Sequences"}>
                 <SequencesPage />
-              </Layout>
+              </PageLayout>
             </PrivateRoute>
           }
         />
@@ -105,24 +91,22 @@ const App = () => {
           path="/favorite-exercises"
           element={
             <PrivateRoute authorized={authorized}>
-              <Layout>
+              <PageLayout pageTitle={"Favorite Exercises"}>
                 <FavoriteExercisesPage />
-              </Layout>
+              </PageLayout>
             </PrivateRoute>
           }
         />
 
-        {/* '/test' PATH */}
+        {/* '/test2' PATH
         <Route
-          path="/test"
+          path="/test2"
           element={
-            <PrivateRoute authorized={authorized}>
-              <Layout>
-                <TestPage />
-              </Layout>
-            </PrivateRoute>
+            <PageLayout pageTitle="Test2 (Favorite Exercises)">
+              <Test2Page />
+            </PageLayout>
           }
-        />
+        ></Route> */}
       </Routes>
     </Router>
   );

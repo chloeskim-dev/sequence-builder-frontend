@@ -9,12 +9,11 @@ type Props = {
 const Searchbar = ({ placeholder, query, setQuery }: Props) => {
   return (
     <div>
-      {/* <h1> QUERY STRING (state): {query} </h1> */}
       <input
         type="text"
         value={query}
         placeholder={placeholder}
-        className="text-center w-full px-4 py-2"
+        className="text-xs w-full px-2 py-1 border-2"
         onChange={(e) => setQuery(e.target.value)}
       />
     </div>

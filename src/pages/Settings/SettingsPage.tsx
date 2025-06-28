@@ -1,11 +1,5 @@
-import React from "react";
-import CenteredPageLayout from "../../components/layouts/CenteredPageLayout";
-
 const SettingsPage = () => {
-  return (
-    <CenteredPageLayout title="Settings">
-    </CenteredPageLayout>
-  )
+  return <div></div>;
 };
 
 export default SettingsPage;

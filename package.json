@@ -11,6 +11,7 @@
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.126",
     "@types/react-dom": "^19.1.5",
+    "crypto-js": "^4.2.0",
     "framer-motion": "^12.12.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -51,9 +52,11 @@
     ]
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@types/prop-types": "^15.7.14",
     "@types/react": "^19.1.4",
     "@types/react-router-dom": "^5.3.3",
+    "@types/react-vertical-timeline-component": "^3.3.6",
     "tailwindcss": "^3.4.17"
   }
 }
