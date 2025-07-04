@@ -2,161 +2,216 @@ import { FavoriteExercise } from "../../constants/types";
 import { SetStateAction, useState } from "react";
 import Modal from "../../components/layouts/Modal";
 import { api } from "../../utils/api";
+import { splitDuration } from "../../utils/timeHelpers";
 
 type FavoriteExercisesListProps = {
-  favoriteExercises: FavoriteExercise[];
-  handleEditItemClick: (index: number) => void;
-  setFavoriteExercises: React.Dispatch<SetStateAction<FavoriteExercise[]>>;
-  fetchFavoriteExercises: () => Promise<any>;
+    favoriteExercises: FavoriteExercise[];
+    handleViewItemClick: (index: number) => void;
+    handleEditItemClick: (index: number) => void;
+    handleDeleteItemClick: (index: number) => void;
+    setFavoriteExercises: React.Dispatch<SetStateAction<FavoriteExercise[]>>;
+    fetchFavoriteExercises: () => Promise<any>;
 };
+const actionButtonsColumnWidth = "w-[200px]";
 
 export default function FavoriteExercisesList({
-  favoriteExercises,
-  handleEditItemClick,
-  setFavoriteExercises,
-  fetchFavoriteExercises,
+    favoriteExercises,
+    handleViewItemClick,
+    handleEditItemClick,
+    handleDeleteItemClick,
+    setFavoriteExercises,
+    fetchFavoriteExercises,
 }: FavoriteExercisesListProps) {
-  return (
-    <div className="border border-black mx-4 my-2">
-      <div className="hidden md:flex bg-gray-200 p-2 font-bold text-xs">
-        <div className="flex-[2] px-2">Name</div>
-        <div className="flex-1 px-2">Direction</div>
-        <div className="flex-1 px-2">Duration</div>
-        <div className="flex-1 px-2">Resistance</div>
-        <div className="flex-[2] px-2">Notes</div>
-        <div className="w-[133px] px-2">Actions</div>
-      </div>
+    return (
+        <div className="md:border border-gray-300 mx-4 my-2 font-bold text-xs">
+            <div className="hidden md:flex flex-row gap-4 bg-gray-200">
+                <div className="flex-1 flex flex-row">
+                    <div className="flex-[2] p-2">Name</div>
+                    <div className="flex-1 p-2">Direction</div>
+                    <div className="flex-1 p-2">Duration</div>
+                    <div className="flex-1 p-2">Resistance</div>
+                    <div className="flex-[2] p-2">Notes</div>
+                </div>
+                <div>
+                    <div className={`${actionButtonsColumnWidth} p-2 pl-0`}>
+                        Actions
+                    </div>
+                </div>
+            </div>
 
-      {favoriteExercises.map((favoriteExercise, i) => (
-        <FavoriteExerciseRow
-          index={i}
-          exercise={favoriteExercise}
-          handleEditItemClick={handleEditItemClick}
-          setFavoriteExercises={setFavoriteExercises}
-          fetchFavoriteExercises={fetchFavoriteExercises}
-        />
-      ))}
-    </div>
-  );
+            {/* Favorite exercise rows */}
+            {favoriteExercises.map((favoriteExercise, i) => (
+                <div key={i} className="mb-4 md:mb-0">
+                    <FavoriteExerciseRow
+                        index={i}
+                        exercise={favoriteExercise}
+                        setFavoriteExercises={setFavoriteExercises}
+                        fetchFavoriteExercises={fetchFavoriteExercises}
+                        handleViewItemClick={handleViewItemClick}
+                        handleEditItemClick={handleEditItemClick}
+                        handleDeleteItemClick={handleDeleteItemClick}
+                    />
+                </div>
+            ))}
+
+            {favoriteExercises && favoriteExercises.length === 0 && (
+                <div className="my-2 p-2 font-normal text-gray-400">
+                    No favorite exercises have been added.
+                </div>
+            )}
+        </div>
+    );
 }
 
 type FavoriteExerciseRowProps = {
-  exercise: FavoriteExercise;
-  handleEditItemClick: (index: number) => void;
-  index: number;
-  setFavoriteExercises: React.Dispatch<SetStateAction<FavoriteExercise[]>>;
-  fetchFavoriteExercises: () => Promise<any>;
+    index: number;
+    exercise: FavoriteExercise;
+    handleViewItemClick: (index: number) => void;
+    handleEditItemClick: (index: number) => void;
+    handleDeleteItemClick: (index: number) => void;
+    setFavoriteExercises: React.Dispatch<SetStateAction<FavoriteExercise[]>>;
+    fetchFavoriteExercises: () => Promise<any>;
 };
 function FavoriteExerciseRow({
-  exercise,
-  handleEditItemClick,
-  index,
-  setFavoriteExercises,
-  fetchFavoriteExercises,
+    index,
+    exercise,
+    handleEditItemClick,
+    handleViewItemClick,
+    handleDeleteItemClick,
+    setFavoriteExercises,
+    fetchFavoriteExercises,
 }: FavoriteExerciseRowProps) {
-  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] =
-    useState(false);
+    const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] =
+        useState(false);
 
-  const handleDeleteItemClick = async (exerciseId: string) => {
-    console.log("user wants to delete exercise with id ", exerciseId);
-    setIsDeleteConfirmModalOpen(true);
-  };
+    const rowContainerStyles =
+        "flex flex-col md:flex-row  md:gap-4 py-4 p-2 md:p-0 bg-gray-100 md:border-t md:bg-white";
 
-  const deleteItem = async (exerciseId: string) => {
-    const res = await api.delete(`/v1/favorite_exercises/${exerciseId}`);
-    console.log(`deleted full sequence with id: ${exerciseId}`, res);
-    let updatedFavoriteExercises = fetchFavoriteExercises();
-    setFavoriteExercises(await updatedFavoriteExercises);
-    setIsDeleteConfirmModalOpen(false);
-  };
+    const fieldsContainerStyles =
+        "flex flex-col md:flex-row md:flex-wrap md:items-center gap-2 flex-1 min-w-0 overflow-hidden";
+    const singleFieldContainerStyles = "px-2 md:p-2 min-w-0";
+    const actionButtonsContainerStyle = `mt-2 md:mt-0 ml-1 md:ml-0 ${actionButtonsColumnWidth}`;
+    const actionButtonStyles = "text-xs font-bold p-2 text-white bg-red-500";
+    const labelStyles = "font-bold md:hidden text-xs";
+    const rowTextStyles = "text-xs flex-1 font-normal truncate";
+    const emptyFieldTextStyle = "hidden text-gray-400 md:block";
 
-  const _rowContainerStyles =
-    "border-t border-black flex flex-col items-start md:flex-row  md:gap-4 p-2";
-  const _fieldsContainerStyles =
-    "flex flex-col md:flex-row md:flex-wrap md:items-start gap-2 flex-1";
-  const _actionButtonsContainerStyle = "mt-2 md:mt-0";
-  const _actionButtonStyles = "text-xs font-bold p-2 border-2 border-black";
-  const _labelStyles = "text-xs font-bold md:hidden";
-  const _rowTextStyles = "text-xs";
+    return (
+        <div id="rowContainer" className={rowContainerStyles}>
+            <div id="fieldsContainer" className={fieldsContainerStyles}>
+                <div className={`flex-[2] ${singleFieldContainerStyles}`}>
+                    <div
+                        className={`font-bold md:font-normal uppercase md:normal-case text-base md:text-xs`}
+                    >
+                        {exercise.name}
+                    </div>
+                </div>
 
-  return (
-    <div id="rowContainer" className={_rowContainerStyles}>
-      <div id="fieldsContainer" className={_fieldsContainerStyles}>
-        <div className="flex-[2] px-2">
-          <label className={_labelStyles}>Name*</label>
-          <div className={_rowTextStyles}>{exercise.name}</div>
-        </div>
-        <div className="flex-1 px-2">
-          <label className={_labelStyles}>Direction</label>
-          <div className={_rowTextStyles}>{exercise.direction}</div>
-        </div>
-        <div className="flex-1 px-2">
-          <label className={_labelStyles}>Duration</label>
-          <div className="flex gap-2">
-            <div className="flex flex-col">
-              <label className="text-[9px] font-medium">min</label>
-              <div className={_rowTextStyles}>{exercise.duration_secs}</div>
+                <div className={`flex-1 ${singleFieldContainerStyles}`}>
+                    {exercise.direction ? (
+                        <>
+                            <label className={labelStyles}>Direction</label>
+                            <div className={rowTextStyles}>
+                                {exercise.direction}
+                            </div>
+                        </>
+                    ) : (
+                        <div className={emptyFieldTextStyle}>-</div>
+                    )}
+                </div>
+
+                <div className={`flex-1 ${singleFieldContainerStyles}`}>
+                    {exercise.duration_secs !== null &&
+                    exercise.duration_secs !== undefined ? ( // ?? returns
+                        <>
+                            <label className={labelStyles}>Duration</label>
+                            <div className="flex gap-2 md:-mt-2">
+                                <div className="flex flex-col">
+                                    <label className="text-[9px] font-medium">
+                                        min
+                                    </label>
+                                    <div className={rowTextStyles}>
+                                        {
+                                            splitDuration(
+                                                exercise.duration_secs
+                                            ).splitMinutes
+                                        }
+                                    </div>
+                                </div>
+                                <div className="text-[10px] self-end pb-0">
+                                    :
+                                </div>
+                                <div className="flex flex-col">
+                                    <label className="text-[9px] font-medium">
+                                        sec
+                                    </label>
+                                    <div className={rowTextStyles}>
+                                        {
+                                            splitDuration(
+                                                exercise.duration_secs
+                                            ).splitSeconds
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className={emptyFieldTextStyle}>-</div>
+                    )}
+                </div>
+
+                <div className={`flex-1 ${singleFieldContainerStyles}`}>
+                    {exercise.resistance ? (
+                        <>
+                            <label className={labelStyles}>Resistance</label>
+                            <div className={rowTextStyles}>
+                                {exercise.resistance}
+                            </div>
+                        </>
+                    ) : (
+                        <div className={emptyFieldTextStyle}>-</div>
+                    )}
+                </div>
+
+                <div className={`flex-[2] ${singleFieldContainerStyles}`}>
+                    {exercise.notes ? (
+                        <>
+                            <label className={labelStyles}>Notes</label>
+                            <div className={rowTextStyles}>
+                                {exercise.notes}
+                            </div>
+                        </>
+                    ) : (
+                        <div className={emptyFieldTextStyle}>-</div>
+                    )}
+                </div>
             </div>
-            <div className="text-xs self-end pb-0">:</div>
-            <div className="flex flex-col">
-              <label className="text-[9px] font-medium">sec</label>
-              <div className={_rowTextStyles}>{exercise.duration_secs}</div>
+
+            <div
+                id="actionButtonsContainer"
+                className={`${actionButtonsContainerStyle} ${singleFieldContainerStyles}`}
+            >
+                <div className="flex justify-center">
+                    <button
+                        className={`${actionButtonStyles} mr-2`}
+                        onClick={() => handleViewItemClick(index)}
+                    >
+                        View Details
+                    </button>
+                    <button
+                        className={`${actionButtonStyles} mr-2`}
+                        onClick={() => handleEditItemClick(index)}
+                    >
+                        Edit
+                    </button>
+                    <button
+                        className={actionButtonStyles}
+                        onClick={() => handleDeleteItemClick(index)}
+                    >
+                        Delete
+                    </button>
+                </div>
             </div>
-          </div>
         </div>
-        <div className="flex-1 px-2">
-          <label className={_labelStyles}>Resistance</label>
-          <div className={_rowTextStyles}>{exercise.resistance}</div>
-        </div>
-        <div className="flex-[2] px-2">
-          <label className={_labelStyles}>Notes</label>
-          <div className={_rowTextStyles}>{exercise.notes}</div>
-        </div>
-      </div>
-
-      <div id="actionButtonsContainer" className={_actionButtonsContainerStyle}>
-        <div className="flex gap-2 justify-center">
-          <button
-            className={_actionButtonStyles}
-            onClick={() => handleEditItemClick(index)}
-          >
-            Edit
-          </button>
-          <button
-            className={_actionButtonStyles}
-            onClick={() => handleDeleteItemClick(exercise.id)}
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-
-      {isDeleteConfirmModalOpen && (
-        <Modal
-          isOpen={isDeleteConfirmModalOpen}
-          onClose={() => setIsDeleteConfirmModalOpen(false)}
-          title={`Delete '${exercise.name}'?`}
-          buttons={[
-            {
-              label: "Cancel",
-              onClick: () => setIsDeleteConfirmModalOpen(false),
-              variant: "secondary",
-            },
-            {
-              label: "Delete",
-              onClick: () => deleteItem(exercise.id),
-              variant: "danger",
-            },
-          ]}
-        >
-          <div className="text-sm">
-            <p>
-              Are you sure you want to delete this favorite exercise? This
-              action cannot be undone.
-            </p>
-          </div>
-        </Modal>
-      )}
-    </div>
-  );
+    );
 }

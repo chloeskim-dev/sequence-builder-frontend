@@ -1,29 +1,46 @@
-export const splitDuration = (combinedSecs: number) => {
-  return {
-    splitMinutes: Math.floor(combinedSecs / 60),
-    splitSeconds: combinedSecs % 60,
-  };
-};
+import { ExerciseInputs } from "../constants/types";
 
 export const combineDuration = (splitMinutes: number, splitSeconds: number) => {
-  return splitMinutes * 60 + splitSeconds;
+    return splitMinutes * 60 + splitSeconds;
+};
+
+export const splitDuration = (combinedSecs: number) => {
+    return {
+        splitMinutes: Math.floor(combinedSecs / 60),
+        splitSeconds: combinedSecs % 60,
+    };
+};
+
+export const normalizeDurations = (minutes: number, seconds: number) => {
+    const combinedDurationSecs = combineDuration(minutes, seconds);
+    const splitDurations = splitDuration(combinedDurationSecs);
+    return splitDurations;
+};
+
+export const exerciseDataHasDuration = (
+    exerciseData: ExerciseInputs
+): boolean => {
+    return (
+        exerciseData.duration_mins !== undefined ||
+        exerciseData.duration_secs !== undefined
+    );
 };
 
 export function getUtcNaiveTimestamp(): string {
-  const now = new Date();
+    const now = new Date();
 
-  const yyyy = now.getUTCFullYear();
-  const mm = String(now.getUTCMonth() + 1).padStart(2, "0");
-  const dd = String(now.getUTCDate()).padStart(2, "0");
+    const yyyy = now.getUTCFullYear();
+    const mm = String(now.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(now.getUTCDate()).padStart(2, "0");
 
-  const hh = String(now.getUTCHours()).padStart(2, "0");
-  const mi = String(now.getUTCMinutes()).padStart(2, "0");
-  const ss = String(now.getUTCSeconds()).padStart(2, "0");
+    const hh = String(now.getUTCHours()).padStart(2, "0");
+    const mi = String(now.getUTCMinutes()).padStart(2, "0");
+    const ss = String(now.getUTCSeconds()).padStart(2, "0");
 
-  const ms = String(now.getUTCMilliseconds()).padStart(3, "0");
-  const microseconds = ms + "000"; // Simulate microseconds
+    const ms = String(now.getUTCMilliseconds()).padStart(3, "0");
+    const microseconds = ms + "000"; // Simulate microseconds
 
-  return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}.${microseconds}`;
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}.${microseconds}`;
 }
 
 console.log(getUtcNaiveTimestamp());
