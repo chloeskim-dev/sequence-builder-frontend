@@ -1,0 +1,14 @@
+name: Hello World Workflow
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print a greeting
+        run: echo "Hello, World!"
+      - name: Sleep a bit
+        run: sleep 60
+      - name: Finish
+        run: echo "All Done!"
