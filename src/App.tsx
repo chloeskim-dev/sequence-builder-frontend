@@ -1,131 +1,125 @@
-import React, { ReactElement, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Layout from "./components/layouts/NavbarLayout";
+import { useState } from "react";
+import {
+    BrowserRouter as Router,
+    Navigate,
+    Routes,
+    Route,
+} from "react-router-dom";
 
-import AuthPage from "./pages/Auth/AuthPage";
-import HomePage from "./pages/Home/HomePage";
+import AuthPage from "./pages/auth/AuthPage";
 import PrivateRoute from "./components/PrivateRoute";
-import DashboardPage from "./pages/Dashboard/DashboardPage";
-import SettingsPage from "./pages/Settings/SettingsPage";
-import NewPage from "./pages/New/NewPage"
-import SavedPage from "./pages/Saved/SavedPage"
-import ExercisesPage from "./pages/Exercises/ExercisesPage"
-import HelpPage from "./pages/Help/HelpPage"
+import DashboardPage from "./pages/dashboard/DashboardPage";
+import SequencesPage from "./pages/sequences/SequencesPage";
+import FavoriteExercisesPage from "./pages/favorite-exercises/FavoriteExercisesPage";
 
-import TestPage from "./pages/Test/TestPage";
+import PageLayout from "./components/layouts/PageLayout";
+import { SequenceDetailPage } from "./pages/sequences/SequenceDetailPage";
+import SequenceCreatePage from "./pages/sequences/SequenceCreatePage";
+import SequenceEditPage from "./pages/sequences/SequenceEditPage";
+import { SequenceRunPage } from "./pages/sequences/SequenceRunPage";
 
 const App = () => {
-  const [authorized, setAuthorized] = useState(false);
+    const [authorized, setAuthorized] = useState(false);
+    const authorizeUser = () => {
+        setAuthorized(true);
+    };
 
-  return (
-    <Router>
-      <Routes>
-        
-      {/* '/' PATH
-        - if authorized: navigate to '/dashboard'
-        - else: stay at '/' and display <AuthPage />
-      */} 
-        <Route
-          path="/"
-          element={
-            authorized ? (
-              <Navigate to="/dashboard" />
-            ) : (
-              <AuthPage onLogin={() => setAuthorized(true)} />
-            )
-          }
-        />
-
-      {/* '/dashboard' PATH */} 
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute authorized={authorized}>
-              <Layout>
-                <DashboardPage/>
-              </Layout>
-            </PrivateRoute>
-          }
-        />
-
-      
-      {/* '/settings' PATH */} 
-        <Route
-          path="/settings"
-          element={
-            <PrivateRoute authorized={authorized}>
-              <Layout>
-                <SettingsPage />
-              </Layout>
-            </PrivateRoute>
-          }
-        />
-      
-      {/* '/help' PATH */} 
-        <Route
-          path="/help"
-          element={
-            <PrivateRoute authorized={authorized}>
-              <Layout>
-                <HelpPage />
-              </Layout>
-            </PrivateRoute>
-          }
-        />
-
-
-      {/* '/new' PATH */} 
-        <Route
-          path="/new"
-          element={
-            <PrivateRoute authorized={authorized}>
-              <Layout>
-                <NewPage />
-              </Layout>
-            </PrivateRoute>
-          }
-        />
-
-      {/* '/saved' PATH */} 
-        <Route
-          path="/saved"
-          element={
-            <PrivateRoute authorized={authorized}>
-              <Layout>
-                <SavedPage />
-              </Layout>
-            </PrivateRoute>
-          }
-        />
-
-      {/* '/exercises' PATH */} 
-        <Route
-          path="/exercises"
-          element={
-            <PrivateRoute authorized={authorized}>
-              <Layout>
-                <ExercisesPage/>
-              </Layout>
-            </PrivateRoute>
-          }
-        />
-      
-      {/* '/test' PATH */} 
-        <Route
-          path="/test"
-          element={
-            <PrivateRoute authorized={authorized}>
-              <Layout>
-                <TestPage/>
-              </Layout>
-            </PrivateRoute>
-          }
-        />
-
-      </Routes>
-    </Router>
-  );
+    return (
+        <Router>
+            <Routes>
+                <Route
+                    path="/sequences/:id"
+                    element={
+                        <PrivateRoute authorized={authorized}>
+                            <PageLayout pageTitle={"Sequence details"}>
+                                <SequenceDetailPage />
+                            </PageLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/sequences/create"
+                    element={
+                        <PrivateRoute authorized={authorized}>
+                            <PageLayout pageTitle={"Create a sequence."}>
+                                <SequenceCreatePage />
+                            </PageLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/sequences/edit/:id"
+                    element={
+                        <PrivateRoute authorized={authorized}>
+                            <PageLayout pageTitle={"Edit your sequence."}>
+                                <SequenceEditPage />
+                            </PageLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/sequences/run/:id"
+                    element={
+                        <PrivateRoute authorized={authorized}>
+                            <PageLayout pageTitle={""}>
+                                <SequenceRunPage />
+                            </PageLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/sequences/:id"
+                    element={
+                        <PrivateRoute authorized={authorized}>
+                            <PageLayout pageTitle={"Sequence Details"}>
+                                <SequenceDetailPage />
+                            </PageLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/"
+                    element={
+                        !authorized ? (
+                            <AuthPage authorizeUser={authorizeUser} />
+                        ) : (
+                            <Navigate to="/dashboard" />
+                        )
+                    }
+                />
+                <Route
+                    path="/dashboard"
+                    element={
+                        <PrivateRoute authorized={authorized}>
+                            <PageLayout pageTitle={""}>
+                                <DashboardPage />
+                            </PageLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/sequences"
+                    element={
+                        <PrivateRoute authorized={authorized}>
+                            <PageLayout pageTitle={"Sequences"}>
+                                <SequencesPage />
+                            </PageLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/favorite-exercises"
+                    element={
+                        <PrivateRoute authorized={authorized}>
+                            <PageLayout pageTitle={"Favorite Exercises"}>
+                                <FavoriteExercisesPage />
+                            </PageLayout>
+                        </PrivateRoute>
+                    }
+                />
+            </Routes>
+        </Router>
+    );
 };
 
 export default App;
-

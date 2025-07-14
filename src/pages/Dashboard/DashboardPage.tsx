@@ -1,30 +1,34 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../components/ui/Button"
-import CenteredPageLayout from "../../components/layouts/CenteredPageLayout";
+import { FiHeart } from "react-icons/fi";
+import { FiList } from "react-icons/fi"; // common and clear
+import { useUser } from "../../contexts/UserContext";
+import { dashboardButtonTextStyles } from "../../constants/tailwindClasses";
 
 const DashboardPage = () => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  return (
-    <CenteredPageLayout title="Dashboard">
-      <div className="flex flex-col space-y-4">
-        
-        <Button onClick={() => navigate("/new")} className="bg-blue-600 text-white px-4 py-2 rounded">
-          Create a new sequence. 
-        </Button>
-
-        <Button onClick={() => navigate("/saved")} className="bg-green-600 text-white px-4 py-2 rounded">
-          View my saved sequences.
-        </Button>
-
-        <Button onClick={() => navigate("/exercises")} className="bg-purple-600 text-white px-4 py-2 rounded">
-          View exercises.
-        </Button>
-       
-    </div>
-    </CenteredPageLayout>
-  )
+    const { user } = useUser();
+    const userId = user?.id ?? null;
+    return (
+        <div className="flex justify-center mt-8">
+            <div className="mt-4 flex flex-col gap-y-4">
+                <button
+                    onClick={() => navigate("/sequences")}
+                    className={dashboardButtonTextStyles}
+                >
+                    <FiList size={16} />
+                    My Sequences
+                </button>
+                <button
+                    onClick={() => navigate("/favorite-exercises")}
+                    className={dashboardButtonTextStyles}
+                >
+                    <FiHeart fill="red" color="red" size={14} />
+                    My Favorite Exercises
+                </button>
+            </div>{" "}
+        </div>
+    );
 };
 
 export default DashboardPage;
