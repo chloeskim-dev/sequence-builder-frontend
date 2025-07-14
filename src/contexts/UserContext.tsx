@@ -92,13 +92,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    // Checks the response Content-Type and parses the body as json(), text(), blob(), or arrayBuffer() based on type.
-    // Returns both the raw Response and the parsed data.
-    // Throws helpful errors on network or parse failures
-
     const login = async (payload: LoginPayload) => {
-        // const password_hash = SHA256(password + SALT).toString();
-
         const endpoint = "/v1/auth/login";
         const fetchOptions = {
             method: "POST",
@@ -144,10 +138,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                     {},
                     { token: getRefreshToken() }
                 );
-                console.log("logged out user", res);
             }
         } catch (error) {
-            console.error("Logout error:", error);
         } finally {
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");

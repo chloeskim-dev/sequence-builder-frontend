@@ -1,5 +1,5 @@
 import { SetStateAction, useEffect } from "react";
-import Modal from "../../components/layouts/Modal";
+import Modal from "../layouts/Modal";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
     FavoriteExercise,
@@ -10,6 +10,10 @@ import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
 import { getUtcNaiveTimestamp } from "../../utils/timeHelpers";
 import { v4 as uuidv4 } from "uuid";
+import {
+    durationInputStyles,
+    errorMessageStyles,
+} from "../../constants/tailwindClasses";
 
 type FavoriteExerciseCreateModalProps = {
     isModalOpen: boolean;
@@ -81,18 +85,6 @@ export default function FavoriteExerciseCreateModal({
             }),
             ...(formData.notes !== undefined && { notes: formData.notes }),
         };
-        // const transformedData = {
-        //     id: uuidv4(),
-        //     created_at: getUtcNaiveTimestamp(),
-        //     user_id: userId,
-        //     name: formData.name,
-        //     direction: formData.direction,
-        //     duration_secs: combinedDurationSecs,
-        //     resistance: formData.resistance,
-        //     notes: formData.notes,
-        // };
-
-        console.log("transformed form data:", transformedData);
 
         try {
             const res = await api.post(
@@ -116,17 +108,17 @@ export default function FavoriteExerciseCreateModal({
             title="Create a new favorite exercise."
             buttons={[
                 {
-                    label: "Cancel",
-                    onClick: () => setIsModalOpen(false),
-                    variant: "secondary",
-                },
-                {
                     label: "Create New",
                     onClick: () => {}, // Empty onClick for submit buttons
                     variant: "primary",
                     type: "submit",
                     form: "create-favorite-exercise-form",
                     disabled: isSubmitting,
+                },
+                {
+                    label: "Cancel",
+                    onClick: () => setIsModalOpen(false),
+                    variant: "secondary",
                 },
             ]}
         >
@@ -137,18 +129,24 @@ export default function FavoriteExerciseCreateModal({
             >
                 <div>
                     <label htmlFor="name" className={labelStyles}>
-                        Name
+                        Name<span className="text-red-500">*</span>
                     </label>
                     <input
                         id="name"
-                        {...register("name", { required: true })}
+                        {...register("name", {
+                            required: "Name is required",
+                            maxLength: {
+                                value: 100,
+                                message: "Name must be 100 characters or fewer",
+                            },
+                        })}
                         className={inputStyles}
                         placeholder="ex. reverse lunge"
                     />
                     {errors.name && (
-                        <span className="text-red-500 text-sm">
-                            This field is required
-                        </span>
+                        <p className={errorMessageStyles}>
+                            {errors.name.message}
+                        </p>
                     )}
                 </div>
 
@@ -158,16 +156,27 @@ export default function FavoriteExerciseCreateModal({
                     </label>
                     <input
                         id="direction"
-                        {...register("direction")}
+                        {...register("direction", {
+                            maxLength: {
+                                value: 100,
+                                message:
+                                    "Direction must be 100 characters or fewer",
+                            },
+                        })}
                         className={inputStyles}
                         placeholder="ex. left"
                     />
+                    {errors.direction && (
+                        <p className={errorMessageStyles}>
+                            {errors.direction.message}
+                        </p>
+                    )}
                 </div>
 
                 <div>
                     <span className={labelStyles}>Duration</span>
                     <div className="flex gap-2 items-start">
-                        <div>
+                        <div className={`flex flex-col`}>
                             <label
                                 htmlFor="durationMinutes"
                                 className="block text-xs mb-1"
@@ -178,16 +187,30 @@ export default function FavoriteExerciseCreateModal({
                                 id="durationMinutes"
                                 type="number"
                                 min="0"
+                                max="99"
                                 {...register("durationMinutes", {
                                     valueAsNumber: true,
+                                    min: {
+                                        value: 0,
+                                        message: "Minutes must be 0 or more",
+                                    },
+                                    max: {
+                                        value: 99,
+                                        message: "Minutes must be 99 or less",
+                                    },
                                 })}
-                                className={`${inputStyles} ${subDurationInputWidth}`}
+                                className={`${durationInputStyles}`}
                             />
+                            {errors.durationMinutes && (
+                                <p className={errorMessageStyles}>
+                                    {errors.durationMinutes.message}
+                                </p>
+                            )}
                         </div>
 
                         <div className="text-sm self-end pb-2">:</div>
 
-                        <div>
+                        <div className={`flex flex-col flex-1`}>
                             <label
                                 htmlFor="durationSeconds"
                                 className="block text-xs mb-1"
@@ -198,11 +221,25 @@ export default function FavoriteExerciseCreateModal({
                                 id="durationSeconds"
                                 type="number"
                                 min="0"
+                                max="999"
                                 {...register("durationSeconds", {
                                     valueAsNumber: true,
+                                    min: {
+                                        value: 0,
+                                        message: "Seconds must be 0 or more",
+                                    },
+                                    max: {
+                                        value: 999,
+                                        message: "Seconds must be 999 or less",
+                                    },
                                 })}
-                                className={`${inputStyles} ${subDurationInputWidth}`}
+                                className={`${durationInputStyles}`}
                             />
+                            {errors.durationSeconds && (
+                                <p className={errorMessageStyles}>
+                                    {errors.durationSeconds.message}
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -213,10 +250,21 @@ export default function FavoriteExerciseCreateModal({
                     </label>
                     <input
                         id="resistance"
-                        {...register("resistance")}
+                        {...register("resistance", {
+                            maxLength: {
+                                value: 100,
+                                message:
+                                    "Resistance must be 100 characters or fewer",
+                            },
+                        })}
                         className={inputStyles}
                         placeholder="ex. 2 yellow springs"
                     />
+                    {errors.resistance && (
+                        <p className={errorMessageStyles}>
+                            {errors.resistance.message}
+                        </p>
+                    )}
                 </div>
 
                 <div>
@@ -225,12 +273,21 @@ export default function FavoriteExerciseCreateModal({
                     </label>
                     <textarea
                         id="notes"
-                        {...register("notes")}
+                        {...register("notes", {
+                            maxLength: {
+                                value: 500,
+                                message:
+                                    "Notes must be 500 characters or fewer",
+                            },
+                        })}
                         rows={4}
                         className={inputStyles}
                         placeholder="ex. Keep knees over ankles."
                     ></textarea>
                 </div>
+                {errors.notes && (
+                    <p className={errorMessageStyles}>{errors.notes.message}</p>
+                )}
             </form>
         </Modal>
     );

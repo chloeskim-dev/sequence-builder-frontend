@@ -18,6 +18,7 @@ export const prepareAndAppendExerciseToForm = (
     exerciseData: ExerciseInputs,
     append: (value: ExerciseInputs) => void
 ) => {
+    console.log(exerciseData);
     const normalizedDurations = exerciseDataHasDuration(exerciseData)
         ? normalizeDurations(
               exerciseData.duration_mins ?? 0,
@@ -43,9 +44,8 @@ export const makeSequencePayloadFromFormData = (
     formData: SequenceFormInputs,
     userId: string
 ): SequencePayload => {
-    // 1) Add user_id
-    // 2) Drop all fields from form whose values are "" or undefined
-    // This way only meaningful values will be stored in DB
+    // 1) Adds user_id
+    // 2) Drops all fields from form whose values are "" or undefined
     const sanitizedPayload = {
         user_id: userId,
         name: formData.name,
@@ -66,7 +66,7 @@ export const makeSequencePayloadFromFormData = (
             return {
                 name: exercise.name,
                 ...(exercise.direction && {
-                    description: exercise.direction,
+                    direction: exercise.direction,
                 }),
                 ...(exercise.resistance && {
                     resistance: exercise.resistance,
@@ -82,30 +82,21 @@ export const makeSequencePayloadFromFormData = (
     return sanitizedPayload;
 };
 
-type ToggleEditExerciseParams = {
+type EditExerciseParams = {
     fieldIndex: number;
-    fieldId: string;
-    isEditing: boolean;
     getValues: UseFormGetValues<SequenceFormInputs>;
     setValue: UseFormSetValue<SequenceFormInputs>;
     trigger: UseFormTrigger<SequenceFormInputs>;
-    setEditingExerciseId: (id: string | null) => void;
+    setEditingExerciseFieldIndex: (fieldIndex: number | null) => void;
 };
 
-export const handleToggleEditExercise = async ({
+export const editExerciseFieldArray = async ({
     fieldIndex,
-    fieldId,
-    isEditing,
     getValues,
     setValue,
     trigger,
-    setEditingExerciseId,
-}: ToggleEditExerciseParams) => {
-    if (!isEditing) {
-        setEditingExerciseId(fieldId);
-        return;
-    }
-
+    setEditingExerciseFieldIndex,
+}: EditExerciseParams) => {
     const valid = await trigger([
         `exercises.${fieldIndex}.name`,
         `exercises.${fieldIndex}.direction`,
@@ -117,8 +108,8 @@ export const handleToggleEditExercise = async ({
 
     if (!valid) return;
 
-    const sequenceData = getValues() as SequenceFormInputs;
-    const editedExercise = sequenceData.exercises?.[fieldIndex];
+    const formValues = getValues() as SequenceFormInputs;
+    const editedExercise = formValues.exercises?.[fieldIndex];
 
     if (!editedExercise) return;
 
@@ -138,5 +129,5 @@ export const handleToggleEditExercise = async ({
         normalizedDurations?.splitSeconds
     );
 
-    setEditingExerciseId(null);
+    setEditingExerciseFieldIndex(null);
 };

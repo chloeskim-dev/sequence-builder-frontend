@@ -52,17 +52,16 @@ export default function Modal({
 
         switch (variant) {
             case "primary":
-                return `${baseStyles} bg-blue-600 text-white hover:bg-blue-700`;
+                return `${baseStyles} bg-blue-600 text-white hover:bg-blue-700 rounded`;
             case "secondary":
-                return `${baseStyles} bg-gray-200 text-gray-800 hover:bg-gray-300`;
+                return `${baseStyles} bg-gray-200 text-gray-800 hover:bg-gray-300 rounded`;
             case "danger":
-                return `${baseStyles} bg-red-600 text-white hover:bg-red-700`;
+                return `${baseStyles} bg-red-600 text-white hover:bg-red-700 rounded`;
             default:
-                return `${baseStyles} bg-blue-600 text-white hover:bg-blue-700`;
+                return `${baseStyles} bg-blue-600 text-white hover:bg-blue-700 rounded`;
         }
     };
 
-    // Default close button if no custom buttons provided
     const defaultButtons: ModalButton[] = showCloseButton
         ? [{ label: "Close", onClick: onClose, variant: "secondary" }]
         : [];
@@ -71,10 +70,10 @@ export default function Modal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white w-full max-w-[90%] max-h-[90vh] overflow-y-auto shadow-lg">
+            <div className="rounded-xl bg-white w-[90%] md:w-[80%] xl:w-[60%] max-h-[95vh] overflow-y-auto shadow-lg">
                 {title && (
                     <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-start">
-                        <h2 className="text-xl font-semibold text-gray-900">
+                        <h2 className="text-xl font-semibold text-gray-900 break-all">
                             {title}
                         </h2>
                         <CloseIcon onClick={onClose} />

@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { v4 as uuidv4 } from "uuid";
-import SHA256 from "crypto-js/sha256";
-
 import { useUser } from "../../contexts/UserContext";
 import { Button } from "../../components/ui/Button";
 import { safeFetch } from "../../utils/api";
@@ -80,15 +77,10 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
                 `${REACT_APP_API_URL}${endpoint}`,
                 fetchOptions
             );
-            console.log("Status:", response.status);
-            console.log("Data:", data);
 
-            //////////////////////////////
-            ///////////////////////////////
             if (data && isSignupSuccessResponseJson(data)) {
                 console.log("Signup success! Res data: ", data);
             }
-            ////////////////////////////
         } catch (err: any) {
             throw err;
         }
@@ -121,30 +113,6 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
             }
         }
     };
-    //     const { username, password, email = "" } = data;
-    //     // SIGNUP
-    //     if (isSignup) {
-    //         try {
-    //             await signup({ username, password, email });
-    //         } catch (err: any) {
-    //             setError(err.message || "Signup failed");
-    //         }
-    //     }
-
-    //     // LOGIN
-    //     if (!isSignup) {
-    //         try {
-    //             await login({ username, password });
-    //             authorizeUser();
-    //         } catch (err: any) {
-    //             console.log(err);
-    //             if (err.code === "unauthorized") {
-    //                 setError("Invalid credentials");
-    //             } else
-    //                 setError(`Login failed. ${err.message}` || "Login failed");
-    //         }
-    //     }
-    // };
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-gray-100">

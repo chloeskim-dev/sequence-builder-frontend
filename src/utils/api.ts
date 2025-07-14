@@ -132,13 +132,6 @@ export async function safeFetch(url: string, options?: RequestInit) {
         if (!response.ok) {
             if (response.status === 401) {
                 const json = await response.json().catch(() => ({}));
-                // ////////////////////////////////////////////\
-                // console.log("RESPONSE BODY JSON:", json);
-                // console.log(
-                //     "RESPONSE BODY JSON ERRORS: ",
-                //     (json as any).errors
-                // );
-                //////////////////////////////////////////////////////////
                 const err = new Error(
                     "Unauthorized: Invalid username or password"
                 );

@@ -2,15 +2,14 @@ import { useState, useEffect } from "react";
 import Searchbar from "../../components/ui/Searchbar";
 import { FiPlus } from "react-icons/fi";
 import { FavoriteExercise } from "../../constants/types";
-import FavoriteExerciseEditModal from "../FavoriteExercises/FavoriteExercisesEditModal";
-import FavoriteExerciseCreateModal from "../FavoriteExercises/FavoriteExercisesCreateModal";
+import FavoriteExerciseEditModal from "../../components/favorite-exercises/FavoriteExercisesEditModal";
+import FavoriteExerciseCreateModal from "../../components/favorite-exercises/FavoriteExercisesCreateModal";
 import { IconButton } from "../../components/ui/IconButton";
-import FavoriteExercisesList from "./FavoriteExercisesList";
 import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
-import FavoriteExerciseDetailModal from "./FavoriteExercisesDetailModal";
-import Modal from "../../components/layouts/Modal";
-import FavoriteExercisesDeleteConfirmModal from "./FavoriteExercisesDeleteConfirmModal";
+import FavoriteExerciseDetailModal from "../../components/favorite-exercises/FavoriteExercisesDetailModal";
+import FavoriteExercisesDeleteConfirmModal from "../../components/favorite-exercises/FavoriteExercisesDeleteConfirmModal";
+import { ReusableList } from "../../components/layouts/ReusableList";
 
 export default function FavoriteExercisesPage() {
     const [favoriteExerciseQuery, setFavoriteExerciseQuery] =
@@ -90,16 +89,13 @@ export default function FavoriteExercisesPage() {
     return (
         <div>
             <div id="favoriteExercisesListHeader" className="mx-4">
-                <div>
-                    <text className="font-bold">My favorite exercises</text>
-                </div>
                 <div className="mb-2 mt-1">
                     <IconButton
                         onClick={() => setIsCreateModalOpen(true)}
                         icon={<FiPlus size={14} />}
-                        className="bg-green-600"
+                        className="bg-green-600 rounded-lg text-lg font-extrabold"
                     >
-                        Add new
+                        Add New
                     </IconButton>
                 </div>
                 <div className="w-full">
@@ -111,13 +107,30 @@ export default function FavoriteExercisesPage() {
                 </div>
             </div>
 
-            <FavoriteExercisesList
-                favoriteExercises={filteredfavoriteExercises}
-                handleViewItemClick={handleViewItemClick}
-                handleEditItemClick={handleEditItemClick}
-                handleDeleteItemClick={handleDeleteItemClick}
-                setFavoriteExercises={setFavoriteExercises}
-                fetchFavoriteExercises={fetchFavoriteExercises}
+            <ReusableList
+                items={filteredfavoriteExercises}
+                getActionButtonsForItem={(item, index) => [
+                    {
+                        title: "View",
+                        action: () => handleViewItemClick(index),
+                    },
+                    {
+                        title: "Edit",
+                        action: () => handleEditItemClick(index),
+                    },
+                    {
+                        title: "Delete",
+                        action: () => handleDeleteItemClick(index),
+                    },
+                ]}
+                standardFields={[
+                    "name",
+                    "direction",
+                    "duration",
+                    "resistance",
+                    "notes",
+                ]}
+                actionsFieldWidthStyle="w-[150px]"
             />
 
             <FavoriteExerciseCreateModal
@@ -159,29 +172,3 @@ export default function FavoriteExercisesPage() {
         </div>
     );
 }
-
-// const sampleFavoriteExercise_1: FavoriteExercise = {
-//     id: "44444444-4444-4444-444444444444",
-//     user_id: "aaaaaaaa-aaaa-aaaa-aaaaaaaaaaaa",
-//     name: "favorite exercise 1 name",
-//     direction: "favorite exercise 1 direction",
-//     duration_secs: 20,
-//     resistance: "favorite exercise 1 resistance",
-//     notes: "favorite exercise 1 notes favorite exercise 1 notesfavorite exercise 1 notes favorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notesfavorite exercise 1 notes s",
-//     created_at: "2025-06-13 21:38:17.099782",
-// };
-// const sampleFavoriteExercise_2: FavoriteExercise = {
-//     id: "55555555-5555-5555-555555555555",
-//     user_id: "aaaaaaaa-aaaa-aaaa-aaaaaaaaaaaa",
-//     name: "favorite exercise 2 name",
-//     direction: "favorite exercise 2 direction",
-//     duration_secs: 20,
-//     resistance: "favorite exercise 2 resistance",
-//     notes: "favorite exercise 2 notes",
-//     created_at: "2025-06-23 21:38:17.099782",
-// };
-
-// const sampleFavoriteExercises = [
-//     sampleFavoriteExercise_1,
-//     sampleFavoriteExercise_2,
-// ];

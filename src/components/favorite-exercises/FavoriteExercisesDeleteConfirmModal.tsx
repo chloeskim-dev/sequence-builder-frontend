@@ -1,6 +1,5 @@
-import Modal from "../../components/layouts/Modal";
+import Modal from "../layouts/Modal";
 import { FavoriteExercise } from "../../constants/types";
-import { splitDuration, combineDuration } from "../../utils/timeHelpers";
 import { SetStateAction } from "react";
 
 type FavoriteExercisesDeleteConfirmModalProps = {
@@ -28,22 +27,22 @@ const FavoriteExercisesDeleteConfirmModal = ({
         <Modal
             isOpen={isModalOpen}
             onClose={closeDeleteConfirmModal}
-            title={`Delete '${deleteItem.name}'?`}
+            title={`Delete favorite exercise?`}
             buttons={[
-                {
-                    label: "Cancel",
-                    onClick: closeDeleteConfirmModal,
-                    variant: "secondary",
-                },
                 {
                     label: "Delete",
                     onClick: () => deleteExercise(deleteItem.id),
                     variant: "danger",
                 },
+                {
+                    label: "Cancel",
+                    onClick: closeDeleteConfirmModal,
+                    variant: "secondary",
+                },
             ]}
         >
             <div className="text-sm flex flex-col gap-y-2">
-                <p>Are you sure you want to delete this favorite exercise?</p>
+                <p>Are you sure you want to delete '{deleteItem.name}'?</p>
                 <p>This action cannot be undone.</p>
             </div>
         </Modal>

@@ -1,5 +1,3 @@
-import { ExerciseInputs } from "../constants/types";
-
 export const combineDuration = (splitMinutes: number, splitSeconds: number) => {
     return splitMinutes * 60 + splitSeconds;
 };
@@ -17,9 +15,7 @@ export const normalizeDurations = (minutes: number, seconds: number) => {
     return splitDurations;
 };
 
-export const exerciseDataHasDuration = (
-    exerciseData: ExerciseInputs
-): boolean => {
+export const exerciseDataHasDuration = (exerciseData: any): boolean => {
     return (
         exerciseData.duration_mins !== undefined ||
         exerciseData.duration_secs !== undefined
@@ -42,5 +38,3 @@ export function getUtcNaiveTimestamp(): string {
 
     return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}.${microseconds}`;
 }
-
-console.log(getUtcNaiveTimestamp());

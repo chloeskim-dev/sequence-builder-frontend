@@ -1,8 +1,14 @@
-import { SetStateAction, useEffect } from "react";
-import Modal from "../../components/layouts/Modal";
+import { SetStateAction } from "react";
+import Modal from "../layouts/Modal";
 import { FavoriteExercise } from "../../constants/types";
 import { splitDuration, combineDuration } from "../../utils/timeHelpers";
 import { useUser } from "../../contexts/UserContext";
+import { FiHeart } from "react-icons/fi";
+import {
+    durationInputStyles,
+    durationLabelStyles,
+} from "../../constants/tailwindClasses";
+import PaddedDurationDisplayWithLabels from "../ui/PaddedDurationDisplayWithLabels";
 
 type FavoriteExerciseDetailModalProps = {
     isModalOpen: boolean;
@@ -34,20 +40,39 @@ export default function FavoriteExerciseDetailModal({
         setDetailItem(null);
     };
 
+    const durationString = `${String(splitMinutes)}:${String(
+        splitSeconds
+    ).padStart(2, "0")}`;
+
     return (
         <Modal
             isOpen={isModalOpen}
             onClose={closeDetailModal}
-            title={detailItem.name}
+            title={"Favorite Exercise Details"}
             buttons={[
                 {
-                    label: "Cancel",
+                    label: "Close",
                     onClick: () => setIsModalOpen(false),
                     variant: "secondary",
                 },
             ]}
         >
             <div className="flex flex-col gap-y-4">
+                <div>
+                    <label htmlFor="name" className={labelStyles}>
+                        <div className="flex items-center gap-x-1">
+                            <div>
+                                <FiHeart size={12} fill="red" color="white" />
+                            </div>
+                            <div> Name</div>
+                        </div>
+                    </label>
+                    <div id="name" className={textStyles}>
+                        <div className="flex items-center gap-x-1">
+                            <div>{detailItem.name}</div>
+                        </div>
+                    </div>
+                </div>
                 {detailItem.direction && detailItem.direction !== "" && (
                     <div>
                         <label htmlFor="direction" className={labelStyles}>
@@ -59,37 +84,13 @@ export default function FavoriteExerciseDetailModal({
                     </div>
                 )}
 
-                {detailItem.duration_secs && (
-                    <div>
-                        <span className={labelStyles}>Duration</span>
-                        <div className="flex items-end gap-4">
-                            <div>
-                                <label
-                                    htmlFor="durationMinutes"
-                                    className="block text-xs mb-1"
-                                >
-                                    Minutes
-                                </label>
-                                <div id="durationMin" className={textStyles}>
-                                    {splitMinutes}
-                                </div>
-                            </div>
-                            <div>
-                                <label
-                                    htmlFor="durationSeconds"
-                                    className="block text-xs mb-1"
-                                >
-                                    Seconds
-                                </label>
-                                <div
-                                    id="durationSeconds"
-                                    className={textStyles}
-                                >
-                                    {splitSeconds}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                {detailItem.duration_secs !== undefined ? (
+                    <PaddedDurationDisplayWithLabels
+                        minutes={splitMinutes}
+                        seconds={splitSeconds}
+                    />
+                ) : (
+                    ""
                 )}
                 {detailItem.resistance && detailItem.resistance !== "" && (
                     <div>

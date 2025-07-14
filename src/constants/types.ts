@@ -22,8 +22,8 @@ export interface Sequence {
     id: string;
     userId: string;
     name: string;
-    description: string;
-    notes: string;
+    description?: string;
+    notes?: string;
     created_at: string;
     updated_at: string;
     exercises: Exercise[];

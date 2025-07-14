@@ -18,7 +18,6 @@ export default function SequencePlayerExerciseStation({
     index,
     isPast,
     exercise,
-    isFirst,
     isLast,
     displayNotes,
     displayDirection,

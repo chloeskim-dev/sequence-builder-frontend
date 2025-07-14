@@ -1,5 +1,5 @@
 import { SetStateAction, useEffect } from "react";
-import Modal from "../../components/layouts/Modal";
+import Modal from "../layouts/Modal";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
     FavoriteExercise,
@@ -8,6 +8,13 @@ import {
 import { splitDuration, combineDuration } from "../../utils/timeHelpers";
 import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
+import {
+    durationInputStyles,
+    durationLabelStyles,
+} from "../../constants/tailwindClasses";
+
+const labelStyles = "block font-medium text-sm mb-1";
+const inputStyles = "text-sm border p-2 w-full";
 
 type FavoriteExerciseEditModalProps = {
     isModalOpen: boolean;
@@ -17,7 +24,6 @@ type FavoriteExerciseEditModalProps = {
     setFavoriteExercises: React.Dispatch<SetStateAction<FavoriteExercise[]>>;
     fetchFavoriteExercises: () => Promise<any>;
 };
-
 export default function FavoriteExerciseEditModal({
     isModalOpen,
     setIsModalOpen,
@@ -64,9 +70,6 @@ export default function FavoriteExerciseEditModal({
         }
     }, [editItem, reset]);
 
-    const labelStyles = "block font-medium text-sm mb-1";
-    const inputStyles = "text-sm border p-2 w-full";
-
     const onSubmit: SubmitHandler<FavoriteExerciseFormInputs> = async (
         formData
     ) => {
@@ -110,17 +113,17 @@ export default function FavoriteExerciseEditModal({
             title="Edit your favorite exercise."
             buttons={[
                 {
-                    label: "Cancel",
-                    onClick: closeEditModal,
-                    variant: "secondary",
-                },
-                {
                     label: "Save Changes",
                     onClick: () => {}, // Empty onClick for submit buttons
                     variant: "primary",
                     type: "submit",
                     form: "edit-exercise-form",
                     disabled: isSubmitting,
+                },
+                {
+                    label: "Cancel",
+                    onClick: closeEditModal,
+                    variant: "secondary",
                 },
             ]}
         >
@@ -131,7 +134,7 @@ export default function FavoriteExerciseEditModal({
             >
                 <div>
                     <label htmlFor="name" className={labelStyles}>
-                        Name
+                        Name<span className="text-red-500">*</span>
                     </label>
                     <input
                         id="name"
@@ -158,40 +161,47 @@ export default function FavoriteExerciseEditModal({
 
                 <div>
                     <span className={labelStyles}>Duration</span>
-                    <div className="flex items-end gap-4">
+                    <div className="flex items-end gap-x-1">
                         <div>
                             <label
                                 htmlFor="durationMinutes"
-                                className="block text-xs mb-1"
+                                className={"text-gray-500 text-[10px]"}
                             >
-                                Minutes
+                                Min
                             </label>
-                            <input
-                                id="durationMinutes"
-                                type="number"
-                                min="0"
-                                {...register("durationMinutes", {
-                                    valueAsNumber: true,
-                                })}
-                                className={`${inputStyles} w-24`}
-                            />
+                            <div>
+                                <input
+                                    id="durationMinutes"
+                                    type="number"
+                                    min="0"
+                                    {...register("durationMinutes", {
+                                        valueAsNumber: true,
+                                    })}
+                                    className={`${durationInputStyles}`}
+                                />
+                            </div>
                         </div>
-                        <div>
+
+                        <div className="text-sm mb-1">:</div>
+
+                        <div className="ml-1">
                             <label
                                 htmlFor="durationSeconds"
-                                className="block text-xs mb-1"
+                                className={"text-gray-500 text-[10px]"}
                             >
-                                Seconds
+                                Sec
                             </label>
-                            <input
-                                id="durationSeconds"
-                                type="number"
-                                min="0"
-                                {...register("durationSeconds", {
-                                    valueAsNumber: true,
-                                })}
-                                className={`${inputStyles} w-24`}
-                            />
+                            <div>
+                                <input
+                                    id="durationSeconds"
+                                    type="number"
+                                    min="0"
+                                    {...register("durationSeconds", {
+                                        valueAsNumber: true,
+                                    })}
+                                    className={`${durationInputStyles}`}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

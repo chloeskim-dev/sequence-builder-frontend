@@ -13,7 +13,7 @@ const Searchbar = ({ placeholder, query, setQuery }: Props) => {
                 type="text"
                 value={query}
                 placeholder={placeholder}
-                className="text-xs w-full px-2 py-2 border-2"
+                className="text-xs w-full px-2 py-2 border-2 rounded-xl"
                 onChange={(e) => setQuery(e.target.value)}
             />
         </div>
