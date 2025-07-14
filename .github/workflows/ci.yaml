@@ -4,6 +4,7 @@ on: push
 
 jobs:
   build:
+    # Run on raspberry-pi runner
     runs-on: arc-sequence-builder
     steps:
       - name: Print a greeting
