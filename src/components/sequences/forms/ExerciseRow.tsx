@@ -5,7 +5,7 @@ import {
     useController,
 } from "react-hook-form";
 import Modal from "../../layouts/Modal";
-import { MainRow } from "../../layouts/ReusableList";
+import { MainRow } from "../../layouts/ReusableTable";
 import { SequenceFormInputs } from "../../../constants/types";
 import {
     combineDuration,
@@ -23,6 +23,7 @@ import {
 } from "../../../constants/tailwindClasses";
 import PaddedDurationDisplayWithLabels from "../../ui/PaddedDurationDisplayWithLabels";
 import { number } from "prop-types";
+import ReusableDetailsList from "../../layouts/ReusableDetailsList";
 
 type ExerciseRowProps = {
     index: number;
@@ -203,10 +204,10 @@ export default function ExerciseRow({
                     "resistance",
                     "notes",
                 ]}
-                actionsFieldWidthStyle="w-[200px]"
+                actionsFieldWidthStyle="w-[160px]"
                 actionButtons={[
                     {
-                        title: "Details",
+                        title: "View",
                         action: () => handleViewExerciseClick(index),
                     },
                     {
@@ -233,79 +234,16 @@ export default function ExerciseRow({
                         },
                     ]}
                 >
-                    <div className="flex flex-col gap-y-4">
-                        <div>
-                            <label htmlFor="name" className={labelStyles}>
-                                <div> Name</div>
-                            </label>
-                            <div id="name" className={textStyles}>
-                                <div className="flex items-center gap-x-1">
-                                    <div>{displayExercise.name}</div>
-                                </div>
-                            </div>
-                        </div>
-                        {displayExercise.direction &&
-                            displayExercise.direction !== "" && (
-                                <div>
-                                    <label
-                                        htmlFor="direction"
-                                        className={labelStyles}
-                                    >
-                                        Direction
-                                    </label>
-                                    <div id="direction" className={textStyles}>
-                                        {displayExercise.direction}
-                                    </div>
-                                </div>
-                            )}
-
-                        {displayExercise.duration_secs !== undefined ||
-                        displayExercise.duration_mins !== undefined ? (
-                            <PaddedDurationDisplayWithLabels
-                                minutes={
-                                    displayExercise.duration_mins !== undefined
-                                        ? displayExercise.duration_mins
-                                        : 0
-                                }
-                                seconds={
-                                    displayExercise.duration_secs !== undefined
-                                        ? displayExercise.duration_secs
-                                        : 0
-                                }
-                            />
-                        ) : (
-                            ""
-                        )}
-                        {displayExercise.resistance &&
-                            displayExercise.resistance !== "" && (
-                                <div>
-                                    <label
-                                        htmlFor="resistance"
-                                        className={labelStyles}
-                                    >
-                                        Resistance
-                                    </label>
-                                    <div id="resistance" className={textStyles}>
-                                        {displayExercise.resistance}
-                                    </div>
-                                </div>
-                            )}
-                        {displayExercise.notes &&
-                            displayExercise.notes !== "" && (
-                                <div>
-                                    <label
-                                        htmlFor="notes"
-                                        className={labelStyles}
-                                    >
-                                        Notes
-                                    </label>
-                                    <div
-                                        id="notes"
-                                        className={textStyles}
-                                    ></div>
-                                </div>
-                            )}
-                    </div>
+                    <ReusableDetailsList
+                        fields={[
+                            "name",
+                            "direction",
+                            "duration",
+                            "resistance",
+                            "notes",
+                        ]}
+                        item={displayExercise}
+                    />
                 </Modal>
             )}
             {isEditing && (

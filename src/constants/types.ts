@@ -1,3 +1,5 @@
+import { RegisterOptions } from "react-hook-form";
+
 export interface Item {
     id: string;
     name: string;
@@ -118,4 +120,16 @@ export interface SequencePayload {
         duration_secs?: number;
         order_index: number;
     }[];
+}
+
+export type FieldType = "text" | "textarea" | "number";
+
+export interface FieldConfig {
+    name: string;
+    label: string;
+    type: FieldType;
+    placeholder?: string;
+    rules?: RegisterOptions;
+    rows?: number; // for textarea
+    inputClassName?: string;
 }

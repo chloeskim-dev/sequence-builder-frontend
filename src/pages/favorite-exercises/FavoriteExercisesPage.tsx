@@ -9,7 +9,8 @@ import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
 import FavoriteExerciseDetailModal from "../../components/favorite-exercises/FavoriteExercisesDetailModal";
 import FavoriteExercisesDeleteConfirmModal from "../../components/favorite-exercises/FavoriteExercisesDeleteConfirmModal";
-import { ReusableList } from "../../components/layouts/ReusableList";
+import { ReusableTable } from "../../components/layouts/ReusableTable";
+import { pageOutermostFlexColStyles } from "../../constants/tailwindClasses";
 
 export default function FavoriteExercisesPage() {
     const [favoriteExerciseQuery, setFavoriteExerciseQuery] =
@@ -88,51 +89,49 @@ export default function FavoriteExercisesPage() {
 
     return (
         <div>
-            <div id="favoriteExercisesListHeader" className="mx-4">
-                <div className="mb-2 mt-1">
+            <div className={pageOutermostFlexColStyles}>
+                <div>
                     <IconButton
                         onClick={() => setIsCreateModalOpen(true)}
                         icon={<FiPlus size={14} />}
                         className="bg-green-600 rounded-lg text-lg font-extrabold"
                     >
-                        Add New
+                        Create New
                     </IconButton>
                 </div>
-                <div className="w-full">
-                    <Searchbar
-                        placeholder="Search by name..."
-                        query={favoriteExerciseQuery}
-                        setQuery={setFavoriteExerciseQuery}
+                <Searchbar
+                    placeholder="Search by name..."
+                    query={favoriteExerciseQuery}
+                    setQuery={setFavoriteExerciseQuery}
+                />
+                <div>
+                    <ReusableTable
+                        items={filteredfavoriteExercises}
+                        getActionButtonsForItem={(item, index) => [
+                            {
+                                title: "View",
+                                action: () => handleViewItemClick(index),
+                            },
+                            {
+                                title: "Edit",
+                                action: () => handleEditItemClick(index),
+                            },
+                            {
+                                title: "Delete",
+                                action: () => handleDeleteItemClick(index),
+                            },
+                        ]}
+                        standardFields={[
+                            "name",
+                            "direction",
+                            "duration",
+                            "resistance",
+                            "notes",
+                        ]}
+                        actionsFieldWidthStyle="w-[150px]"
                     />
                 </div>
             </div>
-
-            <ReusableList
-                items={filteredfavoriteExercises}
-                getActionButtonsForItem={(item, index) => [
-                    {
-                        title: "View",
-                        action: () => handleViewItemClick(index),
-                    },
-                    {
-                        title: "Edit",
-                        action: () => handleEditItemClick(index),
-                    },
-                    {
-                        title: "Delete",
-                        action: () => handleDeleteItemClick(index),
-                    },
-                ]}
-                standardFields={[
-                    "name",
-                    "direction",
-                    "duration",
-                    "resistance",
-                    "notes",
-                ]}
-                actionsFieldWidthStyle="w-[150px]"
-            />
-
             <FavoriteExerciseCreateModal
                 isModalOpen={isCreateModalOpen}
                 setIsModalOpen={setIsCreateModalOpen}

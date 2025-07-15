@@ -3,7 +3,7 @@ import { splitDuration } from "../../../utils/timeHelpers";
 import { ExerciseInputs, FavoriteExercise } from "../../../constants/types";
 import { api } from "../../../utils/api";
 import { useUser } from "../../../contexts/UserContext";
-import { ReusableList } from "../../layouts/ReusableList";
+import { ReusableTable } from "../../layouts/ReusableTable";
 
 type FavoriteExercisesDropdownProps = {
     handleAddFavoriteExercise: (newFavExercise: ExerciseInputs) => void;
@@ -34,7 +34,7 @@ function FavoriteExercisesDropdown({
     }, [userId]);
 
     return (
-        <ReusableList
+        <ReusableTable
             items={favoriteExercises}
             getActionButtonsForItem={(item, index) => [
                 {
@@ -64,7 +64,7 @@ function FavoriteExercisesDropdown({
                 "resistance",
                 "notes",
             ]}
-            actionsFieldWidthStyle="w-[200px]"
+            actionsFieldWidthStyle="w-[70px]"
         />
     );
 }

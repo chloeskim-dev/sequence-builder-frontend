@@ -73,7 +73,7 @@ export default function Modal({
             <div className="rounded-xl bg-white w-[90%] md:w-[80%] xl:w-[60%] max-h-[95vh] overflow-y-auto shadow-lg">
                 {title && (
                     <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-start">
-                        <h2 className="text-xl font-semibold text-gray-900 break-all">
+                        <h2 className="text-xl font-semibold text-gray-900">
                             {title}
                         </h2>
                         <CloseIcon onClick={onClose} />

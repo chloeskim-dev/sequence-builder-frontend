@@ -1,6 +1,6 @@
 import { SetStateAction, useEffect } from "react";
 import Modal from "../layouts/Modal";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
 import {
     FavoriteExercise,
     FavoriteExerciseFormInputs,
@@ -10,10 +10,8 @@ import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
 import { getUtcNaiveTimestamp } from "../../utils/timeHelpers";
 import { v4 as uuidv4 } from "uuid";
-import {
-    durationInputStyles,
-    errorMessageStyles,
-} from "../../constants/tailwindClasses";
+import { GenericExerciseForm } from "./GenericExerciseForm";
+import { exerciseFormFieldConfigs } from "../../constants/exerciseFormFields";
 
 type FavoriteExerciseCreateModalProps = {
     isModalOpen: boolean;
@@ -31,7 +29,7 @@ export default function FavoriteExerciseCreateModal({
     const { user } = useUser();
     const userId = user?.id ?? null;
 
-    const formInitialInputs = {
+    const initialValues = {
         name: "",
         direction: undefined,
         durationMinutes: undefined,
@@ -40,22 +38,7 @@ export default function FavoriteExerciseCreateModal({
         notes: undefined,
     };
 
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors, isSubmitting },
-    } = useForm<FavoriteExerciseFormInputs>({
-        defaultValues: formInitialInputs,
-    });
-
-    useEffect(() => {
-        reset(formInitialInputs);
-    }, [reset, isModalOpen]);
-
-    const labelStyles = "block font-medium text-sm mb-1";
-    const inputStyles = "text-sm border p-2 w-full";
-    const subDurationInputWidth = "w-[70px]";
+    const methods = useForm({ defaultValues: initialValues });
 
     const onSubmit: SubmitHandler<FavoriteExerciseFormInputs> = async (
         formData
@@ -98,13 +81,18 @@ export default function FavoriteExerciseCreateModal({
 
         let updatedFavoriteExercises = fetchFavoriteExercises();
         setFavoriteExercises(await updatedFavoriteExercises);
+        onModalClose();
+    };
+
+    const onModalClose = () => {
         setIsModalOpen(false);
+        methods.reset(initialValues);
     };
 
     return (
         <Modal
             isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
+            onClose={onModalClose}
             title="Create a new favorite exercise."
             buttons={[
                 {
@@ -113,182 +101,22 @@ export default function FavoriteExerciseCreateModal({
                     variant: "primary",
                     type: "submit",
                     form: "create-favorite-exercise-form",
-                    disabled: isSubmitting,
+                    disabled: methods.formState.isSubmitting,
                 },
                 {
                     label: "Cancel",
-                    onClick: () => setIsModalOpen(false),
+                    onClick: onModalClose,
                     variant: "secondary",
                 },
             ]}
         >
-            <form
-                id="create-favorite-exercise-form"
-                onSubmit={handleSubmit(onSubmit)}
-                className="space-y-2"
-            >
-                <div>
-                    <label htmlFor="name" className={labelStyles}>
-                        Name<span className="text-red-500">*</span>
-                    </label>
-                    <input
-                        id="name"
-                        {...register("name", {
-                            required: "Name is required",
-                            maxLength: {
-                                value: 100,
-                                message: "Name must be 100 characters or fewer",
-                            },
-                        })}
-                        className={inputStyles}
-                        placeholder="ex. reverse lunge"
-                    />
-                    {errors.name && (
-                        <p className={errorMessageStyles}>
-                            {errors.name.message}
-                        </p>
-                    )}
-                </div>
-
-                <div>
-                    <label htmlFor="direction" className={labelStyles}>
-                        Direction
-                    </label>
-                    <input
-                        id="direction"
-                        {...register("direction", {
-                            maxLength: {
-                                value: 100,
-                                message:
-                                    "Direction must be 100 characters or fewer",
-                            },
-                        })}
-                        className={inputStyles}
-                        placeholder="ex. left"
-                    />
-                    {errors.direction && (
-                        <p className={errorMessageStyles}>
-                            {errors.direction.message}
-                        </p>
-                    )}
-                </div>
-
-                <div>
-                    <span className={labelStyles}>Duration</span>
-                    <div className="flex gap-2 items-start">
-                        <div className={`flex flex-col`}>
-                            <label
-                                htmlFor="durationMinutes"
-                                className="block text-xs mb-1"
-                            >
-                                Minutes
-                            </label>
-                            <input
-                                id="durationMinutes"
-                                type="number"
-                                min="0"
-                                max="99"
-                                {...register("durationMinutes", {
-                                    valueAsNumber: true,
-                                    min: {
-                                        value: 0,
-                                        message: "Minutes must be 0 or more",
-                                    },
-                                    max: {
-                                        value: 99,
-                                        message: "Minutes must be 99 or less",
-                                    },
-                                })}
-                                className={`${durationInputStyles}`}
-                            />
-                            {errors.durationMinutes && (
-                                <p className={errorMessageStyles}>
-                                    {errors.durationMinutes.message}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="text-sm self-end pb-2">:</div>
-
-                        <div className={`flex flex-col flex-1`}>
-                            <label
-                                htmlFor="durationSeconds"
-                                className="block text-xs mb-1"
-                            >
-                                Seconds
-                            </label>
-                            <input
-                                id="durationSeconds"
-                                type="number"
-                                min="0"
-                                max="999"
-                                {...register("durationSeconds", {
-                                    valueAsNumber: true,
-                                    min: {
-                                        value: 0,
-                                        message: "Seconds must be 0 or more",
-                                    },
-                                    max: {
-                                        value: 999,
-                                        message: "Seconds must be 999 or less",
-                                    },
-                                })}
-                                className={`${durationInputStyles}`}
-                            />
-                            {errors.durationSeconds && (
-                                <p className={errorMessageStyles}>
-                                    {errors.durationSeconds.message}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label htmlFor="resistance" className={labelStyles}>
-                        Resistance
-                    </label>
-                    <input
-                        id="resistance"
-                        {...register("resistance", {
-                            maxLength: {
-                                value: 100,
-                                message:
-                                    "Resistance must be 100 characters or fewer",
-                            },
-                        })}
-                        className={inputStyles}
-                        placeholder="ex. 2 yellow springs"
-                    />
-                    {errors.resistance && (
-                        <p className={errorMessageStyles}>
-                            {errors.resistance.message}
-                        </p>
-                    )}
-                </div>
-
-                <div>
-                    <label htmlFor="notes" className={labelStyles}>
-                        Notes
-                    </label>
-                    <textarea
-                        id="notes"
-                        {...register("notes", {
-                            maxLength: {
-                                value: 500,
-                                message:
-                                    "Notes must be 500 characters or fewer",
-                            },
-                        })}
-                        rows={4}
-                        className={inputStyles}
-                        placeholder="ex. Keep knees over ankles."
-                    ></textarea>
-                </div>
-                {errors.notes && (
-                    <p className={errorMessageStyles}>{errors.notes.message}</p>
-                )}
-            </form>
+            <FormProvider {...methods}>
+                <GenericExerciseForm
+                    id="create-favorite-exercise-form"
+                    onSubmit={onSubmit}
+                    fields={exerciseFormFieldConfigs}
+                />
+            </FormProvider>
         </Modal>
     );
 }

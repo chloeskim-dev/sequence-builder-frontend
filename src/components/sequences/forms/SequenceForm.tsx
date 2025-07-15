@@ -21,7 +21,7 @@ import FavoriteExercisesDropdown from "./FavoriteExercisesDropdown";
 import NewExerciseInputsRow from "./NewExerciseInputsRow";
 import { IconButton } from "../../ui/IconButton";
 import Modal from "../../layouts/Modal";
-import { HeaderRow } from "../../layouts/ReusableList";
+import { HeaderRow } from "../../layouts/ReusableTable";
 
 import {
     Exercise,
@@ -320,7 +320,7 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
                     <Modal
                         isOpen={addNewExerciseModalIsOpen}
                         onClose={handleModalClose}
-                        title={"Create a new exercise."}
+                        title={"Add a new exercise to the sequence."}
                         buttons={[
                             {
                                 label: "Add",
@@ -374,7 +374,7 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
                                 icon={<FiPlus size={16} />}
                                 className={`bg-blue-600 ${addExerciseButtonStyles}`}
                             >
-                                Create New
+                                Add New
                             </IconButton>
                             <IconButton
                                 onClick={
@@ -407,7 +407,7 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
                                             "Resistance",
                                             "Notes",
                                         ]}
-                                        actionsFieldWidthStyle="w-[200px]"
+                                        actionsFieldWidthStyle="w-[160px]"
                                     />
                                 </div>
 
@@ -418,9 +418,7 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
                                                 id="sequenceExercisesListDroppableContainer"
                                                 ref={provided.innerRef}
                                                 {...provided.droppableProps}
-                                                className={
-                                                    allMainRowsContainerStyles
-                                                }
+                                                className={`${allMainRowsContainerStyles} mt-2`}
                                             >
                                                 {fields.map(
                                                     (field, fieldIndex) => {

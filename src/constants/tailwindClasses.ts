@@ -10,22 +10,22 @@ export const addExerciseButtonStyles =
 
 export const sequenceExerciseActionsColumnWidth = "w-[80px]";
 
-export const standardFieldContainerStyles = "flex-1 flex-shrink-0";
+export const standardFieldContainerStyles =
+    "flex-1 flex-shrink-0 overflow-hidden";
 export const actionsFieldWidthStyle = "w-[150px]";
 export const actionFieldContainerStyles = `${actionsFieldWidthStyle}`;
-export const actionButtonsContainerStyle =
-    "flex gap-x-2 mt-2 md:mt-0 md:justify-center";
+export const actionButtonsContainerStyle = "flex gap-x-2 md:justify-center";
 export const rightMarginSameWidthAsScrollbarStyle = "mr-[12px]"; // scrollbar for main rows container is set to exactly 12px
-export const commonPaddingXForHeaderContainerAndMainRow = "px-8";
+export const commonPaddingXForHeaderContainerAndMainRow = "px-6 md:px-8";
 export const commonFlexRowStyles =
     "flex flex-col md:flex-row gap-x-12 md:items-center justify-center";
 export const mainRowFieldTextStyles =
-    "line-clamp-2 overflow-hidden text-sm md:text-center break-all";
+    "line-clamp-2 overflow-hidden break-words text-sm md:text-center";
 export const mainRowFieldLabelStyles =
     "md:hidden text-sm font-extrabold capitalize";
 export const headerRowTextStyles = "truncate text-sm text-center font-bold";
 export const missingFieldDashStyles = "text-sm text-center text-gray-800";
-export const allMainRowsContainerStyles = `max-h-[70vh] overflow-auto flex flex-col gap-y-4 md:gap-y-2 pt-2 pb-2 mb-2`;
+export const allMainRowsContainerStyles = `max-h-[70vh] overflow-auto flex flex-col gap-y-2`;
 export const actionButtonStyles =
     "bg-white py-1 px-2 rounded text-xs font-bold";
 
@@ -40,3 +40,5 @@ export const errorMessageStyles =
 export const characterCountTextStyles = "px-1 text-gray-400 text-xs";
 export const dashboardButtonTextStyles =
     "bg-blue-600 text-white text-lg font-bold px-6 py-2 flex items-center justify-center gap-3 rounded-xl";
+export const pageOutermostFlexColStyles = "mx-4 flex flex-col gap-y-2";
+export const commonFlexColStyles = "flex flex-col space-y-2 text-sm";

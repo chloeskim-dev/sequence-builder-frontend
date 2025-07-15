@@ -12,7 +12,8 @@ import {
     removeNullFieldsFromSequences,
 } from "../../utils/sequenceHelpers";
 import { useNavigate } from "react-router-dom";
-import { ReusableList } from "../../components/layouts/ReusableList";
+import { ReusableTable } from "../../components/layouts/ReusableTable";
+import { pageOutermostFlexColStyles } from "../../constants/tailwindClasses";
 
 const SequencesPage = () => {
     const [sequenceQuery, setSequenceQuery] = useState("");
@@ -98,49 +99,52 @@ const SequencesPage = () => {
 
     return (
         <div>
-            <div id="sequencesListHeader" className="mx-4">
-                <div className="mb-2 mt-1">
+            <div className={pageOutermostFlexColStyles}>
+                <div>
                     <IconButton
                         onClick={() => navigate(`/sequences/create`)}
                         icon={<FiPlus size={14} />}
                         className="bg-green-600 rounded-lg text-lg font-extrabold"
                     >
-                        Add New
+                        Create New
                     </IconButton>
                 </div>
-                <div className="w-full">
-                    <Searchbar
-                        placeholder="Search by name..."
-                        query={sequenceQuery}
-                        setQuery={setSequenceQuery}
+                <Searchbar
+                    placeholder="Search by name..."
+                    query={sequenceQuery}
+                    setQuery={setSequenceQuery}
+                />
+                <div>
+                    <ReusableTable
+                        items={filteredSequences}
+                        standardFields={[
+                            "name",
+                            "description",
+                            "notes",
+                            "created_at",
+                        ]}
+                        getActionButtonsForItem={(item, index) => [
+                            {
+                                title: "View",
+                                action: () => handleViewItemClick(item.id),
+                            },
+                            {
+                                title: "Edit",
+                                action: () => handleEditItemClick(item.id),
+                            },
+                            {
+                                title: "Delete",
+                                action: () => handleDeleteItemClick(index),
+                            },
+                            {
+                                title: "Run",
+                                action: () => handleRunClick(item.id),
+                            },
+                        ]}
+                        actionsFieldWidthStyle="w-[210px]"
                     />
                 </div>
             </div>
-
-            <ReusableList
-                items={filteredSequences}
-                getActionButtonsForItem={(item, index) => [
-                    {
-                        title: "View",
-                        action: () => handleViewItemClick(item.id),
-                    },
-                    {
-                        title: "Edit",
-                        action: () => handleEditItemClick(item.id),
-                    },
-                    {
-                        title: "Delete",
-                        action: () => handleDeleteItemClick(index),
-                    },
-                    {
-                        title: "Run",
-                        action: () => handleRunClick(item.id),
-                    },
-                ]}
-                standardFields={["name", "description", "notes", "created_at"]}
-                actionsFieldWidthStyle="w-[210px]"
-            />
-
             {deleteItem && isDeleteConfirmModalOpen && (
                 <SequenceDeleteConfirmModal
                     isModalOpen={isDeleteConfirmModalOpen}

@@ -1,6 +1,6 @@
-import { SetStateAction, useEffect } from "react";
+import { SetStateAction } from "react";
 import Modal from "../layouts/Modal";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
 import {
     FavoriteExercise,
     FavoriteExerciseFormInputs,
@@ -8,13 +8,8 @@ import {
 import { splitDuration, combineDuration } from "../../utils/timeHelpers";
 import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
-import {
-    durationInputStyles,
-    durationLabelStyles,
-} from "../../constants/tailwindClasses";
-
-const labelStyles = "block font-medium text-sm mb-1";
-const inputStyles = "text-sm border p-2 w-full";
+import { GenericExerciseForm } from "./GenericExerciseForm";
+import { exerciseFormFieldConfigs } from "../../constants/exerciseFormFields";
 
 type FavoriteExerciseEditModalProps = {
     isModalOpen: boolean;
@@ -38,37 +33,17 @@ export default function FavoriteExerciseEditModal({
     const { splitMinutes, splitSeconds } = splitDuration(
         editItem.duration_secs
     );
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors, isSubmitting },
-    } = useForm<FavoriteExerciseFormInputs>({
-        defaultValues: {
-            name: editItem.name,
-            direction: editItem.direction,
-            durationMinutes: splitMinutes,
-            durationSeconds: splitSeconds,
-            resistance: editItem.resistance,
-            notes: editItem.notes,
-        },
-    });
 
-    useEffect(() => {
-        if (editItem) {
-            const { splitMinutes, splitSeconds } = splitDuration(
-                editItem.duration_secs
-            );
-            reset({
-                name: editItem.name,
-                direction: editItem.direction,
-                durationMinutes: splitMinutes,
-                durationSeconds: splitSeconds,
-                resistance: editItem.resistance,
-                notes: editItem.notes,
-            });
-        }
-    }, [editItem, reset]);
+    const initialValues = {
+        name: editItem.name,
+        direction: editItem.direction,
+        durationMinutes: splitMinutes,
+        durationSeconds: splitSeconds,
+        resistance: editItem.resistance,
+        notes: editItem.notes,
+    };
+
+    const methods = useForm({ defaultValues: initialValues });
 
     const onSubmit: SubmitHandler<FavoriteExerciseFormInputs> = async (
         formData
@@ -94,14 +69,16 @@ export default function FavoriteExerciseEditModal({
                 `/v1/favorite_exercises/${editItem.id}`,
                 transformedData
             );
-        } catch (err: any) {}
+        } catch (err: any) {
+            console.log(err);
+        }
 
         let updatedFavoriteExercises = fetchFavoriteExercises();
         setFavoriteExercises(await updatedFavoriteExercises);
-        setIsModalOpen(false);
+        onModalClose();
     };
 
-    const closeEditModal = () => {
+    const onModalClose = () => {
         setIsModalOpen(false);
         setEditItem(null);
     };
@@ -109,7 +86,7 @@ export default function FavoriteExerciseEditModal({
     return (
         <Modal
             isOpen={isModalOpen}
-            onClose={closeEditModal}
+            onClose={onModalClose}
             title="Edit your favorite exercise."
             buttons={[
                 {
@@ -117,118 +94,23 @@ export default function FavoriteExerciseEditModal({
                     onClick: () => {}, // Empty onClick for submit buttons
                     variant: "primary",
                     type: "submit",
-                    form: "edit-exercise-form",
-                    disabled: isSubmitting,
+                    form: "edit-favorite-exercise-form",
+                    disabled: methods.formState.isSubmitting,
                 },
                 {
                     label: "Cancel",
-                    onClick: closeEditModal,
+                    onClick: onModalClose,
                     variant: "secondary",
                 },
             ]}
         >
-            <form
-                id="edit-exercise-form"
-                onSubmit={handleSubmit(onSubmit)}
-                className="space-y-4"
-            >
-                <div>
-                    <label htmlFor="name" className={labelStyles}>
-                        Name<span className="text-red-500">*</span>
-                    </label>
-                    <input
-                        id="name"
-                        {...register("name", { required: true })}
-                        className={inputStyles}
-                    />
-                    {errors.name && (
-                        <span className="text-red-500 text-sm">
-                            This field is required
-                        </span>
-                    )}
-                </div>
-
-                <div>
-                    <label htmlFor="direction" className={labelStyles}>
-                        Direction
-                    </label>
-                    <input
-                        id="direction"
-                        {...register("direction")}
-                        className={inputStyles}
-                    />
-                </div>
-
-                <div>
-                    <span className={labelStyles}>Duration</span>
-                    <div className="flex items-end gap-x-1">
-                        <div>
-                            <label
-                                htmlFor="durationMinutes"
-                                className={"text-gray-500 text-[10px]"}
-                            >
-                                Min
-                            </label>
-                            <div>
-                                <input
-                                    id="durationMinutes"
-                                    type="number"
-                                    min="0"
-                                    {...register("durationMinutes", {
-                                        valueAsNumber: true,
-                                    })}
-                                    className={`${durationInputStyles}`}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="text-sm mb-1">:</div>
-
-                        <div className="ml-1">
-                            <label
-                                htmlFor="durationSeconds"
-                                className={"text-gray-500 text-[10px]"}
-                            >
-                                Sec
-                            </label>
-                            <div>
-                                <input
-                                    id="durationSeconds"
-                                    type="number"
-                                    min="0"
-                                    {...register("durationSeconds", {
-                                        valueAsNumber: true,
-                                    })}
-                                    className={`${durationInputStyles}`}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label htmlFor="resistance" className={labelStyles}>
-                        Resistance
-                    </label>
-                    <input
-                        id="resistance"
-                        {...register("resistance")}
-                        className={inputStyles}
-                    />
-                </div>
-
-                <div>
-                    <label htmlFor="notes" className={labelStyles}>
-                        Notes
-                    </label>
-                    <textarea
-                        id="notes"
-                        {...register("notes")}
-                        rows={4}
-                        className={inputStyles}
-                    ></textarea>
-                </div>
-            </form>
+            <FormProvider {...methods}>
+                <GenericExerciseForm
+                    id="edit-favorite-exercise-form"
+                    onSubmit={onSubmit}
+                    fields={exerciseFormFieldConfigs}
+                />
+            </FormProvider>
         </Modal>
     );
 }
