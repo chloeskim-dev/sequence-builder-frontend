@@ -71,13 +71,15 @@ const Field = ({ field, item }: FieldProps) => {
     };
 
     return (
-        <div>
-            <div className={commonFlexColStyles}>
-                <div className="font-extrabold capitalize">{fieldLabel}</div>
+        <div className={commonFlexColStyles}>
+            <div>
+                <div className="font-extrabold capitalize text-sm text-gb-yellow">
+                    {fieldLabel}
+                </div>
                 {!isEmpty ? (
                     <div>
                         {isDateField ? (
-                            <div className="flex flex-row gap-x-2">
+                            <div className="flex flex-row gap-x-2 text-mt-orange">
                                 <div>{date}</div>
                                 <div>{time}</div>
                             </div>
@@ -136,11 +138,11 @@ const Field = ({ field, item }: FieldProps) => {
                                 )}
                             </div>
                         ) : (
-                            <div>{item[field]}</div>
+                            <div className="text-mt-orange">{item[field]}</div>
                         )}
                     </div>
                 ) : (
-                    <div className="text-gray-800">-</div>
+                    <div className="text-mt-orange">-</div>
                 )}
             </div>
             {detailItem && isDetailModalOpen && (
@@ -177,8 +179,13 @@ const Field = ({ field, item }: FieldProps) => {
 interface ReusableDetailsListProps {
     fields: string[];
     item: any;
+    labelStyles?: string;
 }
-const ReusableDetailsList = ({ fields, item }: ReusableDetailsListProps) => {
+const ReusableDetailsList = ({
+    fields,
+    item,
+    labelStyles,
+}: ReusableDetailsListProps) => {
     return (
         <div className="flex flex-col gap-y-2">
             {/* ReusableDetailsList */}

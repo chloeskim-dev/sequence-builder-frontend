@@ -6,7 +6,7 @@ import {
 } from "../../constants/tailwindClasses";
 
 const labelStyles = "font-extrabold";
-const inputStyles = "text-sm border p-2 w-full rounded";
+const inputStyles = "text-sm p-2 w-full rounded";
 
 interface Props {
     id: string;
@@ -29,12 +29,33 @@ export function GenericExerciseForm({ id, onSubmit, fields }: Props) {
         >
             {fields.map((field) => {
                 const error = errors[field.name];
-                const commonProps = {
-                    id: field.name,
-                    ...register(field.name, field.rules),
-                    placeholder: field.placeholder,
-                    className: field.inputClassName || inputStyles,
+                const isNumberField = field.type === "number";
+                const isTextField =
+                    field.type === "text" || field.type === "textarea";
+
+                const fieldRules = {
+                    ...(field.rules || {}),
+                    ...(isNumberField && {
+                        setValueAs: (v: any) => {
+                            const result =
+                                v === "" || v === undefined
+                                    ? undefined
+                                    : isNaN(Number(v))
+                                    ? undefined
+                                    : Number(v);
+
+                            return result;
+                        },
+                    }),
+                    ...(isTextField && {
+                        setValueAs: (v: any) => {
+                            const result =
+                                v === "" || v === undefined ? undefined : v;
+                            return result;
+                        },
+                    }),
                 };
+                const registerResult = register(field.name, fieldRules);
 
                 return (
                     <div key={field.name}>
@@ -46,9 +67,17 @@ export function GenericExerciseForm({ id, onSubmit, fields }: Props) {
                         </label>
 
                         {field.type === "textarea" ? (
-                            <textarea {...commonProps} rows={field.rows || 3} />
+                            <textarea
+                                {...registerResult}
+                                rows={field.rows || 3}
+                                className={inputStyles}
+                            />
                         ) : (
-                            <input type={field.type} {...commonProps} />
+                            <input
+                                {...registerResult}
+                                type={field.type}
+                                className={inputStyles}
+                            />
                         )}
 
                         {error && (

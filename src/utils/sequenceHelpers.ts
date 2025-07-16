@@ -1,3 +1,5 @@
+import { Exercise, FavoriteExercise } from "../constants/types";
+
 export interface RawFullSequence {
     id: string;
     userId: string;
@@ -39,6 +41,7 @@ export interface CleanedUpExercise {
     notes?: string;
     created_at: string;
     orderIndex: number;
+    user_id: string;
 }
 
 export const removeNullFieldsFromExercise = (
@@ -47,6 +50,63 @@ export const removeNullFieldsFromExercise = (
     return Object.fromEntries(
         Object.entries(exercise).filter(([_, value]) => value !== null)
     ) as CleanedUpExercise;
+};
+
+export const removeNullFieldsFromExercises = (
+    exercises: RawExercise[]
+): Exercise[] => {
+    const cleanedExercises = exercises.map((exercise) =>
+        removeNullFieldsFromExercise(exercise)
+    );
+    console.log("Removed null fields from exercises.");
+    return cleanedExercises;
+};
+
+export interface favoriteExerciseFetchResult {
+    id: string;
+    user_id: string;
+    name: string;
+    created_at: string;
+    direction: string | null;
+    duration_secs: number | null;
+    resistance: string | null;
+    notes: string | null;
+}
+export interface CleanedUpFavoriteExercise {
+    id: string;
+    user_id: string;
+    name: string;
+    created_at: string;
+    direction?: string;
+    duration_secs?: number;
+    resistance?: string;
+    notes?: string;
+}
+export interface FavoriteExerciseBasePayload {
+    user_id: string;
+    name: string;
+    direction?: string;
+    duration_secs?: number;
+    resistance?: string;
+    notes?: string;
+}
+
+export const removeNullFieldsFromFavoriteExercise = (
+    favorite_exercise: favoriteExerciseFetchResult
+): CleanedUpFavoriteExercise => {
+    return Object.fromEntries(
+        Object.entries(favorite_exercise).filter(([_, value]) => value !== null)
+    ) as CleanedUpFavoriteExercise;
+};
+
+export const removeNullFieldsFromFavoriteExercises = (
+    exercises: favoriteExerciseFetchResult[]
+): CleanedUpFavoriteExercise[] => {
+    const cleanedExercises = exercises.map((exercise) =>
+        removeNullFieldsFromFavoriteExercise(exercise)
+    );
+    console.log("Removed null fields from favorite exercises.");
+    return cleanedExercises;
 };
 
 export const removeNullFieldsFromSequence = (

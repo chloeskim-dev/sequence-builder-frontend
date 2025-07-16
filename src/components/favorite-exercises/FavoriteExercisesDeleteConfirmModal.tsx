@@ -1,13 +1,13 @@
 import Modal from "../layouts/Modal";
-import { FavoriteExercise } from "../../constants/types";
 import { SetStateAction } from "react";
+import { CleanedUpFavoriteExercise } from "../../utils/sequenceHelpers";
 
 type FavoriteExercisesDeleteConfirmModalProps = {
     isModalOpen: boolean;
     setIsModalOpen: React.Dispatch<SetStateAction<boolean>>;
-    deleteItem: FavoriteExercise;
+    deleteItem: CleanedUpFavoriteExercise;
     setDeleteItem: React.Dispatch<
-        React.SetStateAction<FavoriteExercise | null>
+        React.SetStateAction<CleanedUpFavoriteExercise | null>
     >;
     deleteExercise: (exerciseId: string) => Promise<void>;
 };

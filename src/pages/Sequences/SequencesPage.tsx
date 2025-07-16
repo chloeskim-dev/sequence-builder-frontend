@@ -13,7 +13,10 @@ import {
 } from "../../utils/sequenceHelpers";
 import { useNavigate } from "react-router-dom";
 import { ReusableTable } from "../../components/layouts/ReusableTable";
-import { pageOutermostFlexColStyles } from "../../constants/tailwindClasses";
+import {
+    pageCreateNewButtonStyles,
+    pageOutermostFlexColStyles,
+} from "../../constants/tailwindClasses";
 
 const SequencesPage = () => {
     const [sequenceQuery, setSequenceQuery] = useState("");
@@ -104,7 +107,8 @@ const SequencesPage = () => {
                     <IconButton
                         onClick={() => navigate(`/sequences/create`)}
                         icon={<FiPlus size={14} />}
-                        className="bg-green-600 rounded-lg text-lg font-extrabold"
+                        // className="bg-green-600 rounded-lg text-lg font-extrabold"
+                        className={pageCreateNewButtonStyles}
                     >
                         Create New
                     </IconButton>

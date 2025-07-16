@@ -29,7 +29,9 @@ export default function PageLayout({ children, pageTitle, icon }: Props) {
     return (
         <div className="min-h-screen flex flex-col">
             {/* Navbar */}
-            <nav className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between">
+            {/* <nav className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between"> */}
+            {/* <nav className="bg-gb-aqua text-white px-4 py-3 flex items-center justify-between"> */}
+            <nav className="bg-gb-bg text-mt-fg px-4 py-3 flex items-center justify-between border-b border-mt-fg ">
                 <div className="text-lg font-bold">Sequence Builder Pro</div>
 
                 <div className="hidden md:flex space-x-4">
@@ -58,9 +60,9 @@ export default function PageLayout({ children, pageTitle, icon }: Props) {
             )}
 
             {/* Page content */}
-            <main className="flex-1 p-4 border-black">
+            <main className="bg-mt-bg flex-1 p-4">
                 <div className="flex flex-col gap-2">
-                    <div className="font-bold text-xl flex items-center justify-center">
+                    <div className="font-bold text-xl text-gb-yellow my-2 flex items-center justify-center">
                         {pageTitle && pageTitle}
                         {icon && icon}
                     </div>
@@ -69,7 +71,7 @@ export default function PageLayout({ children, pageTitle, icon }: Props) {
             </main>
 
             {/* Footer */}
-            <footer className="bg-blue-600 text-white text-xs text-center p-2">
+            <footer className="bg-gb-bg border-t border-mt-fg text-mt-fg text-xs font-bold text-center p-2">
                 © 2025 Sequence Builder Pro
             </footer>
         </div>

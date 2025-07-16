@@ -5,6 +5,7 @@ import {
 } from "./timeHelpers";
 import {
     ExerciseInputs,
+    FavoriteExerciseFormInputs,
     SequenceFormInputs,
     SequencePayload,
 } from "../constants/types";
@@ -13,6 +14,10 @@ import {
     UseFormSetValue,
     UseFormTrigger,
 } from "react-hook-form";
+import {
+    CleanedUpFavoriteExercise,
+    FavoriteExerciseBasePayload,
+} from "./sequenceHelpers";
 
 export const prepareAndAppendExerciseToForm = (
     exerciseData: ExerciseInputs,
@@ -130,4 +135,38 @@ export const editExerciseFieldArray = async ({
     );
 
     setEditingExerciseFieldIndex(null);
+};
+
+// Favorite Exercise Forms
+export const makeBaseFavoriteExercisePayloadFromFormData = (
+    formData: FavoriteExerciseFormInputs,
+    userId: string
+) => {
+    // 1) Adds user_id
+    // 2) Drops all fields from form whose values are undefined
+
+    const hasDuration =
+        formData.durationMinutes !== undefined ||
+        formData.durationSeconds !== undefined;
+
+    const combinedDurationSecs = hasDuration
+        ? combineDuration(
+              formData.durationMinutes ?? 0,
+              formData.durationSeconds ?? 0
+          )
+        : undefined;
+
+    const sanitizedBasePayload: FavoriteExerciseBasePayload = {
+        user_id: userId,
+        name: formData.name,
+        ...(formData.direction !== undefined && {
+            direction: formData.direction,
+        }),
+        ...(hasDuration && { duration_secs: combinedDurationSecs }),
+        ...(formData.resistance !== undefined && {
+            resistance: formData.resistance,
+        }),
+        ...(formData.notes !== undefined && { notes: formData.notes }),
+    };
+    return sanitizedBasePayload;
 };

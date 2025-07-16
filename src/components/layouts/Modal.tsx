@@ -48,17 +48,17 @@ export default function Modal({
 
     const getButtonStyles = (variant: ModalButton["variant"] = "primary") => {
         const baseStyles =
-            "px-4 py-2 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+            "px-4 py-2 font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
         switch (variant) {
             case "primary":
-                return `${baseStyles} bg-blue-600 text-white hover:bg-blue-700 rounded`;
+                return `${baseStyles} bg-mt-red text-white hover:bg-gb-red rounded `;
             case "secondary":
-                return `${baseStyles} bg-gray-200 text-gray-800 hover:bg-gray-300 rounded`;
+                return `${baseStyles} bg-gray-200 text-gray-800 hover:bg-gray-300 rounded `;
             case "danger":
-                return `${baseStyles} bg-red-600 text-white hover:bg-red-700 rounded`;
+                return `${baseStyles} bg-red-600 text-white hover:bg-red-700 rounded `;
             default:
-                return `${baseStyles} bg-blue-600 text-white hover:bg-blue-700 rounded`;
+                return `${baseStyles} bg-blue-600 text-white hover:bg-blue-700 rounded `;
         }
     };
 
@@ -70,9 +70,9 @@ export default function Modal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="rounded-xl bg-white w-[90%] md:w-[80%] xl:w-[60%] max-h-[95vh] overflow-y-auto shadow-lg">
+            <div className="rounded-xl bg-mt-green w-[90%] md:w-[80%] xl:w-[60%] overflow-y-auto shadow-lg">
                 {title && (
-                    <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-start">
+                    <div className="px-6 bg-gb-green py-4 border-b border-mt-gray flex justify-between items-start">
                         <h2 className="text-xl font-semibold text-gray-900">
                             {title}
                         </h2>
@@ -83,7 +83,7 @@ export default function Modal({
                 <div className="p-6">{children}</div>
 
                 {modalButtons.length > 0 && (
-                    <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <div className="bg-gb-green px-6 py-4 border-t border-mt-gray">
                         <div className="flex gap-3">
                             {modalButtons.map((button, index) => (
                                 <button

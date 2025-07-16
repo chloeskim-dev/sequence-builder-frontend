@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Searchbar from "../../components/ui/Searchbar";
 import { FiPlus } from "react-icons/fi";
-import { FavoriteExercise } from "../../constants/types";
 import FavoriteExerciseEditModal from "../../components/favorite-exercises/FavoriteExercisesEditModal";
 import FavoriteExerciseCreateModal from "../../components/favorite-exercises/FavoriteExercisesCreateModal";
 import { IconButton } from "../../components/ui/IconButton";
@@ -10,29 +9,44 @@ import { useUser } from "../../contexts/UserContext";
 import FavoriteExerciseDetailModal from "../../components/favorite-exercises/FavoriteExercisesDetailModal";
 import FavoriteExercisesDeleteConfirmModal from "../../components/favorite-exercises/FavoriteExercisesDeleteConfirmModal";
 import { ReusableTable } from "../../components/layouts/ReusableTable";
-import { pageOutermostFlexColStyles } from "../../constants/tailwindClasses";
+import {
+    pageCreateNewButtonStyles,
+    pageOutermostFlexColStyles,
+} from "../../constants/tailwindClasses";
+import {
+    CleanedUpFavoriteExercise,
+    favoriteExerciseFetchResult,
+    removeNullFieldsFromFavoriteExercise,
+    removeNullFieldsFromFavoriteExercises,
+} from "../../utils/sequenceHelpers";
 
 export default function FavoriteExercisesPage() {
     const [favoriteExerciseQuery, setFavoriteExerciseQuery] =
         useState<string>("");
     const [favoriteExercises, setFavoriteExercises] = useState<
-        FavoriteExercise[]
+        CleanedUpFavoriteExercise[]
     >([]);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
     const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] =
         useState<boolean>(false);
-    const [detailItem, setDetailItem] = useState<FavoriteExercise | null>(null);
-    const [editItem, setEditItem] = useState<FavoriteExercise | null>(null);
-    const [deleteItem, setDeleteItem] = useState<FavoriteExercise | null>(null);
+    const [detailItem, setDetailItem] =
+        useState<CleanedUpFavoriteExercise | null>(null);
+    const [editItem, setEditItem] = useState<CleanedUpFavoriteExercise | null>(
+        null
+    );
+    const [deleteItem, setDeleteItem] =
+        useState<CleanedUpFavoriteExercise | null>(null);
     const [error, setError] = useState<string>("");
     const { user } = useUser();
     const userId = user?.id ?? null;
 
     const fetchFavoriteExercises = async () => {
         try {
-            const res = await api.get(`/v1/favorite_exercises/user/${userId}`);
+            const res: favoriteExerciseFetchResult[] = await api.get(
+                `/v1/favorite_exercises/user/${userId}`
+            );
             return res;
         } catch (err: any) {
             console.error("Error fetching favorite exercises:", err);
@@ -44,7 +58,10 @@ export default function FavoriteExercisesPage() {
         const initializeData = async () => {
             try {
                 const res = await fetchFavoriteExercises();
-                setFavoriteExercises(res);
+                console.log("!!!", res);
+                const cleanedFavoriteExercises =
+                    removeNullFieldsFromFavoriteExercises(res);
+                setFavoriteExercises(cleanedFavoriteExercises);
             } catch (err: any) {
                 console.error("Error initializing favorite exercises:", err);
                 setError(err.message);
@@ -67,10 +84,12 @@ export default function FavoriteExercisesPage() {
 
     const handleEditItemClick = async (index: number) => {
         const favoriteExerciseId = favoriteExercises[index].id;
-        const res = await api.get(
+        const fetchedFavoriteExercise = await api.get(
             `/v1/favorite_exercises/${favoriteExerciseId}`
         );
-        setEditItem(res);
+        setEditItem(
+            removeNullFieldsFromFavoriteExercise(fetchedFavoriteExercise)
+        );
         setIsEditModalOpen(true);
     };
 
@@ -78,7 +97,10 @@ export default function FavoriteExercisesPage() {
         const res = await api.delete(`/v1/favorite_exercises/${exerciseId}`);
         console.log(`deleted full sequence with id: ${exerciseId}`, res);
         let updatedFavoriteExercises = fetchFavoriteExercises();
-        setFavoriteExercises(await updatedFavoriteExercises);
+        let cleanedFavoriteExercises = removeNullFieldsFromFavoriteExercises(
+            await updatedFavoriteExercises
+        );
+        setFavoriteExercises(cleanedFavoriteExercises);
         setIsDeleteConfirmModalOpen(false);
     };
 
@@ -94,7 +116,8 @@ export default function FavoriteExercisesPage() {
                     <IconButton
                         onClick={() => setIsCreateModalOpen(true)}
                         icon={<FiPlus size={14} />}
-                        className="bg-green-600 rounded-lg text-lg font-extrabold"
+                        // className="bg-green-600 rounded-lg text-lg font-extrabold"
+                        className={pageCreateNewButtonStyles}
                     >
                         Create New
                     </IconButton>

@@ -48,7 +48,7 @@ const SequenceEditPage = () => {
                 onSubmit={onEditFormSubmit}
                 formId="edit-sequence-form"
                 title="Edit Sequence"
-                editItem={sequence}
+                editSequence={sequence}
             />
         </div>
     );

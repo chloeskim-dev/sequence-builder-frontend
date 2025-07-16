@@ -175,7 +175,9 @@ export const MainRow: React.FC<MainRowProps> = ({
     return (
         <div
             id="mainRowContainer"
-            className={`${commonFlexRowStyles} pt-4 md:py-2 bg-yellow-300 pb-4 rounded-xl gap-y-1 ${commonPaddingXForHeaderContainerAndMainRow}`}
+            // className={`${commonFlexRowStyles} pt-4 md:py-2 bg-yellow-300 pb-4 rounded-xl gap-y-1 ${commonPaddingXForHeaderContainerAndMainRow}`}
+            // className={`${commonFlexRowStyles} pt-4 md:py-2 bg-mt-yellow pb-4 rounded-xl gap-y-1 ${commonPaddingXForHeaderContainerAndMainRow}`}
+            className={`${commonFlexRowStyles} py-5 md:py-2 bg-gb-yellow rounded-xl gap-y-1 ${commonPaddingXForHeaderContainerAndMainRow}`}
         >
             {/* non-action fields */}
             {standardFieldsDivs}
@@ -222,7 +224,10 @@ export const ReusableTable: React.FC<ReusableTableProps> = ({
             <div className="">
                 {/* Header Row */}
                 <div
-                    className={`hidden md:block bg-orange-300 rounded-xl py-2 mb-2`}
+                    // className={`hidden md:block bg-orange-300 rounded-xl py-2 mb-2`}
+                    // className={`hidden md:block bg-gb-blue rounded-xl py-2 mb-2`}
+                    // className={`hidden md:block bg-gb-orange rounded-xl py-2 mb-2`}
+                    className={`hidden md:block bg-mt-orange rounded-xl py-2 mb-2`}
                 >
                     <HeaderRow
                         standardFields={standardFields}

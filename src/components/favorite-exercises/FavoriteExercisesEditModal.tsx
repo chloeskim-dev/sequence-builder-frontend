@@ -1,22 +1,28 @@
 import { SetStateAction } from "react";
 import Modal from "../layouts/Modal";
 import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
-import {
-    FavoriteExercise,
-    FavoriteExerciseFormInputs,
-} from "../../constants/types";
-import { splitDuration, combineDuration } from "../../utils/timeHelpers";
+import { FavoriteExerciseFormInputs } from "../../constants/types";
+import { splitDuration } from "../../utils/timeHelpers";
 import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
 import { GenericExerciseForm } from "./GenericExerciseForm";
 import { exerciseFormFieldConfigs } from "../../constants/exerciseFormFields";
+import {
+    CleanedUpFavoriteExercise,
+    removeNullFieldsFromFavoriteExercises,
+} from "../../utils/sequenceHelpers";
+import { makeBaseFavoriteExercisePayloadFromFormData } from "../../utils/formHelpers";
 
 type FavoriteExerciseEditModalProps = {
     isModalOpen: boolean;
     setIsModalOpen: React.Dispatch<SetStateAction<boolean>>;
-    editItem: FavoriteExercise;
-    setEditItem: React.Dispatch<SetStateAction<FavoriteExercise | null>>;
-    setFavoriteExercises: React.Dispatch<SetStateAction<FavoriteExercise[]>>;
+    editItem: CleanedUpFavoriteExercise;
+    setEditItem: React.Dispatch<
+        SetStateAction<CleanedUpFavoriteExercise | null>
+    >;
+    setFavoriteExercises: React.Dispatch<
+        SetStateAction<CleanedUpFavoriteExercise[]>
+    >;
     fetchFavoriteExercises: () => Promise<any>;
 };
 export default function FavoriteExerciseEditModal({
@@ -27,54 +33,55 @@ export default function FavoriteExerciseEditModal({
     setFavoriteExercises,
     fetchFavoriteExercises,
 }: FavoriteExerciseEditModalProps) {
-    const { user, isAuthenticated } = useUser();
+    const { user } = useUser();
     const userId = user?.id ?? null;
 
-    const { splitMinutes, splitSeconds } = splitDuration(
-        editItem.duration_secs
-    );
+    const editItemDurationMinutes =
+        editItem.duration_secs !== undefined
+            ? splitDuration(editItem.duration_secs).splitMinutes
+            : undefined;
 
-    const initialValues = {
+    const editItemDurationSeconds =
+        editItem.duration_secs !== undefined
+            ? splitDuration(editItem.duration_secs).splitMinutes
+            : undefined;
+
+    const formInitialValues = {
         name: editItem.name,
         direction: editItem.direction,
-        durationMinutes: splitMinutes,
-        durationSeconds: splitSeconds,
+        durationMinutes: editItemDurationMinutes,
+        durationSeconds: editItemDurationSeconds,
         resistance: editItem.resistance,
         notes: editItem.notes,
     };
 
-    const methods = useForm({ defaultValues: initialValues });
+    const methods = useForm({ defaultValues: formInitialValues });
 
     const onSubmit: SubmitHandler<FavoriteExerciseFormInputs> = async (
         formData
     ) => {
-        const combinedDurationSecs = combineDuration(
-            formData.durationMinutes ?? 0,
-            formData.durationSeconds ?? 0
-        );
+        const baseFavoriteExercisePayload =
+            makeBaseFavoriteExercisePayloadFromFormData(formData, userId!);
 
-        const transformedData = {
+        const editRequestPayload = {
+            ...baseFavoriteExercisePayload,
             id: editItem.id,
             created_at: editItem.created_at,
-            user_id: userId,
-            name: formData.name,
-            direction: formData.direction,
-            duration_secs: combinedDurationSecs,
-            resistance: formData.resistance,
-            notes: formData.notes,
         };
 
         try {
             const res = await api.put(
                 `/v1/favorite_exercises/${editItem.id}`,
-                transformedData
+                editRequestPayload
             );
         } catch (err: any) {
             console.log(err);
         }
 
-        let updatedFavoriteExercises = fetchFavoriteExercises();
-        setFavoriteExercises(await updatedFavoriteExercises);
+        let updatedFavoriteExercises = await fetchFavoriteExercises();
+        setFavoriteExercises(
+            removeNullFieldsFromFavoriteExercises(updatedFavoriteExercises)
+        );
         onModalClose();
     };
 

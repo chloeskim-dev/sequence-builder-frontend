@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { FiMinus, FiPlus } from "react-icons/fi";
+import { useState, useEffect } from "react";
+import { FiPlus } from "react-icons/fi";
 import {
     useForm,
     FormProvider,
     useFieldArray,
     SubmitHandler,
-    UseFormGetValues,
-    UseFormTrigger,
-    UseFormSetValue,
 } from "react-hook-form";
 import {
     DragDropContext,
@@ -18,7 +15,6 @@ import {
 
 import ExerciseRow from "./ExerciseRow";
 import FavoriteExercisesDropdown from "./FavoriteExercisesDropdown";
-import NewExerciseInputsRow from "./NewExerciseInputsRow";
 import { IconButton } from "../../ui/IconButton";
 import Modal from "../../layouts/Modal";
 import { HeaderRow } from "../../layouts/ReusableTable";
@@ -45,49 +41,44 @@ import {
     sequenceExercisesListContainerStyles,
 } from "../../../constants/tailwindClasses";
 
-import {
-    editExerciseFieldArray,
-    prepareAndAppendExerciseToForm,
-} from "../../../utils/formHelpers";
+import { prepareAndAppendExerciseToForm } from "../../../utils/formHelpers";
 
-import { useUser } from "../../../contexts/UserContext";
 import { splitDuration } from "../../../utils/timeHelpers";
 import { useNavigate } from "react-router-dom";
+import { GenericExerciseForm } from "../../favorite-exercises/GenericExerciseForm";
+import { exerciseFormFieldConfigs } from "../../../constants/exerciseFormFields";
+import ReusableDetailsList from "../../layouts/ReusableDetailsList";
 
 type Props = {
     title: string;
     formId: string;
     onSubmit: SubmitHandler<SequenceFormInputs>;
-    editItem?: Sequence;
+    editSequence?: Sequence;
 };
 
-export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
+export default function SequenceForm({
+    formId,
+    onSubmit,
+    editSequence,
+}: Props) {
+    const [backupSequence, setBackupSequence] =
+        useState<SequenceFormInputs | null>(null);
+
     const [addNewExerciseModalIsOpen, setAddNewExerciseModalIsOpen] =
+        useState<boolean>(false);
+    const [editExerciseModalIsOpen, setEditExerciseModalIsOpen] =
+        useState<boolean>(false);
+    const [viewExerciseModalIsOpen, setViewExerciseModalIsOpen] =
         useState<boolean>(false);
     const [
         addFromFavoriteExercisesModalIsOpen,
         setAddFromFavoriteExercisesModalIsOpen,
     ] = useState<boolean>(false);
 
-    const [backupSequence, setBackupSequence] =
-        useState<SequenceFormInputs | null>(null);
-
-    const [showAddNewExerciseRowErrors, setShowAddNewExerciseRowErrors] =
-        useState(false);
-    const [newExerciseInputs, setNewExerciseInputs] = useState<ExerciseInputs>(
-        blankNewExerciseInputs
-    );
-    const [editingExerciseId, setEditingExerciseId] = useState<string | null>(
-        null
-    );
     const [editingExerciseFieldIndex, setEditingExerciseFieldIndex] = useState<
         number | null
     >(null);
     const [viewingExerciseFieldIndex, setViewingExerciseFieldIndex] = useState<
-        number | null
-    >(null);
-
-    const [expandedExerciseIndex, setExpandedExerciseIndex] = useState<
         number | null
     >(null);
 
@@ -107,84 +98,130 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
         };
     };
 
-    const formInitialInputs = editItem
+    // SEQUENCE FORM
+
+    const formInitialInputs = editSequence
         ? {
-              name: editItem.name,
-              description: editItem.description,
-              notes: editItem.notes,
-              exercises: editItem.exercises.map((exercise) => {
+              name: editSequence.name,
+              description: editSequence.description,
+              notes: editSequence.notes,
+              exercises: editSequence.exercises.map((exercise) => {
                   return prepareInitialExercise(exercise);
               }),
           }
         : blankSequenceFormInputs;
 
-    const methods = useForm<SequenceFormInputs>({
+    const sequenceFormMethods = useForm<SequenceFormInputs>({
         defaultValues: formInitialInputs,
     });
 
-    const {
-        control,
-        getValues,
-        setValue,
-        handleSubmit,
-        register,
-        reset,
-        trigger,
-        formState: { errors, isSubmitting },
-    } = methods;
-
-    useEffect(() => {
-        if (editItem) {
-            const initial: SequenceFormInputs = {
-                name: editItem.name,
-                description: editItem.description,
-                notes: editItem.notes,
-                exercises: editItem.exercises.map(prepareInitialExercise),
-            };
-            reset(initial); // Also sets form value5s
-            setBackupSequence(initial);
-        } else {
-            reset(blankSequenceFormInputs);
-            setBackupSequence(null);
-        }
-    }, [editItem, reset]);
+    const { control } = sequenceFormMethods;
 
     const { fields, append, remove, move } = useFieldArray({
         control,
         name: "exercises",
     });
 
-    const resetAddNewExerciseRow = () => {
-        setNewExerciseInputs(blankNewExerciseInputs);
-    };
+    // useEffect to INITIALIZE AND BACKUP EDIT SEQUENCE FORM
 
-    const handleAddNewExerciseOptionClick = () => {
-        setAddFromFavoriteExercisesModalIsOpen(false);
-        setAddNewExerciseModalIsOpen(!addNewExerciseModalIsOpen);
-    };
-
-    const handleAddFromFavoriteExercisesOptionClick = () => {
-        setAddNewExerciseModalIsOpen(false);
-        setAddFromFavoriteExercisesModalIsOpen(
-            !addFromFavoriteExercisesModalIsOpen
-        );
-    };
-
-    const handleAddNewExercise = () => {
-        if (newExerciseInputs.name === "") {
-            setShowAddNewExerciseRowErrors(true);
-            return;
+    useEffect(() => {
+        if (editSequence) {
+            const initial: SequenceFormInputs = {
+                name: editSequence.name,
+                description: editSequence.description,
+                notes: editSequence.notes,
+                exercises: editSequence.exercises.map(prepareInitialExercise),
+            };
+            sequenceFormMethods.reset(initial); // Also sets form value5s
+            setBackupSequence(initial);
+        } else {
+            sequenceFormMethods.reset(blankSequenceFormInputs);
+            setBackupSequence(null);
         }
-        setShowAddNewExerciseRowErrors(false);
-        prepareAndAppendExerciseToForm(newExerciseInputs, append);
-        setAddNewExerciseModalIsOpen(false);
-        resetAddNewExerciseRow();
+    }, [editSequence, sequenceFormMethods.reset]);
+
+    // CREATE EXERCISE FORM
+
+    const newExerciseFormMethods = useForm<ExerciseInputs>({
+        defaultValues: blankNewExerciseInputs,
+    });
+
+    // EDIT EXERCISE FORM
+
+    const isEditing = editingExerciseFieldIndex !== null;
+    const editItem = isEditing
+        ? sequenceFormMethods.getValues().exercises[editingExerciseFieldIndex]
+        : null;
+
+    const editExerciseInitialValues = editItem
+        ? {
+              name: editItem.name,
+              direction: editItem.direction,
+              duration_mins: editItem.duration_mins,
+              duration_secs: editItem.duration_secs,
+              resistance: editItem.resistance,
+              notes: editItem.notes,
+          }
+        : undefined;
+
+    const editExerciseFormMethods = useForm<ExerciseInputs>({
+        defaultValues: editExerciseInitialValues,
+    });
+
+    // useEffect to INITIALIZE EDIT EXERCISE FORM
+
+    useEffect(() => {
+        if (editingExerciseFieldIndex !== null) {
+            const editItem =
+                sequenceFormMethods.getValues().exercises[
+                    editingExerciseFieldIndex
+                ];
+            if (editItem) {
+                const values = {
+                    name: editItem.name,
+                    direction: editItem.direction,
+                    duration_mins: editItem.duration_mins,
+                    duration_secs: editItem.duration_secs,
+                    resistance: editItem.resistance,
+                    notes: editItem.notes,
+                };
+                editExerciseFormMethods.reset(values);
+            }
+        }
+    }, [editingExerciseFieldIndex, editExerciseFormMethods]);
+
+    const onSequenceFormCancel = () => {
+        if (backupSequence) {
+            sequenceFormMethods.reset(backupSequence);
+        } else sequenceFormMethods.reset(blankSequenceFormInputs);
+        navigate("/sequences");
     };
 
-    const cancelAddNewExercise = () => {
-        setShowAddNewExerciseRowErrors(false);
+    // MODAL CLOSE HANDLERS
+
+    const handleCreateExerciseModalClose = () => {
         setAddNewExerciseModalIsOpen(false);
-        resetAddNewExerciseRow();
+    };
+
+    const handleAddFromFavoritesModalClose = () => {
+        setAddFromFavoriteExercisesModalIsOpen(false);
+    };
+
+    const handleViewExerciseModalClose = () => {
+        setViewExerciseModalIsOpen(false);
+        setViewingExerciseFieldIndex(null);
+    };
+
+    const handleEditExerciseModalClose = () => {
+        setEditExerciseModalIsOpen(false);
+        setEditingExerciseFieldIndex(null);
+    };
+
+    // SUBMIT HANDLERS
+
+    const handleNewExerciseSubmit = (data: ExerciseInputs) => {
+        prepareAndAppendExerciseToForm(data, append);
+        setAddNewExerciseModalIsOpen(false);
     };
 
     const handleAddFavoriteExercise = (
@@ -194,67 +231,58 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
         setAddFromFavoriteExercisesModalIsOpen(false);
     };
 
+    const handleEditExerciseSubmit = (data: ExerciseInputs) => {
+        if (editingExerciseFieldIndex !== null) {
+            // Update the specific exercise in the form
+            const currentExercises = sequenceFormMethods.getValues().exercises;
+            const updatedExercise = {
+                ...currentExercises[editingExerciseFieldIndex],
+                ...data,
+                // Convert duration back to total seconds if needed
+                duration_secs: data.duration_mins
+                    ? data.duration_mins * 60 + (data.duration_secs || 0)
+                    : data.duration_secs,
+            };
+
+            sequenceFormMethods.setValue(
+                `exercises.${editingExerciseFieldIndex}`,
+                updatedExercise
+            );
+            sequenceFormMethods.trigger(
+                `exercises.${editingExerciseFieldIndex}`
+            );
+
+            setEditExerciseModalIsOpen(false);
+            setEditingExerciseFieldIndex(null);
+        }
+    };
+
     const onDragEnd = (result: DropResult) => {
         if (!result.destination) return;
         move(result.source.index, result.destination.index);
     };
 
-    const onExpandRow = (index: number) => {
-        setExpandedExerciseIndex(expandedExerciseIndex == index ? null : index);
-    };
-
     const navigate = useNavigate();
-
-    const onSequenceFormCancel = () => {
-        if (backupSequence) {
-            reset(backupSequence);
-        } else reset(blankSequenceFormInputs);
-        navigate("/sequences");
-    };
-
-    const handleModalClose = () => {
-        setAddFromFavoriteExercisesModalIsOpen(false);
-        setAddNewExerciseModalIsOpen(false);
-        setExpandedExerciseIndex(null);
-        setEditingExerciseId(null);
-        resetAddNewExerciseRow();
-    };
-
-    type onSaveExerciseEditsArgs = {
-        fieldIndex: number;
-        getValues: UseFormGetValues<SequenceFormInputs>;
-        setValue: UseFormSetValue<SequenceFormInputs>;
-        trigger: UseFormTrigger<SequenceFormInputs>;
-        setEditingExerciseFieldIndex: React.Dispatch<
-            React.SetStateAction<number | null>
-        >;
-    };
-
-    const onSaveExerciseEdits = (args: onSaveExerciseEditsArgs) => {
-        setEditingExerciseFieldIndex(args.fieldIndex);
-        editExerciseFieldArray(args);
-        setExpandedExerciseIndex(null);
-    };
-
-    const onEditExerciseModalClose = () => {
-        setEditingExerciseFieldIndex(null);
-    };
 
     return (
         <div>
-            <FormProvider {...methods}>
+            {/* SEQUENCE FORM */}
+            <FormProvider {...sequenceFormMethods}>
                 <form
                     id={formId}
-                    onSubmit={handleSubmit(onSubmit)}
+                    onSubmit={sequenceFormMethods.handleSubmit(onSubmit)}
                     className="space-y-4"
                 >
                     <div>
-                        <label htmlFor="name" className={labelStyles}>
+                        <label
+                            htmlFor="name"
+                            className={`text-white ${labelStyles}`}
+                        >
                             Name<span className="text-red-500">*</span>
                         </label>
                         <input
                             id="name"
-                            {...register("name", {
+                            {...sequenceFormMethods.register("name", {
                                 required: "Name is required",
                                 maxLength: {
                                     value: 100,
@@ -265,19 +293,25 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
                             className={inputStyles}
                             placeholder="ex. club pilates monday 9am class"
                         />
-                        {errors.name && (
+                        {sequenceFormMethods.formState.errors.name && (
                             <p className={errorMessageStyles}>
-                                {errors.name.message}
+                                {
+                                    sequenceFormMethods.formState.errors.name
+                                        .message
+                                }
                             </p>
                         )}
                     </div>
                     <div>
-                        <label htmlFor="description" className={labelStyles}>
+                        <label
+                            htmlFor="description"
+                            className={`text-white ${labelStyles}`}
+                        >
                             Description
                         </label>
                         <input
                             id="description"
-                            {...register("description", {
+                            {...sequenceFormMethods.register("description", {
                                 maxLength: {
                                     value: 100,
                                     message:
@@ -287,19 +321,25 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
                             className={inputStyles}
                             placeholder="ex. glutes-focused"
                         />
-                        {errors.description && (
+                        {sequenceFormMethods.formState.errors.description && (
                             <p className={errorMessageStyles}>
-                                {errors.description.message}
+                                {
+                                    sequenceFormMethods.formState.errors
+                                        .description.message
+                                }
                             </p>
                         )}
                     </div>
                     <div>
-                        <label htmlFor="notes" className={labelStyles}>
+                        <label
+                            htmlFor="notes"
+                            className={`text-white ${labelStyles}`}
+                        >
                             Notes
                         </label>
                         <textarea
                             id="notes"
-                            {...register("notes", {
+                            {...sequenceFormMethods.register("notes", {
                                 maxLength: {
                                     value: 500,
                                     message:
@@ -310,78 +350,36 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
                             className={inputStyles}
                             placeholder="ex. Need resistance bands."
                         ></textarea>
-                        {errors.notes && (
+                        {sequenceFormMethods.formState.errors.notes && (
                             <p className={errorMessageStyles}>
-                                {errors.notes.message}
+                                {
+                                    sequenceFormMethods.formState.errors.notes
+                                        .message
+                                }
                             </p>
                         )}
                     </div>
 
-                    <Modal
-                        isOpen={addNewExerciseModalIsOpen}
-                        onClose={handleModalClose}
-                        title={"Add a new exercise to the sequence."}
-                        buttons={[
-                            {
-                                label: "Add",
-                                onClick: handleAddNewExercise,
-                                variant: "primary",
-                            },
-                            {
-                                label: "Cancel",
-                                onClick: handleModalClose,
-                                variant: "secondary",
-                            },
-                        ]}
-                    >
-                        <div>
-                            <NewExerciseInputsRow
-                                newExerciseInputs={newExerciseInputs}
-                                setNewExerciseInputs={setNewExerciseInputs}
-                                handleAddNewExercise={handleAddNewExercise}
-                                showAddNewExerciseRowErrors={
-                                    showAddNewExerciseRowErrors
-                                }
-                                cancelAddNewExercise={cancelAddNewExercise}
-                            />
-                        </div>
-                    </Modal>
-
-                    <Modal
-                        isOpen={addFromFavoriteExercisesModalIsOpen}
-                        onClose={handleModalClose}
-                        title={"Add a favorite exercise to the sequence."}
-                        buttons={[
-                            {
-                                label: "Cancel",
-                                onClick: handleModalClose,
-                                variant: "secondary",
-                            },
-                        ]}
-                    >
-                        <FavoriteExercisesDropdown
-                            handleAddFavoriteExercise={
-                                handleAddFavoriteExercise
-                            }
-                        />
-                    </Modal>
-
                     <div className="flex flex-col gap-y-1">
-                        <div className="font-bold text-sm">Exercises</div>
+                        <div className={`text-white ${labelStyles}`}>
+                            Exercises
+                        </div>
                         <div className="flex flex-col md:flex-row gap-2">
                             <IconButton
-                                onClick={handleAddNewExerciseOptionClick}
+                                onClick={() =>
+                                    setAddNewExerciseModalIsOpen(true)
+                                }
                                 icon={<FiPlus size={16} />}
-                                className={`bg-blue-600 ${addExerciseButtonStyles}`}
+                                className={`bg-mt-green ${addExerciseButtonStyles}`}
                             >
                                 Add New
                             </IconButton>
                             <IconButton
-                                onClick={
-                                    handleAddFromFavoriteExercisesOptionClick
+                                onClick={() =>
+                                    setAddFromFavoriteExercisesModalIsOpen(true)
                                 }
                                 icon={<FiPlus size={16} />}
-                                className={`bg-blue-600 ${addExerciseButtonStyles}`}
+                                className={`bg-mt-green ${addExerciseButtonStyles}`}
                             >
                                 Add from Favorites
                             </IconButton>
@@ -422,9 +420,6 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
                                             >
                                                 {fields.map(
                                                     (field, fieldIndex) => {
-                                                        const isExpanded =
-                                                            expandedExerciseIndex ===
-                                                            fieldIndex;
                                                         return (
                                                             <Draggable
                                                                 key={field.id}
@@ -450,50 +445,22 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
                                                                             index={
                                                                                 fieldIndex
                                                                             }
-                                                                            errors={
-                                                                                errors
-                                                                            }
-                                                                            viewingExerciseFieldIndex={
-                                                                                viewingExerciseFieldIndex
-                                                                            }
                                                                             setViewingExerciseFieldIndex={
                                                                                 setViewingExerciseFieldIndex
-                                                                            }
-                                                                            editingExerciseFieldIndex={
-                                                                                editingExerciseFieldIndex
                                                                             }
                                                                             setEditingExerciseFieldIndex={
                                                                                 setEditingExerciseFieldIndex
                                                                             }
-                                                                            isExpanded={
-                                                                                isExpanded
+                                                                            setEditExerciseModalIsOpen={
+                                                                                setEditExerciseModalIsOpen
                                                                             }
-                                                                            onSaveEdits={() =>
-                                                                                onSaveExerciseEdits(
-                                                                                    {
-                                                                                        fieldIndex,
-                                                                                        getValues,
-                                                                                        setValue,
-                                                                                        trigger,
-                                                                                        setEditingExerciseFieldIndex,
-                                                                                    }
-                                                                                )
+                                                                            setViewExerciseModalIsOpen={
+                                                                                setViewExerciseModalIsOpen
                                                                             }
                                                                             onRemove={() =>
                                                                                 remove(
                                                                                     fieldIndex
                                                                                 )
-                                                                            }
-                                                                            onExpand={() =>
-                                                                                onExpandRow(
-                                                                                    fieldIndex
-                                                                                )
-                                                                            }
-                                                                            onEditModalClose={
-                                                                                onEditExerciseModalClose
-                                                                            }
-                                                                            setValue={
-                                                                                setValue
                                                                             }
                                                                         />
                                                                     </div>
@@ -511,12 +478,13 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
                         )}
                     </div>
                 </form>
+                {/* SEQUENCE FORM ACTIONS */}
                 <div className="mt-8 flex flex-row gap-x-2">
                     <button
                         type="submit"
                         form={formId}
                         className="bg-blue-600 text-white font-extrabold px-4 py-2 rounded"
-                        disabled={isSubmitting}
+                        disabled={sequenceFormMethods.formState.isSubmitting}
                     >
                         Submit
                     </button>
@@ -529,6 +497,117 @@ export default function SequenceForm({ formId, onSubmit, editItem }: Props) {
                     </button>
                 </div>
             </FormProvider>
+            {/* ADD NEW EXERCISE MODAL */}
+            <Modal
+                isOpen={addNewExerciseModalIsOpen}
+                onClose={handleCreateExerciseModalClose}
+                title="Add a new exercise to the sequence."
+                buttons={[
+                    {
+                        label: "Add",
+                        onClick: () => {}, // Empty onClick for submit buttons
+                        variant: "primary",
+                        type: "submit",
+                        form: "new-exercise-form",
+                        disabled: newExerciseFormMethods.formState.isSubmitting,
+                    },
+                    {
+                        label: "Cancel",
+                        onClick: handleCreateExerciseModalClose,
+                        variant: "secondary",
+                    },
+                ]}
+            >
+                <FormProvider {...newExerciseFormMethods}>
+                    <GenericExerciseForm
+                        id="new-exercise-form"
+                        onSubmit={newExerciseFormMethods.handleSubmit(
+                            handleNewExerciseSubmit
+                        )}
+                        fields={exerciseFormFieldConfigs}
+                    />
+                </FormProvider>
+            </Modal>
+            {/* ADD FROM FAVORITES MODAL */}
+            <Modal
+                isOpen={addFromFavoriteExercisesModalIsOpen}
+                onClose={handleAddFromFavoritesModalClose}
+                title={"Add a favorite exercise to the sequence."}
+                buttons={[
+                    {
+                        label: "Cancel",
+                        onClick: handleAddFromFavoritesModalClose,
+                        variant: "secondary",
+                    },
+                ]}
+            >
+                <FavoriteExercisesDropdown
+                    handleAddFavoriteExercise={handleAddFavoriteExercise}
+                />
+            </Modal>
+            {/* EDIT EXERCISE MODAL */}
+            <Modal
+                isOpen={editExerciseModalIsOpen}
+                onClose={handleEditExerciseModalClose}
+                title="Edit your exercise."
+                buttons={[
+                    {
+                        label: "Save Changes",
+                        onClick: () => {}, // Empty onClick for submit buttons
+                        variant: "primary",
+                        type: "submit",
+                        form: "edit-exercise-form",
+                        disabled:
+                            editExerciseFormMethods.formState.isSubmitting,
+                    },
+                    {
+                        label: "Cancel",
+                        onClick: handleEditExerciseModalClose,
+                        variant: "secondary",
+                    },
+                ]}
+            >
+                <FormProvider {...editExerciseFormMethods}>
+                    <GenericExerciseForm
+                        id="edit-exercise-form"
+                        onSubmit={editExerciseFormMethods.handleSubmit(
+                            handleEditExerciseSubmit
+                        )}
+                        fields={exerciseFormFieldConfigs}
+                    />
+                </FormProvider>
+            </Modal>
+            {/* VIEW EXERCISE MODAL */}
+            <Modal
+                isOpen={
+                    viewExerciseModalIsOpen &&
+                    viewingExerciseFieldIndex !== null
+                }
+                onClose={handleViewExerciseModalClose}
+                title="Exercise Details"
+                buttons={[
+                    {
+                        label: "Close",
+                        onClick: handleViewExerciseModalClose,
+                        variant: "secondary",
+                    },
+                ]}
+            >
+                <ReusableDetailsList
+                    item={
+                        sequenceFormMethods.getValues().exercises[
+                            viewingExerciseFieldIndex!
+                        ]
+                    }
+                    fields={[
+                        "name",
+                        "direction",
+                        "duration",
+                        "resistance",
+                        "notes",
+                    ]}
+                />
+            </Modal>
         </div>
     );
 }

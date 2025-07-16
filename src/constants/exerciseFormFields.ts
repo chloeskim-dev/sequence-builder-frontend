@@ -31,7 +31,6 @@ export const exerciseFormFieldConfigs: FieldConfig[] = [
         label: "Minutes",
         type: "number",
         rules: {
-            valueAsNumber: true,
             min: { value: 0, message: "Must be at least 0" },
             max: { value: 99, message: "Must be less than 100" },
         },
@@ -41,7 +40,6 @@ export const exerciseFormFieldConfigs: FieldConfig[] = [
         label: "Seconds",
         type: "number",
         rules: {
-            valueAsNumber: true,
             min: { value: 0, message: "Must be at least 0" },
             max: { value: 999, message: "Must be less than 1000" },
         },

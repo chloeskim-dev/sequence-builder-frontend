@@ -2,13 +2,14 @@ import { SetStateAction } from "react";
 import Modal from "../layouts/Modal";
 import { FavoriteExercise } from "../../constants/types";
 import ReusableDetailsList from "../layouts/ReusableDetailsList";
+import { CleanedUpFavoriteExercise } from "../../utils/sequenceHelpers";
 
 type FavoriteExerciseDetailModalProps = {
     isModalOpen: boolean;
     setIsModalOpen: React.Dispatch<SetStateAction<boolean>>;
-    detailItem: FavoriteExercise;
+    detailItem: CleanedUpFavoriteExercise;
     setDetailItem: React.Dispatch<
-        React.SetStateAction<FavoriteExercise | null>
+        React.SetStateAction<CleanedUpFavoriteExercise | null>
     >;
 };
 

@@ -11,19 +11,19 @@ const DashboardPage = () => {
     const userId = user?.id ?? null;
     return (
         <div className="flex justify-center mt-8">
-            <div className="mt-4 flex flex-col gap-y-4">
+            <div className="mt-[20vh] flex flex-col items-center gap-y-4">
                 <button
                     onClick={() => navigate("/sequences")}
                     className={dashboardButtonTextStyles}
                 >
-                    <FiList size={16} />
+                    <FiList size={18} />
                     My Sequences
                 </button>
                 <button
                     onClick={() => navigate("/favorite-exercises")}
                     className={dashboardButtonTextStyles}
                 >
-                    <FiHeart fill="red" color="red" size={14} />
+                    <FiHeart fill="#ea6962" color="#ea6962" size={16} />
                     My Favorite Exercises
                 </button>
             </div>{" "}
