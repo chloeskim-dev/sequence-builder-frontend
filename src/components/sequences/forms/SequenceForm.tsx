@@ -46,7 +46,7 @@ import { prepareAndAppendExerciseToForm } from "../../../utils/formHelpers";
 import { splitDuration } from "../../../utils/timeHelpers";
 import { useNavigate } from "react-router-dom";
 import { GenericExerciseForm } from "../../favorite-exercises/GenericExerciseForm";
-import { exerciseFormFieldConfigs } from "../../../constants/exerciseFormFields";
+import { genericExerciseFormFieldConfigs } from "../../../constants/exerciseFormFields";
 import ReusableDetailsList from "../../layouts/ReusableDetailsList";
 
 type Props = {
@@ -201,6 +201,7 @@ export default function SequenceForm({
 
     const handleCreateExerciseModalClose = () => {
         setAddNewExerciseModalIsOpen(false);
+        newExerciseFormMethods.reset(blankNewExerciseInputs);
     };
 
     const handleAddFromFavoritesModalClose = () => {
@@ -221,6 +222,7 @@ export default function SequenceForm({
 
     const handleNewExerciseSubmit = (data: ExerciseInputs) => {
         prepareAndAppendExerciseToForm(data, append);
+        newExerciseFormMethods.reset(blankNewExerciseInputs);
         setAddNewExerciseModalIsOpen(false);
     };
 
@@ -364,7 +366,7 @@ export default function SequenceForm({
                         <div className={`text-white ${labelStyles}`}>
                             Exercises
                         </div>
-                        <div className="flex flex-col md:flex-row gap-2">
+                        <div className="flex flex-row gap-2">
                             <IconButton
                                 onClick={() =>
                                     setAddNewExerciseModalIsOpen(true)
@@ -524,7 +526,7 @@ export default function SequenceForm({
                         onSubmit={newExerciseFormMethods.handleSubmit(
                             handleNewExerciseSubmit
                         )}
-                        fields={exerciseFormFieldConfigs}
+                        fieldConfigs={genericExerciseFormFieldConfigs}
                     />
                 </FormProvider>
             </Modal>
@@ -573,7 +575,7 @@ export default function SequenceForm({
                         onSubmit={editExerciseFormMethods.handleSubmit(
                             handleEditExerciseSubmit
                         )}
-                        fields={exerciseFormFieldConfigs}
+                        fieldConfigs={genericExerciseFormFieldConfigs}
                     />
                 </FormProvider>
             </Modal>

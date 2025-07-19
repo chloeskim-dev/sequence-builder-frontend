@@ -1,5 +1,6 @@
 import { ReactNode, useState } from "react";
 import { NavLinks } from "../NavLinks";
+import { FiHeart } from "react-icons/fi";
 
 type Props = {
     children: ReactNode;
@@ -27,7 +28,7 @@ export default function PageLayout({ children, pageTitle, icon }: Props) {
     const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
 
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="flex min-h-screen flex-col w-screen">
             {/* Navbar */}
             {/* <nav className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between"> */}
             {/* <nav className="bg-gb-aqua text-white px-4 py-3 flex items-center justify-between"> */}
@@ -60,13 +61,13 @@ export default function PageLayout({ children, pageTitle, icon }: Props) {
             )}
 
             {/* Page content */}
-            <main className="bg-mt-bg flex-1 p-4">
-                <div className="flex flex-col gap-2">
-                    <div className="font-bold text-xl text-gb-yellow my-2 flex items-center justify-center">
+            <main className="flex flex-col flex-1 flex-col w-screen bg-mt-bg">
+                <div className="flex-1 flex flex-col w-full">
+                    <div className="font-bold text-[30px] text-gb-yellow flex items-center justify-center my-4">
                         {pageTitle && pageTitle}
                         {icon && icon}
                     </div>
-                    <div>{children}</div>
+                    <div className="flex-1 flex flex-col">{children}</div>
                 </div>
             </main>
 

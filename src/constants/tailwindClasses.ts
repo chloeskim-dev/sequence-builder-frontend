@@ -30,7 +30,7 @@ export const allMainRowsContainerStyles = `max-h-[70vh] overflow-auto flex flex-
 export const actionButtonStyles =
     // "bg-white py-1 px-2 rounded text-xs font-bold";
     // "bg-gb-fg py-1 px-2 rounded text-xs font-bold";
-    "bg-mt-pink text-white py-1.5 px-2.5 rounded text-xs font-semibold";
+    "bg-mt-pink text-white py-1.5 px-2.5 rounded text-xs font-semibold uppercase";
 
 export const editLabelStyles = "text-sm font-bold";
 export const numTextAreaRows = 4;
@@ -47,4 +47,4 @@ export const pageOutermostFlexColStyles = "mx-4 flex flex-col gap-y-2";
 export const commonFlexColStyles = "flex flex-col space-y-2 text-sm";
 export const pageCreateNewButtonStyles =
     // "bg-gb-aqua rounded-lg text-lg font-extrabold";
-    "bg-mt-green rounded-lg text-lg font-extrabold";
+    "bg-mt-green rounded text-lg font-extrabold uppercase";

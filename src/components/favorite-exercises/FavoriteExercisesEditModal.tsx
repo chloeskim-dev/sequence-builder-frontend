@@ -6,7 +6,7 @@ import { splitDuration } from "../../utils/timeHelpers";
 import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
 import { GenericExerciseForm } from "./GenericExerciseForm";
-import { exerciseFormFieldConfigs } from "../../constants/exerciseFormFields";
+import { genericExerciseFormFieldConfigs } from "../../constants/exerciseFormFields";
 import {
     CleanedUpFavoriteExercise,
     removeNullFieldsFromFavoriteExercises,
@@ -36,6 +36,8 @@ export default function FavoriteExerciseEditModal({
     const { user } = useUser();
     const userId = user?.id ?? null;
 
+    console.log(editItem);
+
     const editItemDurationMinutes =
         editItem.duration_secs !== undefined
             ? splitDuration(editItem.duration_secs).splitMinutes
@@ -49,13 +51,15 @@ export default function FavoriteExerciseEditModal({
     const formInitialValues = {
         name: editItem.name,
         direction: editItem.direction,
-        durationMinutes: editItemDurationMinutes,
-        durationSeconds: editItemDurationSeconds,
+        duration_mins: editItemDurationMinutes,
+        duration_secs: editItemDurationSeconds,
         resistance: editItem.resistance,
         notes: editItem.notes,
     };
 
-    const methods = useForm({ defaultValues: formInitialValues });
+    const editFavoriteExercisesFormMethods = useForm({
+        defaultValues: formInitialValues,
+    });
 
     const onSubmit: SubmitHandler<FavoriteExerciseFormInputs> = async (
         formData
@@ -102,7 +106,8 @@ export default function FavoriteExerciseEditModal({
                     variant: "primary",
                     type: "submit",
                     form: "edit-favorite-exercise-form",
-                    disabled: methods.formState.isSubmitting,
+                    disabled:
+                        editFavoriteExercisesFormMethods.formState.isSubmitting,
                 },
                 {
                     label: "Cancel",
@@ -111,11 +116,11 @@ export default function FavoriteExerciseEditModal({
                 },
             ]}
         >
-            <FormProvider {...methods}>
+            <FormProvider {...editFavoriteExercisesFormMethods}>
                 <GenericExerciseForm
                     id="edit-favorite-exercise-form"
                     onSubmit={onSubmit}
-                    fields={exerciseFormFieldConfigs}
+                    fieldConfigs={genericExerciseFormFieldConfigs}
                 />
             </FormProvider>
         </Modal>

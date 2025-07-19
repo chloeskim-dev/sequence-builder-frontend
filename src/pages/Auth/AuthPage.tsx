@@ -115,8 +115,8 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-            <div className="bg-white p-6 rounded-xl shadow-md w-80">
+        <div className="flex flex-col items-center justify-center h-screen bg-gb-bg">
+            <div className="bg-gb-yellow p-6 rounded-xl shadow-md w-80">
                 <h2 className="text-xl font-semibold mb-4">
                     {isSignup ? "Sign Up" : "Log In"}
                 </h2>
@@ -191,7 +191,7 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
                             id="showPasswordToggleButton"
                             type="button"
                             onClick={() => setShowPassword((prev) => !prev)}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-blue-600"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gb-blue"
                         >
                             {showPassword ? "Hide" : "Show"}
                         </button>
@@ -211,7 +211,7 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
                 </form>
 
                 <button
-                    className="text-blue-600 text-sm mt-2"
+                    className="text-mt-bg text-sm mt-2"
                     onClick={toggleForm}
                 >
                     {isSignup

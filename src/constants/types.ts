@@ -87,8 +87,8 @@ export interface FavoriteExercise {
 export interface FavoriteExerciseFormInputs {
     name: string;
     direction?: string;
-    durationMinutes?: number;
-    durationSeconds?: number;
+    duration_mins?: number;
+    duration_secs?: number;
     resistance?: string;
     notes?: string;
 }

@@ -35,7 +35,7 @@ export const prepareAndAppendExerciseToForm = (
     const exercise = {
         name: exerciseData.name,
         direction: exerciseData.direction || undefined,
-        duration_mins: normalizedDurations?.splitMinutes,
+        duration_mins: normalizedDurations?.splitMinutes, // 0s are allowed here since we are simply appending the exercise to the sequence form here
         duration_secs: normalizedDurations?.splitSeconds,
         resistance: exerciseData.resistance || undefined,
         notes: exerciseData.notes || undefined,
@@ -77,9 +77,11 @@ export const makeSequencePayloadFromFormData = (
                     resistance: exercise.resistance,
                 }),
                 ...(exercise.notes && { notes: exercise.notes }),
-                ...(durationSecs && {
-                    duration_secs: durationSecs,
-                }),
+                ...(durationSecs &&
+                    // also omit duration_secs field if it is 0
+                    durationSecs !== 0 && {
+                        duration_secs: durationSecs,
+                    }),
                 order_index: index,
             };
         }),
@@ -142,17 +144,20 @@ export const makeBaseFavoriteExercisePayloadFromFormData = (
     formData: FavoriteExerciseFormInputs,
     userId: string
 ) => {
-    // 1) Adds user_id
-    // 2) Drops all fields from form whose values are undefined
+    // Creates base payload (for either edit / create favorite exercise forms) by
+    // 1) Adding user_id
+    // 2) Dropping all fields from form whose values are undefined. Additionally drops 'duration_secs' field if its value is 0
+
+    console.log("RAW DATA: ", formData);
 
     const hasDuration =
-        formData.durationMinutes !== undefined ||
-        formData.durationSeconds !== undefined;
+        formData.duration_mins !== undefined ||
+        formData.duration_secs !== undefined;
 
     const combinedDurationSecs = hasDuration
         ? combineDuration(
-              formData.durationMinutes ?? 0,
-              formData.durationSeconds ?? 0
+              formData.duration_mins ?? 0,
+              formData.duration_secs ?? 0
           )
         : undefined;
 
@@ -162,11 +167,16 @@ export const makeBaseFavoriteExercisePayloadFromFormData = (
         ...(formData.direction !== undefined && {
             direction: formData.direction,
         }),
-        ...(hasDuration && { duration_secs: combinedDurationSecs }),
+        // omit duration_secs field from payload if 0
+        ...(combinedDurationSecs &&
+            combinedDurationSecs !== 0 && {
+                duration_secs: combinedDurationSecs,
+            }),
         ...(formData.resistance !== undefined && {
             resistance: formData.resistance,
         }),
         ...(formData.notes !== undefined && { notes: formData.notes }),
     };
+    console.log("SANITIZED DATA: ", sanitizedBasePayload);
     return sanitizedBasePayload;
 };

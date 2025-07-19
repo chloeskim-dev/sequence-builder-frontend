@@ -80,6 +80,7 @@ export const MainRow: React.FC<MainRowProps> = ({
         const isDurationField = field === "duration";
         const isCreatedField = field === "created_at";
         const isUpdatedField = field === "updated_at";
+        const isExercisesField = field === "exercises";
         const isDateField = isCreatedField || isUpdatedField;
 
         const isEmpty = isDurationField
@@ -119,6 +120,14 @@ export const MainRow: React.FC<MainRowProps> = ({
             ? formatUtcToLocalTrimmed(rowItem[field]).time
             : undefined;
 
+        let exercisesTotalDurationSecs = isExercisesField
+            ? rowItem[field].reduce(
+                  (acc: any, exercise: any) =>
+                      acc + (exercise.duration_secs ?? 0),
+                  0
+              )
+            : undefined;
+
         return (
             <div className={standardFieldContainerStyles} key={field}>
                 {!isEmpty ? (
@@ -156,6 +165,16 @@ export const MainRow: React.FC<MainRowProps> = ({
                                         <div>{durationStringSecs}</div>
                                     </div>
                                 </div>
+                            ) : isExercisesField ? (
+                                <>
+                                    <div>
+                                        {" "}
+                                        {rowItem[field].length} exercises
+                                    </div>
+                                    <div>
+                                        {exercisesTotalDurationSecs} sec total
+                                    </div>
+                                </>
                             ) : (
                                 <div> {rowItem[field]}</div>
                             )}
@@ -187,9 +206,10 @@ export const MainRow: React.FC<MainRowProps> = ({
                 <div
                     className={`${actionFieldContainerStyles} ${actionsFieldWidthStyle} ${actionButtonsContainerStyle}`}
                 >
-                    {actionButtons.map((actionButton) => {
+                    {actionButtons.map((actionButton, index) => {
                         return (
                             <button
+                                key={index}
                                 className={actionButtonStyles}
                                 onClick={actionButton.action}
                                 type="button"
@@ -241,7 +261,7 @@ export const ReusableTable: React.FC<ReusableTableProps> = ({
                 >
                     {items.map((item: any, index: number) => (
                         <MainRow
-                            key={index}
+                            key={item.id}
                             standardFields={standardFields}
                             actionsFieldWidthStyle={actionsFieldWidthStyle}
                             rowItem={item}

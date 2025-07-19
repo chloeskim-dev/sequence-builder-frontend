@@ -8,6 +8,7 @@ import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
 import SequenceDeleteConfirmModal from "../../components/sequences/SequenceDeleteConfirmModal";
 import {
+    getSequenceTotalDurationSecs,
     RawFullSequence,
     removeNullFieldsFromSequences,
 } from "../../utils/sequenceHelpers";
@@ -17,14 +18,17 @@ import {
     pageCreateNewButtonStyles,
     pageOutermostFlexColStyles,
 } from "../../constants/tailwindClasses";
+import Modal from "../../components/layouts/Modal";
 
 const SequencesPage = () => {
     const [sequenceQuery, setSequenceQuery] = useState("");
     const [sequences, setSequences] = useState(sampleInitialSequences);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] =
+    const [createModalIsOpen, setcreateModalIsOpen] = useState(false);
+    const [deleteConfirmModalIsOpen, setDeleteConfirmModalIsOpen] =
         useState(false);
     const [deleteItem, setDeleteItem] = useState<Sequence | null>(null);
+    const [runDenyModalIsOpen, setRunDenyModalIsOpen] = useState(false);
+    const [runItem, setRunItem] = useState<Sequence | null>(null);
     const [error, setError] = useState("");
     const { user } = useUser();
     const userId = user?.id ?? null;
@@ -43,20 +47,8 @@ const SequencesPage = () => {
     };
 
     useEffect(() => {
-        const initializeSequences = async () => {
-            try {
-                const sequences: RawFullSequence[] = await fetchSequences();
-                const cleanedSequences =
-                    removeNullFieldsFromSequences(sequences);
-                setSequences(cleanedSequences);
-                console.log("Set sequences to:", cleanedSequences);
-            } catch (err: any) {
-                console.error("Error initializing sequences:", err);
-                setError(err.message);
-            }
-        };
         initializeSequences();
-    }, [userId, fetchSequences]);
+    }, [userId]);
 
     const filteredSequences = sequences.filter((sequence) =>
         sequence.name.toLowerCase().includes(sequenceQuery.toLowerCase())
@@ -67,10 +59,10 @@ const SequencesPage = () => {
             const sequences: RawFullSequence[] = await fetchSequences();
             const cleanedSequences = removeNullFieldsFromSequences(sequences);
             setSequences(cleanedSequences);
-            console.log("Setting sequences to:\n", cleanedSequences);
+            console.log("Set sequences to:", cleanedSequences);
         } catch (err: any) {
             console.error("Error initializing sequences:", err);
-            throw err;
+            setError(err.message);
         }
     };
 
@@ -81,20 +73,35 @@ const SequencesPage = () => {
     const handleEditItemClick = async (sequenceId: string) => {
         navigate(`/sequences/edit/${sequenceId}`);
     };
-    const handleRunClick = async (sequenceId: string) => {
-        navigate(`/sequences/run/${sequenceId}`);
+
+    const handleRunClick = async (index: number) => {
+        const clickedSequence = filteredSequences[index];
+        const sequenceTotalDurationSecs =
+            getSequenceTotalDurationSecs(clickedSequence);
+        console.log("total duration: ", sequenceTotalDurationSecs);
+        setRunItem(clickedSequence);
+        if (sequenceTotalDurationSecs === 0) {
+            setRunDenyModalIsOpen(true);
+        } else {
+            navigate(`/sequences/run/${clickedSequence.id}`);
+        }
+    };
+
+    const handleRunDenyModalClose = () => {
+        setRunItem(null);
+        setRunDenyModalIsOpen(false);
     };
 
     const handleDeleteItemClick = async (index: number) => {
         setDeleteItem(sequences[index]);
-        setIsDeleteConfirmModalOpen(true);
+        setDeleteConfirmModalIsOpen(true);
     };
 
     const deleteSequence = async (sequenceId: string) => {
         try {
             const res = await api.delete(`/v1/sequences/${sequenceId}`);
             await initializeSequences();
-            setIsDeleteConfirmModalOpen(false);
+            setDeleteConfirmModalIsOpen(false);
         } catch (err: any) {
             setError("Something went wrong.");
         }
@@ -126,6 +133,7 @@ const SequencesPage = () => {
                             "description",
                             "notes",
                             "created_at",
+                            "exercises",
                         ]}
                         getActionButtonsForItem={(item, index) => [
                             {
@@ -142,17 +150,39 @@ const SequencesPage = () => {
                             },
                             {
                                 title: "Run",
-                                action: () => handleRunClick(item.id),
+                                action: () => handleRunClick(index),
                             },
                         ]}
                         actionsFieldWidthStyle="w-[210px]"
                     />
                 </div>
             </div>
-            {deleteItem && isDeleteConfirmModalOpen && (
+            {runItem && runDenyModalIsOpen && (
+                <Modal
+                    isOpen={runDenyModalIsOpen}
+                    onClose={handleRunDenyModalClose}
+                >
+                    <div className="flex flex-col gap-y-2 break-words">
+                        <p>Uh oh!</p>
+                        <p>
+                            Your sequence '
+                            <span className="font-extrabold">
+                                {runItem.name}
+                            </span>
+                            ' currently does not have any exercises with
+                            durations.
+                        </p>
+                        <p>
+                            Please add at least one to the sequence to run the
+                            sequence player.
+                        </p>
+                    </div>
+                </Modal>
+            )}
+            {deleteItem && deleteConfirmModalIsOpen && (
                 <SequenceDeleteConfirmModal
-                    isModalOpen={isDeleteConfirmModalOpen}
-                    setIsModalOpen={setIsCreateModalOpen}
+                    isModalOpen={deleteConfirmModalIsOpen}
+                    setIsModalOpen={setDeleteConfirmModalIsOpen}
                     deleteItem={deleteItem}
                     setDeleteItem={setDeleteItem}
                     deleteSequence={deleteSequence}

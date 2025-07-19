@@ -70,9 +70,9 @@ export default function Modal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="rounded-xl bg-mt-green w-[90%] md:w-[80%] xl:w-[60%] overflow-y-auto shadow-lg">
+            <div className="rounded-xl bg-gb-fg w-[90%] md:w-[80%] xl:w-[60%] overflow-y-auto shadow-lg">
                 {title && (
-                    <div className="px-6 bg-gb-green py-4 border-b border-mt-gray flex justify-between items-start">
+                    <div className="px-6 bg-gb-fg py-4 border-b border-mt-gray flex justify-between items-start">
                         <h2 className="text-xl font-semibold text-gray-900">
                             {title}
                         </h2>
@@ -83,7 +83,7 @@ export default function Modal({
                 <div className="p-6">{children}</div>
 
                 {modalButtons.length > 0 && (
-                    <div className="bg-gb-green px-6 py-4 border-t border-mt-gray">
+                    <div className="bg-gb-fg px-6 py-4 border-t border-mt-gray">
                         <div className="flex gap-3">
                             {modalButtons.map((button, index) => (
                                 <button

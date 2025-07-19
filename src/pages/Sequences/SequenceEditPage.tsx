@@ -43,7 +43,7 @@ const SequenceEditPage = () => {
     };
 
     return (
-        <div className="p-4">
+        <div className="p-4 mx-4">
             <SequenceForm
                 onSubmit={onEditFormSubmit}
                 formId="edit-sequence-form"

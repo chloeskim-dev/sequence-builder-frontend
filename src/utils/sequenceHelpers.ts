@@ -1,4 +1,4 @@
-import { Exercise, FavoriteExercise } from "../constants/types";
+import { Exercise, FavoriteExercise, Sequence } from "../constants/types";
 
 export interface RawFullSequence {
     id: string;
@@ -134,4 +134,11 @@ export const removeNullFieldsFromSequences = (
     );
     console.log("Removed null fields from sequences.");
     return cleanedSequences;
+};
+
+export const getSequenceTotalDurationSecs = (sequence: Sequence) => {
+    return sequence.exercises.reduce(
+        (acc: any, exercise: any) => acc + (exercise.duration_secs ?? 0),
+        0
+    );
 };

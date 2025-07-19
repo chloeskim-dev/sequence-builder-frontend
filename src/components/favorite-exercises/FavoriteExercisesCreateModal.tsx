@@ -7,7 +7,7 @@ import { useUser } from "../../contexts/UserContext";
 import { getUtcNaiveTimestamp } from "../../utils/timeHelpers";
 import { v4 as uuidv4 } from "uuid";
 import { GenericExerciseForm } from "./GenericExerciseForm";
-import { exerciseFormFieldConfigs } from "../../constants/exerciseFormFields";
+import { genericExerciseFormFieldConfigs } from "../../constants/exerciseFormFields";
 import {
     CleanedUpFavoriteExercise,
     removeNullFieldsFromFavoriteExercises,
@@ -35,7 +35,9 @@ export default function FavoriteExerciseCreateModal({
 
     const formInitialValues = blankNewExerciseInputs;
 
-    const methods = useForm({ defaultValues: formInitialValues });
+    const createFavoriteExerciseFormMethods = useForm({
+        defaultValues: formInitialValues,
+    });
 
     const onSubmit: SubmitHandler<FavoriteExerciseFormInputs> = async (
         formData
@@ -68,7 +70,7 @@ export default function FavoriteExerciseCreateModal({
 
     const onModalClose = () => {
         setIsModalOpen(false);
-        methods.reset(formInitialValues);
+        createFavoriteExerciseFormMethods.reset(formInitialValues);
     };
 
     return (
@@ -83,7 +85,9 @@ export default function FavoriteExerciseCreateModal({
                     variant: "primary",
                     type: "submit",
                     form: "create-favorite-exercise-form",
-                    disabled: methods.formState.isSubmitting,
+                    disabled:
+                        createFavoriteExerciseFormMethods.formState
+                            .isSubmitting,
                 },
                 {
                     label: "Cancel",
@@ -92,11 +96,11 @@ export default function FavoriteExerciseCreateModal({
                 },
             ]}
         >
-            <FormProvider {...methods}>
+            <FormProvider {...createFavoriteExerciseFormMethods}>
                 <GenericExerciseForm
                     id="create-favorite-exercise-form"
                     onSubmit={onSubmit}
-                    fields={exerciseFormFieldConfigs}
+                    fieldConfigs={genericExerciseFormFieldConfigs}
                 />
             </FormProvider>
         </Modal>

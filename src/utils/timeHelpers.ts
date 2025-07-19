@@ -16,6 +16,10 @@ export const normalizeDurations = (minutes: number, seconds: number) => {
 };
 
 export const exerciseDataHasDuration = (exerciseData: any): boolean => {
+    console.log(
+        exerciseData.duration_mins !== undefined ||
+            exerciseData.duration_secs !== undefined
+    );
     return (
         exerciseData.duration_mins !== undefined ||
         exerciseData.duration_secs !== undefined
@@ -37,4 +41,18 @@ export function getUtcNaiveTimestamp(): string {
     const microseconds = ms + "000"; // Simulate microseconds
 
     return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}.${microseconds}`;
+}
+export function formatSecondsToTimeString(totalSeconds: number): string {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const paddedMinutes = String(minutes).padStart(2, "0");
+    const paddedSeconds = String(seconds).padStart(2, "0");
+
+    if (hours > 0) {
+        return `${hours}:${paddedMinutes}:${paddedSeconds}`;
+    } else {
+        return `${paddedMinutes}:${paddedSeconds}`;
+    }
 }

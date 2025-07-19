@@ -17,6 +17,7 @@ export const NavLinks = () => {
             <Link to="/favorite-exercises" className={navLinkTextStyles}>
                 Favorite Exercises
             </Link>
+
             <button
                 onClick={logout}
                 className="hover:underline text-left bg-none border-none p-0 text-inherit text-sm font-extrabold"

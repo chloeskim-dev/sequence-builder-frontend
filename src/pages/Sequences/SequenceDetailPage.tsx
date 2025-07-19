@@ -21,8 +21,8 @@ export const SequenceDetailPage: React.FC = () => {
     if (!sequence) return <p>Loading...</p>;
 
     return (
-        <div className="flex flex-col">
-            <div className="fl">
+        <div className="flex flex-col p-4 mx-4">
+            <div>
                 <ReusableDetailsList
                     fields={[
                         "name",

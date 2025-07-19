@@ -1,6 +1,6 @@
 import { FieldConfig } from "./types";
 
-export const exerciseFormFieldConfigs: FieldConfig[] = [
+export const genericExerciseFormFieldConfigs: FieldConfig[] = [
     {
         name: "name",
         label: "Name",
@@ -27,7 +27,7 @@ export const exerciseFormFieldConfigs: FieldConfig[] = [
         },
     },
     {
-        name: "durationMinutes",
+        name: "duration_mins",
         label: "Minutes",
         type: "number",
         rules: {
@@ -36,7 +36,7 @@ export const exerciseFormFieldConfigs: FieldConfig[] = [
         },
     },
     {
-        name: "durationSeconds",
+        name: "duration_secs",
         label: "Seconds",
         type: "number",
         rules: {

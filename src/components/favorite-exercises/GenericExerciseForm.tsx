@@ -11,10 +11,10 @@ const inputStyles = "text-sm p-2 w-full rounded";
 interface Props {
     id: string;
     onSubmit: (data: any) => void;
-    fields: FieldConfig[];
+    fieldConfigs: FieldConfig[];
 }
 
-export function GenericExerciseForm({ id, onSubmit, fields }: Props) {
+export function GenericExerciseForm({ id, onSubmit, fieldConfigs }: Props) {
     const {
         register,
         handleSubmit,
@@ -27,14 +27,14 @@ export function GenericExerciseForm({ id, onSubmit, fields }: Props) {
             onSubmit={handleSubmit(onSubmit)}
             className={commonFlexColStyles}
         >
-            {fields.map((field) => {
-                const error = errors[field.name];
-                const isNumberField = field.type === "number";
+            {fieldConfigs.map((fc) => {
+                const error = errors[fc.name];
+                const isNumberField = fc.type === "number";
                 const isTextField =
-                    field.type === "text" || field.type === "textarea";
+                    fc.type === "text" || fc.type === "textarea";
 
                 const fieldRules = {
-                    ...(field.rules || {}),
+                    ...(fc.rules || {}),
                     ...(isNumberField && {
                         setValueAs: (v: any) => {
                             const result =
@@ -43,6 +43,8 @@ export function GenericExerciseForm({ id, onSubmit, fields }: Props) {
                                     : isNaN(Number(v))
                                     ? undefined
                                     : Number(v);
+
+                            console.log("VALUE: ", v);
 
                             return result;
                         },
@@ -55,27 +57,27 @@ export function GenericExerciseForm({ id, onSubmit, fields }: Props) {
                         },
                     }),
                 };
-                const registerResult = register(field.name, fieldRules);
+                const registerResult = register(fc.name, fieldRules);
 
                 return (
-                    <div key={field.name}>
-                        <label htmlFor={field.name} className={labelStyles}>
-                            {field.label}
-                            {field.rules?.required && (
+                    <div key={fc.name}>
+                        <label htmlFor={fc.name} className={labelStyles}>
+                            {fc.label}
+                            {fc.rules?.required && (
                                 <span className="text-red-500">*</span>
                             )}
                         </label>
 
-                        {field.type === "textarea" ? (
+                        {fc.type === "textarea" ? (
                             <textarea
                                 {...registerResult}
-                                rows={field.rows || 3}
+                                rows={fc.rows || 3}
                                 className={inputStyles}
                             />
                         ) : (
                             <input
                                 {...registerResult}
-                                type={field.type}
+                                type={fc.type}
                                 className={inputStyles}
                             />
                         )}

@@ -42,7 +42,10 @@ const FavoriteExercisesDeleteConfirmModal = ({
             ]}
         >
             <div className="text-sm flex flex-col gap-y-2">
-                <p>Are you sure you want to delete '{deleteItem.name}'?</p>
+                <p>
+                    Are you sure you want to delete '
+                    <span className="font-extrabold">{deleteItem.name}</span>'?
+                </p>
                 <p>This action cannot be undone.</p>
             </div>
         </Modal>
