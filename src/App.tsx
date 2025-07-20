@@ -28,6 +28,47 @@ const App = () => {
         <Router>
             <Routes>
                 <Route
+                    path="/"
+                    element={
+                        !authorized ? (
+                            <AuthPage authorizeUser={authorizeUser} />
+                        ) : (
+                            <Navigate to="/dashboard" />
+                        )
+                    }
+                />
+                <Route
+                    path="/dashboard"
+                    element={
+                        <PrivateRoute authorized={authorized}>
+                            <PageLayout pageTitle={""}>
+                                <DashboardPage />
+                            </PageLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/favorite-exercises"
+                    element={
+                        <PrivateRoute authorized={authorized}>
+                            <PageLayout pageTitle={"My Favorite Exercises"}>
+                                <FavoriteExercisesPage />
+                            </PageLayout>
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/sequences"
+                    element={
+                        <PrivateRoute authorized={authorized}>
+                            <PageLayout pageTitle={"My Sequences"}>
+                                <SequencesPage />
+                            </PageLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
                     path="/sequences/create"
                     element={
                         <PrivateRoute authorized={authorized}>
@@ -63,46 +104,6 @@ const App = () => {
                         <PrivateRoute authorized={authorized}>
                             <PageLayout pageTitle={"Sequence Details"}>
                                 <SequenceDetailPage />
-                            </PageLayout>
-                        </PrivateRoute>
-                    }
-                />
-                <Route
-                    path="/"
-                    element={
-                        !authorized ? (
-                            <AuthPage authorizeUser={authorizeUser} />
-                        ) : (
-                            <Navigate to="/dashboard" />
-                        )
-                    }
-                />
-                <Route
-                    path="/dashboard"
-                    element={
-                        <PrivateRoute authorized={authorized}>
-                            <PageLayout pageTitle={""}>
-                                <DashboardPage />
-                            </PageLayout>
-                        </PrivateRoute>
-                    }
-                />
-                <Route
-                    path="/sequences"
-                    element={
-                        <PrivateRoute authorized={authorized}>
-                            <PageLayout pageTitle={"My Sequences"}>
-                                <SequencesPage />
-                            </PageLayout>
-                        </PrivateRoute>
-                    }
-                />
-                <Route
-                    path="/favorite-exercises"
-                    element={
-                        <PrivateRoute authorized={authorized}>
-                            <PageLayout pageTitle={"My Favorite Exercises"}>
-                                <FavoriteExercisesPage />
                             </PageLayout>
                         </PrivateRoute>
                     }

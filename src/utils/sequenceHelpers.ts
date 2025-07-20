@@ -10,16 +10,6 @@ export interface RawFullSequence {
     updated_at: string;
     exercises: RawExercise[];
 }
-export interface CleanedFullSequence {
-    id: string;
-    userId: string;
-    name: string;
-    description?: string;
-    notes?: string;
-    created_at: string;
-    updated_at: string;
-    exercises: CleanedUpExercise[];
-}
 
 export interface RawExercise {
     id: string;
@@ -30,6 +20,17 @@ export interface RawExercise {
     notes: string | null;
     created_at: string;
     orderIndex: number;
+}
+
+export interface CleanedFullSequence {
+    id: string;
+    userId: string;
+    name: string;
+    description?: string;
+    notes?: string;
+    created_at: string;
+    updated_at: string;
+    exercises: CleanedUpExercise[];
 }
 
 export interface CleanedUpExercise {

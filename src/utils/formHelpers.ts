@@ -14,10 +14,7 @@ import {
     UseFormSetValue,
     UseFormTrigger,
 } from "react-hook-form";
-import {
-    CleanedUpFavoriteExercise,
-    FavoriteExerciseBasePayload,
-} from "./sequenceHelpers";
+import { FavoriteExerciseBasePayload } from "./sequenceHelpers";
 
 export const prepareAndAppendExerciseToForm = (
     exerciseData: ExerciseInputs,
@@ -177,6 +174,5 @@ export const makeBaseFavoriteExercisePayloadFromFormData = (
         }),
         ...(formData.notes !== undefined && { notes: formData.notes }),
     };
-    console.log("SANITIZED DATA: ", sanitizedBasePayload);
     return sanitizedBasePayload;
 };

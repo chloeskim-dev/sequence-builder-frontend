@@ -40,6 +40,7 @@ function isSignupSuccessResponseJson(
 }
 
 const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
+
 const AuthPage = ({ authorizeUser }: AuthPageProps) => {
     const [isSignup, setIsSignup] = useState(false);
     const [error, setError] = useState("");
@@ -78,9 +79,9 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
                 fetchOptions
             );
 
-            if (data && isSignupSuccessResponseJson(data)) {
-                console.log("Signup success! Res data: ", data);
-            }
+            // if (data && isSignupSuccessResponseJson(data)) {
+            //     console.log("Signup success: ", data);
+            // }
         } catch (err: any) {
             throw err;
         }
