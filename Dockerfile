@@ -1,6 +1,12 @@
-FROM node:18-alpine
+FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm install --production
 COPY . .
-CMD ["npm", "start"]
+RUN npm run build
+
+FROM node:18-alpine AS runner
+WORKDIR /app
+RUN npm install -g serve
+COPY --from=builder /app/build /app/build
+CMD ["serve", "-s", "build", "-l", "3000"]

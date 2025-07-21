@@ -3,6 +3,7 @@ node_modules/
 .gitignore
 .dockerignore
 .env
+Dockerfile
 npm-debug.log
 logs/
 .vscode/
