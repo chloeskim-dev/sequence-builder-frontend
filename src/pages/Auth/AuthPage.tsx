@@ -3,6 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { useUser } from "../../contexts/UserContext";
 import { Button } from "../../components/ui/Button";
 import { safeFetch } from "../../utils/api";
+import Modal from "../../components/layouts/Modal";
 
 interface AuthPageProps {
     authorizeUser: () => void;
@@ -45,6 +46,8 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
     const [isSignup, setIsSignup] = useState(false);
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [signupSuccessModalIsOpen, setSignupSuccessModalIsOpen] =
+        useState(false);
     const { login } = useUser();
 
     const toggleForm = () => {
@@ -105,6 +108,8 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
             try {
                 await login({ identifier, password });
                 authorizeUser();
+                setError("");
+                setSignupSuccessModalIsOpen(true);
             } catch (err: any) {
                 setError(
                     err.code === "unauthorized"
@@ -113,6 +118,11 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
                 );
             }
         }
+    };
+
+    const closeSignupSuccessmModal = () => {
+        setSignupSuccessModalIsOpen(false);
+        setIsSignup(false);
     };
 
     return (
@@ -197,12 +207,12 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
                             {showPassword ? "Hide" : "Show"}
                         </button>
                     </div>
-                    {error && (
+                    {errors.password && (
                         <p
                             id="passwordInputErrorText"
                             className={errorTextStyles}
                         >
-                            {error}
+                            {errors.password.message}
                         </p>
                     )}
 
@@ -220,6 +230,22 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
                         : "Don't have an account? Sign up"}
                 </button>
             </div>
+            {signupSuccessModalIsOpen && (
+                <Modal
+                    isOpen={signupSuccessModalIsOpen}
+                    onClose={closeSignupSuccessmModal}
+                    title={`Sign up was successful!`}
+                    buttons={[
+                        {
+                            label: "Ok",
+                            onClick: closeSignupSuccessmModal,
+                            variant: "secondary",
+                        },
+                    ]}
+                >
+                    <div>Please log in to continue.</div>
+                </Modal>
+            )}
         </div>
     );
 };
