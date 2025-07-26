@@ -14,12 +14,12 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Kaniko build
-        uses: bymarshall/kaniko-action@main
-        with:
-          push: false
-          tags: chloesk:test
-          cache: false
-          use_new_run: true
+      uses: bymarshall/kaniko-action@main
+      with:
+        push: false
+        tags: chloesk:test
+        cache: false
+        use_new_run: true
 
     # Push container to docker
     #
