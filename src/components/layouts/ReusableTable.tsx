@@ -19,6 +19,7 @@ import {
 interface HeaderRowProps {
     standardFields: string[];
     actionsFieldWidthStyle: string;
+    listType?: string;
 }
 
 export const HeaderRow: React.FC<HeaderRowProps> = ({
@@ -68,6 +69,7 @@ interface MainRowProps {
     actionsFieldWidthStyle: string;
     rowItem: any;
     actionButtons: ActionButton[];
+    listType?: string;
 }
 
 export const MainRow: React.FC<MainRowProps> = ({
@@ -75,6 +77,7 @@ export const MainRow: React.FC<MainRowProps> = ({
     actionsFieldWidthStyle,
     rowItem,
     actionButtons,
+    listType,
 }) => {
     const standardFieldsDivs = standardFields.map((field) => {
         const isDurationField = field === "duration";
@@ -191,12 +194,33 @@ export const MainRow: React.FC<MainRowProps> = ({
         );
     });
 
+    const mainRowColorStylesByListType =
+        listType && listType === "sequences"
+            ? "bg-mt-orange"
+            : listType && listType === "exercises"
+            ? // ? "bg-gb-blue"
+              //   "bg-hmt-light-blue"
+              "bg-my-lime"
+            : listType && listType === "favorites"
+            ? "bg-my-pink"
+            : "mg-mt-yellow";
+    const mainRowButtonColorStylesByListType =
+        listType && listType === "sequences"
+            ? // ? "bg-my-red"
+              //   "bg-gb-blue"
+              "bg-my-red hover:bg-gb-red"
+            : listType && listType === "exercises"
+            ? // ? "bg-gb-blue"
+              "bg-my-red hover:bg-gb-red"
+            : listType && listType === "favorites"
+            ? "bg-my-red hover:bg-gb-red"
+            : "bg-mt-yellow";
+
     return (
         <div
             id="mainRowContainer"
-            // className={`${commonFlexRowStyles} pt-4 md:py-2 bg-yellow-300 pb-4 rounded-xl gap-y-1 ${commonPaddingXForHeaderContainerAndMainRow}`}
-            // className={`${commonFlexRowStyles} pt-4 md:py-2 bg-mt-yellow pb-4 rounded-xl gap-y-1 ${commonPaddingXForHeaderContainerAndMainRow}`}
-            className={`${commonFlexRowStyles} py-5 md:py-2 bg-gb-yellow rounded-xl gap-y-1 ${commonPaddingXForHeaderContainerAndMainRow}`}
+            // className={`${commonFlexRowStyles} py-5 md:py-2 bg-my-yellow rounded-xl gap-y-1 ${commonPaddingXForHeaderContainerAndMainRow}`}
+            className={`${commonFlexRowStyles}  py-5 md:py-2 rounded-xl gap-y-1 ${commonPaddingXForHeaderContainerAndMainRow} ${mainRowColorStylesByListType}`}
         >
             {/* non-action fields */}
             {standardFieldsDivs}
@@ -210,7 +234,7 @@ export const MainRow: React.FC<MainRowProps> = ({
                         return (
                             <button
                                 key={index}
-                                className={actionButtonStyles}
+                                className={`${actionButtonStyles} ${mainRowButtonColorStylesByListType}`}
                                 onClick={actionButton.action}
                                 type="button"
                             >
@@ -231,6 +255,7 @@ interface ReusableTableProps {
     standardFields: string[];
     actionsFieldWidthStyle: string;
     getActionButtonsForItem: (item: any, index: number) => ActionButton[];
+    listType?: string;
 }
 
 export const ReusableTable: React.FC<ReusableTableProps> = ({
@@ -238,7 +263,17 @@ export const ReusableTable: React.FC<ReusableTableProps> = ({
     standardFields,
     actionsFieldWidthStyle,
     getActionButtonsForItem,
+    listType,
 }) => {
+    const headerRowColorStylesByListType =
+        listType && listType === "sequences"
+            ? "bg-my-yellow"
+            : listType && listType === "exercises"
+            ? "bg-my-yellow"
+            : listType && listType === "favorites"
+            ? "bg-my-yellow"
+            : "";
+
     return (
         <div>
             <div className="">
@@ -247,11 +282,12 @@ export const ReusableTable: React.FC<ReusableTableProps> = ({
                     // className={`hidden md:block bg-orange-300 rounded-xl py-2 mb-2`}
                     // className={`hidden md:block bg-gb-blue rounded-xl py-2 mb-2`}
                     // className={`hidden md:block bg-gb-orange rounded-xl py-2 mb-2`}
-                    className={`hidden md:block bg-mt-orange rounded-xl py-2 mb-2`}
+                    className={`hidden md:block ${headerRowColorStylesByListType} rounded-xl py-2 mb-2`}
                 >
                     <HeaderRow
                         standardFields={standardFields}
                         actionsFieldWidthStyle={actionsFieldWidthStyle}
+                        listType={listType}
                     />
                 </div>
                 {/* Main Rows */}
@@ -266,6 +302,7 @@ export const ReusableTable: React.FC<ReusableTableProps> = ({
                             actionsFieldWidthStyle={actionsFieldWidthStyle}
                             rowItem={item}
                             actionButtons={getActionButtonsForItem(item, index)}
+                            listType={listType}
                         />
                     ))}
                 </div>

@@ -1,42 +1,37 @@
 import { SetStateAction } from "react";
-import Modal from "../layouts/Modal";
 import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
-import { FavoriteExerciseFormInputs } from "../../constants/types";
-import { splitDuration } from "../../utils/timeHelpers";
-import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
-import { GenericExerciseForm } from "./GenericExerciseForm";
-import { genericExerciseFormFieldConfigs } from "../../constants/exerciseFormFields";
+
+import Modal from "../layouts/Modal";
+import { ExerciseForm } from "../forms/ExerciseForm";
+import { exerciseFormFieldConfigs } from "../../constants/formFieldConfigs";
 import {
     CleanedUpFavoriteExercise,
-    removeNullFieldsFromFavoriteExercises,
-} from "../../utils/sequenceHelpers";
-import { makeBaseFavoriteExercisePayloadFromFormData } from "../../utils/formHelpers";
+    FavoriteExerciseFormInputs,
+} from "../../constants/types";
+
+import { api } from "../../utils/api";
+import { makeFavoriteExerciseRequestPayloadFromFormData } from "../../utils/favoriteExerciseFormHelpers";
+import { splitDuration } from "../../utils/timeHelpers";
 
 type FavoriteExerciseEditModalProps = {
     isModalOpen: boolean;
     setIsModalOpen: React.Dispatch<SetStateAction<boolean>>;
+    resetFavoriteExercisesToDisplay: () => Promise<any>;
     editItem: CleanedUpFavoriteExercise;
     setEditItem: React.Dispatch<
         SetStateAction<CleanedUpFavoriteExercise | null>
     >;
-    setFavoriteExercises: React.Dispatch<
-        SetStateAction<CleanedUpFavoriteExercise[]>
-    >;
-    fetchFavoriteExercises: () => Promise<any>;
 };
 export default function FavoriteExerciseEditModal({
     isModalOpen,
     setIsModalOpen,
+    resetFavoriteExercisesToDisplay,
     editItem,
     setEditItem,
-    setFavoriteExercises,
-    fetchFavoriteExercises,
 }: FavoriteExerciseEditModalProps) {
     const { user } = useUser();
     const userId = user?.id ?? null;
-
-    console.log(editItem);
 
     const editItemDurationMinutes =
         editItem.duration_secs !== undefined
@@ -45,7 +40,7 @@ export default function FavoriteExerciseEditModal({
 
     const editItemDurationSeconds =
         editItem.duration_secs !== undefined
-            ? splitDuration(editItem.duration_secs).splitMinutes
+            ? splitDuration(editItem.duration_secs).splitSeconds
             : undefined;
 
     const formInitialValues = {
@@ -59,39 +54,37 @@ export default function FavoriteExerciseEditModal({
 
     const editFavoriteExercisesFormMethods = useForm({
         defaultValues: formInitialValues,
+        mode: "onSubmit", // only validate on submit
+        reValidateMode: "onChange",
     });
+
+    const onModalClose = () => {
+        setEditItem(null);
+        setIsModalOpen(false);
+    };
 
     const onSubmit: SubmitHandler<FavoriteExerciseFormInputs> = async (
         formData
     ) => {
-        const baseFavoriteExercisePayload =
-            makeBaseFavoriteExercisePayloadFromFormData(formData, userId!);
-
-        const editRequestPayload = {
-            ...baseFavoriteExercisePayload,
-            id: editItem.id,
-            created_at: editItem.created_at,
-        };
-
         try {
+            const editRequestPayload =
+                makeFavoriteExerciseRequestPayloadFromFormData(
+                    formData,
+                    userId!,
+                    editItem.id,
+                    editItem.created_at
+                );
+
             const res = await api.put(
                 `/v1/favorite_exercises/${editItem.id}`,
                 editRequestPayload
             );
+
+            resetFavoriteExercisesToDisplay();
+            onModalClose();
         } catch (err: any) {
             console.log(err);
         }
-
-        let updatedFavoriteExercises = await fetchFavoriteExercises();
-        setFavoriteExercises(
-            removeNullFieldsFromFavoriteExercises(updatedFavoriteExercises)
-        );
-        onModalClose();
-    };
-
-    const onModalClose = () => {
-        setIsModalOpen(false);
-        setEditItem(null);
     };
 
     return (
@@ -117,10 +110,10 @@ export default function FavoriteExerciseEditModal({
             ]}
         >
             <FormProvider {...editFavoriteExercisesFormMethods}>
-                <GenericExerciseForm
+                <ExerciseForm
                     id="edit-favorite-exercise-form"
                     onSubmit={onSubmit}
-                    fieldConfigs={genericExerciseFormFieldConfigs}
+                    fieldConfigs={exerciseFormFieldConfigs}
                 />
             </FormProvider>
         </Modal>

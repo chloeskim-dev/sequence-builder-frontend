@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { MainRow } from "../../layouts/ReusableTable";
 import { SequenceFormInputs } from "../../../constants/types";
@@ -71,6 +70,7 @@ export default function ExerciseRow({
                     },
                 ]}
                 rowItem={exercise}
+                listType="exercises"
             />
         </div>
     );

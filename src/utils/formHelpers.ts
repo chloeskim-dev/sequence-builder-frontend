@@ -1,45 +1,128 @@
 import {
     combineDuration,
     exerciseDataHasDuration,
-    normalizeDurations,
+    // normalizeDurations,
+    splitDuration,
 } from "./timeHelpers";
 import {
+    Exercise,
     ExerciseInputs,
-    FavoriteExerciseFormInputs,
+    Sequence,
     SequenceFormInputs,
     SequencePayload,
 } from "../constants/types";
-import {
-    UseFormGetValues,
-    UseFormSetValue,
-    UseFormTrigger,
-} from "react-hook-form";
-import { FavoriteExerciseBasePayload } from "./sequenceHelpers";
+// import {
+//     UseFormGetValues,
+//     UseFormSetValue,
+//     UseFormTrigger,
+// } from "react-hook-form";
+// import { FavoriteExerciseBasePayload } from "./sequenceHelpers";
 
-export const prepareAndAppendExerciseToForm = (
-    exerciseData: ExerciseInputs,
-    append: (value: ExerciseInputs) => void
-) => {
-    console.log(exerciseData);
-    const normalizedDurations = exerciseDataHasDuration(exerciseData)
-        ? normalizeDurations(
-              exerciseData.duration_mins ?? 0,
-              exerciseData.duration_secs ?? 0
-          )
+// export const prepareAndAppendExerciseToForm = (
+//     exerciseData: ExerciseInputs,
+//     append: (value: ExerciseInputs) => void
+// ) => {
+//     console.log(exerciseData);
+
+//     const hasDuration = exerciseDataHasDuration(exerciseData);
+//     const combinedDurationSecs = hasDuration
+//         ? combineDuration(
+//               exerciseData.duration_mins ?? 0,
+//               exerciseData.duration_secs ?? 0
+//           )
+//         : undefined;
+
+//     const splitDurations = combinedDurationSecs
+//         ? splitDuration(combinedDurationSecs)
+//         : undefined;
+
+//     const newExercise = {
+//         name: exerciseData.name,
+//         direction: exerciseData.direction || undefined, // "" => undefined"
+//         resistance: exerciseData.resistance || undefined,
+//         notes: exerciseData.notes || undefined,
+//         // both duration_mins and duration_secs will be 'undefined' unless a meaningful number was put in
+//         duration_mins:
+//             splitDurations && combinedDurationSecs !== 0
+//                 ? splitDurations.splitMinutes
+//                 : undefined,
+//         duration_secs:
+//             splitDurations && combinedDurationSecs !== 0
+//                 ? splitDurations.splitSeconds
+//                 : undefined,
+//     };
+//     console.log("adding to form: ", newExercise);
+
+//     append(newExercise);
+// };
+
+export const splitInitialExerciseDurationSecsIfAny = (exercise: Exercise) => {
+    const initialDurations = exercise.duration_secs
+        ? splitDuration(exercise.duration_secs)
         : undefined;
 
-    // Standardize "" and undefined to undefined
-    const exercise = {
-        name: exerciseData.name,
-        direction: exerciseData.direction || undefined,
-        duration_mins: normalizedDurations?.splitMinutes, // 0s are allowed here since we are simply appending the exercise to the sequence form here
-        duration_secs: normalizedDurations?.splitSeconds,
-        resistance: exerciseData.resistance || undefined,
-        notes: exerciseData.notes || undefined,
+    return {
+        ...exercise,
+        ...(initialDurations && {
+            duration_mins: initialDurations.splitMinutes,
+        }),
+        ...(initialDurations && {
+            duration_secs: initialDurations.splitSeconds,
+        }),
     };
-    console.log("adding to form: ", exercise);
+};
 
-    append(exercise);
+export const getInitialEditSequenceFormValues = (
+    editSequence: Sequence
+): SequenceFormInputs => {
+    return {
+        name: editSequence.name,
+        description: editSequence.description,
+        notes: editSequence.notes,
+        exercises: editSequence.exercises.map(
+            splitInitialExerciseDurationSecsIfAny
+        ),
+    };
+};
+export const getInitialEditExerciseFormValues = (
+    editExercise: Exercise
+): ExerciseInputs => {
+    const splitDurations = editExercise.duration_secs
+        ? splitDuration(editExercise.duration_secs)
+        : undefined;
+    return {
+        name: editExercise.name,
+        notes: editExercise.notes ?? undefined,
+        resistance: editExercise.resistance ?? undefined,
+        direction: editExercise.direction ?? undefined,
+        duration_mins: splitDurations ? splitDurations.splitMinutes : undefined,
+        duration_secs: splitDurations ? splitDurations.splitSeconds : undefined,
+    };
+};
+
+export const normalizeDurationsIfAnyInExerciseData = (data: ExerciseInputs) => {
+    const hasDuration = exerciseDataHasDuration(data);
+    const combinedDurationSecs = hasDuration
+        ? combineDuration(data.duration_mins ?? 0, data.duration_secs ?? 0)
+        : undefined;
+
+    const splitDurations = combinedDurationSecs
+        ? splitDuration(combinedDurationSecs)
+        : undefined;
+
+    const normalizedData = {
+        ...data,
+        ...(splitDurations &&
+            combinedDurationSecs !== 0 && {
+                duration_mins: splitDurations.splitMinutes,
+            }),
+        ...(splitDurations &&
+            combinedDurationSecs !== 0 && {
+                duration_secs: splitDurations.splitSeconds,
+            }),
+    };
+
+    return normalizedData;
 };
 
 export const makeSequencePayloadFromFormData = (
@@ -58,13 +141,14 @@ export const makeSequencePayloadFromFormData = (
             notes: formData.notes,
         }),
         exercises: formData.exercises.map((exercise, index) => {
-            const durationSecs = exerciseDataHasDuration(exercise)
+            const combinedDurationSecs = exerciseDataHasDuration(exercise)
                 ? combineDuration(
                       exercise.duration_mins ?? 0,
                       exercise.duration_secs ?? 0
                   )
                 : undefined;
 
+            // omit undefined fields
             return {
                 name: exercise.name,
                 ...(exercise.direction && {
@@ -74,10 +158,10 @@ export const makeSequencePayloadFromFormData = (
                     resistance: exercise.resistance,
                 }),
                 ...(exercise.notes && { notes: exercise.notes }),
-                ...(durationSecs &&
+                ...(combinedDurationSecs &&
                     // also omit duration_secs field if it is 0
-                    durationSecs !== 0 && {
-                        duration_secs: durationSecs,
+                    combinedDurationSecs !== 0 && {
+                        duration_secs: combinedDurationSecs,
                     }),
                 order_index: index,
             };
@@ -86,93 +170,52 @@ export const makeSequencePayloadFromFormData = (
     return sanitizedPayload;
 };
 
-type EditExerciseParams = {
-    fieldIndex: number;
-    getValues: UseFormGetValues<SequenceFormInputs>;
-    setValue: UseFormSetValue<SequenceFormInputs>;
-    trigger: UseFormTrigger<SequenceFormInputs>;
-    setEditingExerciseFieldIndex: (fieldIndex: number | null) => void;
-};
+// type EditExerciseParams = {
+//     fieldIndex: number;
+//     getValues: UseFormGetValues<SequenceFormInputs>;
+//     setValue: UseFormSetValue<SequenceFormInputs>;
+//     trigger: UseFormTrigger<SequenceFormInputs>;
+//     setEditingExerciseFieldIndex: (fieldIndex: number | null) => void;
+// };
 
-export const editExerciseFieldArray = async ({
-    fieldIndex,
-    getValues,
-    setValue,
-    trigger,
-    setEditingExerciseFieldIndex,
-}: EditExerciseParams) => {
-    const valid = await trigger([
-        `exercises.${fieldIndex}.name`,
-        `exercises.${fieldIndex}.direction`,
-        `exercises.${fieldIndex}.duration_mins`,
-        `exercises.${fieldIndex}.duration_secs`,
-        `exercises.${fieldIndex}.resistance`,
-        `exercises.${fieldIndex}.notes`,
-    ]);
+// export const editExerciseFieldArray = async ({
+//     fieldIndex,
+//     getValues,
+//     setValue,
+//     trigger,
+//     setEditingExerciseFieldIndex,
+// }: EditExerciseParams) => {
+//     const valid = await trigger([
+//         `exercises.${fieldIndex}.name`,
+//         `exercises.${fieldIndex}.direction`,
+//         `exercises.${fieldIndex}.duration_mins`,
+//         `exercises.${fieldIndex}.duration_secs`,
+//         `exercises.${fieldIndex}.resistance`,
+//         `exercises.${fieldIndex}.notes`,
+//     ]);
 
-    if (!valid) return;
+//     if (!valid) return;
 
-    const formValues = getValues() as SequenceFormInputs;
-    const editedExercise = formValues.exercises?.[fieldIndex];
+//     const formValues = getValues() as SequenceFormInputs;
+//     const editedExercise = formValues.exercises?.[fieldIndex];
 
-    if (!editedExercise) return;
+//     if (!editedExercise) return;
 
-    const normalizedDurations = exerciseDataHasDuration(editedExercise)
-        ? normalizeDurations(
-              editedExercise.duration_mins ?? 0,
-              editedExercise.duration_secs ?? 0
-          )
-        : undefined;
+//     const normalizedDurations = exerciseDataHasDuration(editedExercise)
+//         ? normalizeDurations(
+//               editedExercise.duration_mins ?? 0,
+//               editedExercise.duration_secs ?? 0
+//           )
+//         : undefined;
 
-    setValue(
-        `exercises.${fieldIndex}.duration_mins`,
-        normalizedDurations?.splitMinutes
-    );
-    setValue(
-        `exercises.${fieldIndex}.duration_secs`,
-        normalizedDurations?.splitSeconds
-    );
+//     setValue(
+//         `exercises.${fieldIndex}.duration_mins`,
+//         normalizedDurations?.splitMinutes
+//     );
+//     setValue(
+//         `exercises.${fieldIndex}.duration_secs`,
+//         normalizedDurations?.splitSeconds
+//     );
 
-    setEditingExerciseFieldIndex(null);
-};
-
-// Favorite Exercise Forms
-export const makeBaseFavoriteExercisePayloadFromFormData = (
-    formData: FavoriteExerciseFormInputs,
-    userId: string
-) => {
-    // Creates base payload (for either edit / create favorite exercise forms) by
-    // 1) Adding user_id
-    // 2) Dropping all fields from form whose values are undefined. Additionally drops 'duration_secs' field if its value is 0
-
-    console.log("RAW DATA: ", formData);
-
-    const hasDuration =
-        formData.duration_mins !== undefined ||
-        formData.duration_secs !== undefined;
-
-    const combinedDurationSecs = hasDuration
-        ? combineDuration(
-              formData.duration_mins ?? 0,
-              formData.duration_secs ?? 0
-          )
-        : undefined;
-
-    const sanitizedBasePayload: FavoriteExerciseBasePayload = {
-        user_id: userId,
-        name: formData.name,
-        ...(formData.direction !== undefined && {
-            direction: formData.direction,
-        }),
-        // omit duration_secs field from payload if 0
-        ...(combinedDurationSecs &&
-            combinedDurationSecs !== 0 && {
-                duration_secs: combinedDurationSecs,
-            }),
-        ...(formData.resistance !== undefined && {
-            resistance: formData.resistance,
-        }),
-        ...(formData.notes !== undefined && { notes: formData.notes }),
-    };
-    return sanitizedBasePayload;
-};
+//     setEditingExerciseFieldIndex(null);
+// };

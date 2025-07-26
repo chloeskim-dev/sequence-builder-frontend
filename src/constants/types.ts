@@ -122,14 +122,86 @@ export interface SequencePayload {
     }[];
 }
 
-export type FieldType = "text" | "textarea" | "number";
-
 export interface FieldConfig {
     name: string;
     label: string;
-    type: FieldType;
+    type: string;
     placeholder?: string;
     rules?: RegisterOptions;
     rows?: number; // for textarea
     inputClassName?: string;
+}
+
+export interface RawFullSequence {
+    id: string;
+    userId: string;
+    name: string;
+    description: string | null;
+    notes: string | null;
+    created_at: string;
+    updated_at: string;
+    exercises: RawExercise[];
+}
+
+export interface RawExercise {
+    id: string;
+    name: string;
+    direction: string | null;
+    duration_secs: number | null;
+    resistance: string | null;
+    notes: string | null;
+    created_at: string;
+    orderIndex: number;
+}
+
+export interface CleanedFullSequence {
+    id: string;
+    userId: string;
+    name: string;
+    description?: string;
+    notes?: string;
+    created_at: string;
+    updated_at: string;
+    exercises: CleanedUpExercise[];
+}
+
+export interface CleanedUpExercise {
+    id: string;
+    name: string;
+    direction?: string;
+    duration_secs?: number;
+    resistance?: string;
+    notes?: string;
+    created_at: string;
+    orderIndex: number;
+    user_id: string;
+}
+
+export interface RawFavoriteExercise {
+    id: string;
+    user_id: string;
+    name: string;
+    created_at: string;
+    direction: string | null;
+    duration_secs: number | null;
+    resistance: string | null;
+    notes: string | null;
+}
+export interface CleanedUpFavoriteExercise {
+    id: string;
+    user_id: string;
+    name: string;
+    created_at: string;
+    direction?: string;
+    duration_secs?: number;
+    resistance?: string;
+    notes?: string;
+}
+export interface FavoriteExerciseBasePayload {
+    user_id: string;
+    name: string;
+    direction?: string;
+    duration_secs?: number;
+    resistance?: string;
+    notes?: string;
 }

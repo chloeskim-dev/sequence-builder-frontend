@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import SequenceForm from "../../components/sequences/forms/SequenceForm";
+import SequenceForm from "../../components/forms/SequenceForm";
 import { SubmitHandler } from "react-hook-form";
 import { SequenceFormInputs } from "../../constants/types";
 import { makeSequencePayloadFromFormData } from "../../utils/formHelpers";
@@ -37,13 +37,15 @@ const SequenceEditPage = () => {
             const res = await api.put(`/v1/sequences/${sequence!.id}`, payload);
             navigate("/sequences");
         } catch (err: any) {
-            setError("Something went wrong.");
+            setError(
+                "Something went wrong while fetching your sequence.  Please try again later."
+            );
         }
         navigate("/sequences");
     };
 
     return (
-        <div className="p-4 mx-4">
+        <div className="h-full">
             <SequenceForm
                 onSubmit={onEditFormSubmit}
                 formId="edit-sequence-form"

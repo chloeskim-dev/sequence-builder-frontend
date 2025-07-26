@@ -9,17 +9,7 @@ export const splitDuration = (combinedSecs: number) => {
     };
 };
 
-export const normalizeDurations = (minutes: number, seconds: number) => {
-    const combinedDurationSecs = combineDuration(minutes, seconds);
-    const splitDurations = splitDuration(combinedDurationSecs);
-    return splitDurations;
-};
-
 export const exerciseDataHasDuration = (exerciseData: any): boolean => {
-    console.log(
-        exerciseData.duration_mins !== undefined ||
-            exerciseData.duration_secs !== undefined
-    );
     return (
         exerciseData.duration_mins !== undefined ||
         exerciseData.duration_secs !== undefined
@@ -42,6 +32,7 @@ export function getUtcNaiveTimestamp(): string {
 
     return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}.${microseconds}`;
 }
+
 export function formatSecondsToTimeString(totalSeconds: number): string {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -56,3 +47,9 @@ export function formatSecondsToTimeString(totalSeconds: number): string {
         return `${paddedMinutes}:${paddedSeconds}`;
     }
 }
+
+// export const normalizeDurations = (minutes: number, seconds: number) => {
+//     const combinedDurationSecs = combineDuration(minutes, seconds);
+//     const splitDurations = splitDuration(combinedDurationSecs);
+//     return splitDurations;
+// };

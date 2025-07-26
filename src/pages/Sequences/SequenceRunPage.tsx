@@ -178,7 +178,7 @@ export const SequenceRunPage: React.FC = () => {
                     onClick={handleStart}
                     className="bg-mt-red rounded text-sm font-bold py-2 px-4 text-white"
                 >
-                    Start
+                    Continue
                 </button>
             </div>
         );
@@ -290,7 +290,7 @@ export const SequenceRunPage: React.FC = () => {
                 {/*  */}
                 {/*  */}
                 {currentIndex !== null && (
-                    <div className=" flex flex-col md:flex-row md:items-stretch">
+                    <div className=" flex flex-col md:flex-row md:items-stretch break-words">
                         <div className={currentExerciseContainerStyles}>
                             {/* <div>Time Remaining: {timeRemaining}</div> */}
                             <div className={currentExerciseColumnsStyles}>
@@ -373,8 +373,8 @@ export const SequenceRunPage: React.FC = () => {
                                                 <div
                                                     className={`${
                                                         currentIndex === index
-                                                            ? "font-bold text-gb-yellow"
-                                                            : ""
+                                                            ? "font-bold text-gb-yellow truncate"
+                                                            : "truncate"
                                                     }`}
                                                 >
                                                     {exercise.name}

@@ -1,7 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useSequence } from "../../hooks/useSequence";
-import ReusableDetailsList from "../../components/layouts/ReusableDetailsList";
+import ItemFieldsList from "../../components/layouts/ItemFieldsList";
+import {
+    commonLabelStyles,
+    commonTextStyles,
+} from "../../constants/tailwindClasses";
 
 export const SequenceDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -21,9 +25,9 @@ export const SequenceDetailPage: React.FC = () => {
     if (!sequence) return <p>Loading...</p>;
 
     return (
-        <div className="flex flex-col p-4 mx-4">
-            <div>
-                <ReusableDetailsList
+        <div className="h-full flex flex-col">
+            <div className="flex-1 overflow-y-auto px-4">
+                <ItemFieldsList
                     fields={[
                         "name",
                         "description",
@@ -33,15 +37,19 @@ export const SequenceDetailPage: React.FC = () => {
                         "updated_at",
                     ]}
                     item={sequence}
+                    textStyles={`${commonTextStyles} text-my-yellow`}
+                    labelStyles={`${commonLabelStyles} text-my-fg`}
                 />
             </div>
-            <button
-                type="button"
-                onClick={onBackButtonClick}
-                className="bg-gray-300 text-black px-4 py-2 rounded font-extrabold mt-4 self-start"
-            >
-                Back
-            </button>
+            <div className="mt-6 mb-10 flex flex-row gap-x-2 justify-center">
+                <button
+                    type="button"
+                    onClick={onBackButtonClick}
+                    className="bg-mt-yellow hover:bg-gb-yellow font-extrabold px-4 py-2 rounded"
+                >
+                    <text className="uppercase text-xl">Back </text>
+                </button>
+            </div>
         </div>
     );
 };

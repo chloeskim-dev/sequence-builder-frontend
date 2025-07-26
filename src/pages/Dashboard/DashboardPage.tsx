@@ -10,8 +10,8 @@ const DashboardPage = () => {
     const { user } = useUser();
     const userId = user?.id ?? null;
     return (
-        <div className="flex justify-center mt-8">
-            <div className="mt-[20vh] flex flex-col items-center gap-y-4">
+        <div className="flex justify-center items-center h-full">
+            <div className="flex flex-col items gap-y-8">
                 <button
                     onClick={() => navigate("/sequences")}
                     className={dashboardButtonTextStyles}
@@ -28,6 +28,15 @@ const DashboardPage = () => {
                 </button>
             </div>{" "}
         </div>
+        // <div className="h-full bg-white">
+        //     <div className="h-full flex flex-col bg-yellow-100 py-2">
+        //         <div className="flex-1 overflow-y-auto">
+        //             <div>content</div>
+        //
+        //         </div>
+        //         <div className="flex-shrink-0 py-2">buttons</div>
+        //     </div>
+        // </div>
     );
 };
 

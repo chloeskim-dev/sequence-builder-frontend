@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useUser } from "../../contexts/UserContext";
-import { Button } from "../../components/ui/Button";
 import { safeFetch } from "../../utils/api";
 import Modal from "../../components/layouts/Modal";
+import { formTextInputStyles } from "../../constants/tailwindClasses";
 
 interface AuthPageProps {
     authorizeUser: () => void;
@@ -58,11 +58,19 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
     const {
         register,
         handleSubmit,
+        clearErrors,
         formState: { errors },
-    } = useForm<FormInputs>();
+    } = useForm<FormInputs>({
+        mode: "onSubmit", // only validate on submit
+        reValidateMode: "onChange",
+    });
+
+    useEffect(() => {
+        clearErrors();
+    }, [isSignup]);
 
     const errorTextStyles = "text-red-500 text-sm mt-1";
-    const inputTextStyles = "w-full p-2 border rounded";
+    const inputStyles = `${formTextInputStyles} text-gb-bg border-b-hmt-dark-option4`;
 
     const signup = async ({ username, password, email }: SignupPayload) => {
         const payload: SignupPayload = {
@@ -82,10 +90,11 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
                 fetchOptions
             );
 
-            // if (data && isSignupSuccessResponseJson(data)) {
-            //     console.log("Signup success: ", data);
-            // }
+            if (data && isSignupSuccessResponseJson(data)) {
+                console.log("Signup success: ", data);
+            }
         } catch (err: any) {
+            console.log(err);
             throw err;
         }
     };
@@ -102,7 +111,8 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
                     password,
                 });
             } catch (err: any) {
-                setError(err.message || "Signup failed");
+                // setError(err.message || "Signup failed");
+                setError("Something went wrong.  Please try again later.");
             }
         } else {
             try {
@@ -139,7 +149,7 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
                     {isSignup && (
                         <input
                             id="emailInput"
-                            className={inputTextStyles}
+                            className={inputStyles}
                             placeholder="Email"
                             {...register("email", {
                                 required: "Email is required",
@@ -158,12 +168,14 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
 
                     <input
                         id="identifierInput"
-                        className={inputTextStyles}
+                        className={inputStyles}
                         placeholder={
                             isSignup ? "Username" : "Email or Username"
                         }
                         {...register("identifier", {
-                            required: "Username or email is required",
+                            required: isSignup
+                                ? "Username is required"
+                                : "Username or email is required",
                             ...(isSignup && {
                                 minLength: {
                                     value: 3,
@@ -184,7 +196,7 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
                     <div className="relative w-full">
                         <input
                             id="passwordInput"
-                            className={inputTextStyles}
+                            className={inputStyles}
                             placeholder="Password"
                             type={showPassword ? "text" : "password"}
                             {...register("password", {
@@ -216,10 +228,16 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
                         </p>
                     )}
 
-                    <Button type="submit" className="w-full">
+                    <button type="submit" className="w-full">
                         {isSignup ? "Sign Up" : "Log In"}
-                    </Button>
+                    </button>
                 </form>
+
+                {error && (
+                    <div className="text-red-600 font-semibold mt-2">
+                        {error}
+                    </div>
+                )}
 
                 <button
                     className="text-mt-bg text-sm mt-2"

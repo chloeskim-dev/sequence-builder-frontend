@@ -1,5 +1,5 @@
 :root {
-    --gb-bg: #1e1e1e;
+    /* --gb-bg: #1e1e1e;
     --gb-fg: #ebdbb2;
     --gb-red: #fb4934;
     --gb-green: #b8bb26;
@@ -24,6 +24,73 @@
     --mt-blue: #7daea3;
     --mt-orange: #e78a4e;
     --mt-black4: #928374;
+    --hyper-mt-light-red: #ea6962;
+    --hyper-mt-light-orange: #e78a4e;
+    --hyper-mt-light-yellow: #d8a657;
+    --hyper-mt-light-green: #a9b665;
+    --hyper-mt-light-aqua: #89b482;
+    --hyper-mt-light-blue: #7daea3;
+    --hyper-mt-light-purple: #d3869b;
+    --hyper-mt-light-black: #5a524c;
+    --hyper-mt-light-white: #d4be98;
+
+    --hyper-mt-dark-red: #c14a4a;
+    --hyper-mt-dark-orange: #c35e0a;
+    --hyper-mt-dark-yellow: #b47109;
+    --hyper-mt-dark-green: #6c782e;
+    --hyper-mt-dark-aqua: #4c7a5d;
+    --hyper-mt-dark-blue: #45707a;
+    --hyper-mt-dark-purple: #945e80;
+    --hyper-mt-dark-black: #c9b99a;
+    --hyper-mt-dark-white: #654735;
+
+    --hyper-mt-dark-soft-contrast: #32302f;
+    --hyper-mt-dark: #282828;
+    --hyper-mt-dark-hard-contrast: #1d2021;
+    --hyper-mt-dark-option2: #504945;
+    --hyper-mt-dark-option3: #665c54;
+    --hyper-mt-dark-option4: #7c6f64;
+
+    --hyper-mt-light-soft-contrast: #f2e5bc;
+    --hyper-mt-light: #fbf1c7;
+    --hyper-mt-light-hard-contrast: #f9f5d7;
+    --hyper-mt-light-option2: #d5c4a1;
+    --hyper-mt-light-option3: #bdae93;
+    --hyper-mt-light-option4: #a89984;
+
+    --hyper-mix-light-red: #f2594b;
+    --hyper-mix-light-orange: #f28534;
+    --hyper-mix-light-yellow: #e9b143;
+    --hyper-mix-light-green: #b0b846;
+    --hyper-mix-light-aqua: #8bba7f;
+    --hyper-mix-light-blue: #80aa9e;
+    --hyper-mix-light-purple: #d3869b;
+    --hyper-mix-light-black: #5a524c;
+    --hyper-mix-light-white: #e2cca9;
+
+    --hyper-mix-dark-Red: #af2528;
+    --hyper-mix-dark-orange: #b94c07;
+    --hyper-mix-dark-yellow: #b4730e;
+    --hyper-mix-dark-green: #72761e;
+    --hyper-mix-dark-aqua: #477a5b;
+    --hyper-mix-dark-blue: #266b79;
+    --hyper-mix-dark-purple: #924f79;
+    --hyper-mix-dark-black: #c9b99a;
+    --hyper-mix-dark-white: #514036;
+
+    --hyper-mix-dark--soft-contrast: #32302f;
+    --hyper-mix-dark: #282828;
+    --hyper-mix-dark--hard-contrast: #1d2021;
+    --hyper-mix-dark--option2: #504945;
+    --hyper-mix-dark--option3: #665c54;
+    --hyper-mix-dark--option4: #7c6f64;
+
+    --hyper-mix-light--soft-contrast: #f2e5bc;
+    --hyper-mix-light: #fbf1c7;
+    --hyper-mix-light--hard-contrast: #f9f5d7;
+    --hyper-mix-light--option2: #d5c4a1;
+    --hyper-mix-light--option3: #bdae93;
+    --hyper-mix-light--option4: #a89984; */
 }
 
 .App {

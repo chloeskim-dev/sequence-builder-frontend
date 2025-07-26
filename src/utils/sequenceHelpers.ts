@@ -1,49 +1,13 @@
-import { Exercise, FavoriteExercise, Sequence } from "../constants/types";
-
-export interface RawFullSequence {
-    id: string;
-    userId: string;
-    name: string;
-    description: string | null;
-    notes: string | null;
-    created_at: string;
-    updated_at: string;
-    exercises: RawExercise[];
-}
-
-export interface RawExercise {
-    id: string;
-    name: string;
-    direction: string | null;
-    duration_secs: number | null;
-    resistance: string | null;
-    notes: string | null;
-    created_at: string;
-    orderIndex: number;
-}
-
-export interface CleanedFullSequence {
-    id: string;
-    userId: string;
-    name: string;
-    description?: string;
-    notes?: string;
-    created_at: string;
-    updated_at: string;
-    exercises: CleanedUpExercise[];
-}
-
-export interface CleanedUpExercise {
-    id: string;
-    name: string;
-    direction?: string;
-    duration_secs?: number;
-    resistance?: string;
-    notes?: string;
-    created_at: string;
-    orderIndex: number;
-    user_id: string;
-}
+import {
+    CleanedFullSequence,
+    CleanedUpExercise,
+    CleanedUpFavoriteExercise,
+    Exercise,
+    RawExercise,
+    RawFavoriteExercise,
+    RawFullSequence,
+    Sequence,
+} from "../constants/types";
 
 export const removeNullFieldsFromExercise = (
     exercise: RawExercise
@@ -63,37 +27,8 @@ export const removeNullFieldsFromExercises = (
     return cleanedExercises;
 };
 
-export interface favoriteExerciseFetchResult {
-    id: string;
-    user_id: string;
-    name: string;
-    created_at: string;
-    direction: string | null;
-    duration_secs: number | null;
-    resistance: string | null;
-    notes: string | null;
-}
-export interface CleanedUpFavoriteExercise {
-    id: string;
-    user_id: string;
-    name: string;
-    created_at: string;
-    direction?: string;
-    duration_secs?: number;
-    resistance?: string;
-    notes?: string;
-}
-export interface FavoriteExerciseBasePayload {
-    user_id: string;
-    name: string;
-    direction?: string;
-    duration_secs?: number;
-    resistance?: string;
-    notes?: string;
-}
-
 export const removeNullFieldsFromFavoriteExercise = (
-    favorite_exercise: favoriteExerciseFetchResult
+    favorite_exercise: RawFavoriteExercise
 ): CleanedUpFavoriteExercise => {
     return Object.fromEntries(
         Object.entries(favorite_exercise).filter(([_, value]) => value !== null)
@@ -101,7 +36,7 @@ export const removeNullFieldsFromFavoriteExercise = (
 };
 
 export const removeNullFieldsFromFavoriteExercises = (
-    exercises: favoriteExerciseFetchResult[]
+    exercises: RawFavoriteExercise[]
 ): CleanedUpFavoriteExercise[] => {
     const cleanedExercises = exercises.map((exercise) =>
         removeNullFieldsFromFavoriteExercise(exercise)
@@ -141,5 +76,11 @@ export const getSequenceTotalDurationSecs = (sequence: Sequence) => {
     return sequence.exercises.reduce(
         (acc: any, exercise: any) => acc + (exercise.duration_secs ?? 0),
         0
+    );
+};
+
+export const filterBySearchQuery = (items: any, searchQuery: string) => {
+    return items.filter((item: any) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 };

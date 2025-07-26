@@ -24,7 +24,6 @@ function FavoriteExercisesDropdown({
                 const res = await api.get(
                     `/v1/favorite_exercises/user/${userId}`
                 );
-                console.log("fetched favorite exercises for user: ", res);
                 setFavoriteExercises(res);
             } catch (err: any) {
                 console.error("Error fetching sequences:", err);
@@ -65,6 +64,7 @@ function FavoriteExercisesDropdown({
                 "notes",
             ]}
             actionsFieldWidthStyle="w-[70px]"
+            listType="favorites"
         />
     );
 }

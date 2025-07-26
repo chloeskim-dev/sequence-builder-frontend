@@ -1,29 +1,36 @@
 import { useState, useEffect } from "react";
-import { Sequence } from "../../constants/types";
+import {
+    CleanedFullSequence,
+    RawFullSequence,
+    Sequence,
+} from "../../constants/types";
 import { FiPlus } from "react-icons/fi";
 import { IconButton } from "../../components/ui/IconButton";
 import Searchbar from "../../components/ui/Searchbar";
-import { sampleInitialSequences } from "../../constants/exampleItems";
 import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
-import SequenceDeleteConfirmModal from "../../components/sequences/SequenceDeleteConfirmModal";
 import {
+    filterBySearchQuery,
     getSequenceTotalDurationSecs,
-    RawFullSequence,
     removeNullFieldsFromSequences,
 } from "../../utils/sequenceHelpers";
 import { useNavigate } from "react-router-dom";
 import { ReusableTable } from "../../components/layouts/ReusableTable";
 import {
-    pageCreateNewButtonStyles,
+    createNewButtonStyles,
     pageOutermostFlexColStyles,
 } from "../../constants/tailwindClasses";
 import Modal from "../../components/layouts/Modal";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 
 const SequencesPage = () => {
-    const [sequenceQuery, setSequenceQuery] = useState("");
-    const [sequences, setSequences] = useState(sampleInitialSequences);
-    const [createModalIsOpen, setcreateModalIsOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [fetchedSequences, setFetchedSequences] = useState<
+        RawFullSequence[] | undefined
+    >(undefined);
+    const [displaySequences, setDisplaySequences] = useState<
+        CleanedFullSequence[] | undefined
+    >(undefined);
     const [deleteConfirmModalIsOpen, setDeleteConfirmModalIsOpen] =
         useState(false);
     const [deleteItem, setDeleteItem] = useState<Sequence | null>(null);
@@ -37,34 +44,58 @@ const SequencesPage = () => {
 
     const fetchSequences = async () => {
         try {
-            const res = await api.get(`/v1/sequences/user/${userId}/full`);
-            console.log("Fetched raw sequences from db:\n", res);
-            return res;
+            const res: RawFullSequence[] = await api.get(
+                `/v1/sequences/user/${userId}/full`
+            ); // backend returns empty array if user has not added any sequences
+            // console.log("Fetched raw sequences from db:\n", res);
+            setFetchedSequences(res);
         } catch (err: any) {
             console.error("Error fetching sequences: ", err);
-            throw err;
+            setError(
+                "Something went wrong while fetching your sequences.  Please try again later."
+            );
         }
     };
 
     useEffect(() => {
-        initializeSequences();
-    }, [userId]);
+        fetchSequences();
+    }, []);
 
-    const filteredSequences = sequences.filter((sequence) =>
-        sequence.name.toLowerCase().includes(sequenceQuery.toLowerCase())
-    );
-
-    const initializeSequences = async () => {
+    const setSequencesToDisplay = async () => {
+        if (fetchedSequences === undefined) {
+            return;
+        }
         try {
-            const sequences: RawFullSequence[] = await fetchSequences();
-            const cleanedSequences = removeNullFieldsFromSequences(sequences);
-            setSequences(cleanedSequences);
-            console.log("Set sequences to:", cleanedSequences);
+            const cleanedSequences =
+                removeNullFieldsFromSequences(fetchedSequences);
+            const cleanedSequencesBySearchQuery = filterBySearchQuery(
+                cleanedSequences,
+                searchQuery
+            );
+            setDisplaySequences(cleanedSequencesBySearchQuery);
         } catch (err: any) {
-            console.error("Error initializing sequences:", err);
-            setError(err.message);
+            console.error("Error setting display sequences:", err);
+            setError(
+                "Something went wrong while setting sequences to display.  Please try again later."
+            );
         }
     };
+
+    useEffect(() => {
+        setSequencesToDisplay();
+    }, [searchQuery, fetchedSequences]);
+
+    const fetchResultsAreEmpty =
+        fetchedSequences !== undefined && fetchedSequences.length === 0;
+
+    const thereAreNoSequencesMatchingQuery =
+        fetchedSequences !== undefined &&
+        fetchedSequences.length !== 0 &&
+        displaySequences !== undefined &&
+        displaySequences.length === 0;
+
+    const thereAreSequencesToDisplay =
+        displaySequences !== undefined && displaySequences.length !== 0;
 
     const handleViewItemClick = async (sequenceId: string) => {
         navigate(`/sequences/${sequenceId}`);
@@ -74,8 +105,28 @@ const SequencesPage = () => {
         navigate(`/sequences/edit/${sequenceId}`);
     };
 
+    const handleDeleteItemClick = async (index: number) => {
+        if (!thereAreSequencesToDisplay) return;
+        setDeleteItem(displaySequences[index]);
+        setDeleteConfirmModalIsOpen(true);
+    };
+
+    const deleteSequence = async (sequenceId: string) => {
+        try {
+            const res = await api.delete(`/v1/sequences/${sequenceId}`);
+            setSearchQuery("");
+            fetchSequences();
+            setDeleteConfirmModalIsOpen(false);
+        } catch (err: any) {
+            setError(
+                "Something went wrong while deleting your sequence.  Please try again later."
+            );
+        }
+    };
+
     const handleRunClick = async (index: number) => {
-        const clickedSequence = filteredSequences[index];
+        if (!thereAreSequencesToDisplay) return;
+        const clickedSequence = displaySequences[index];
         const sequenceTotalDurationSecs =
             getSequenceTotalDurationSecs(clickedSequence);
         console.log("total duration: ", sequenceTotalDurationSecs);
@@ -92,70 +143,76 @@ const SequencesPage = () => {
         setRunDenyModalIsOpen(false);
     };
 
-    const handleDeleteItemClick = async (index: number) => {
-        setDeleteItem(sequences[index]);
-        setDeleteConfirmModalIsOpen(true);
-    };
-
-    const deleteSequence = async (sequenceId: string) => {
-        try {
-            const res = await api.delete(`/v1/sequences/${sequenceId}`);
-            await initializeSequences();
-            setDeleteConfirmModalIsOpen(false);
-        } catch (err: any) {
-            setError("Something went wrong.");
-        }
-    };
-
     return (
-        <div>
+        <div className="">
             <div className={pageOutermostFlexColStyles}>
                 <div>
                     <IconButton
                         onClick={() => navigate(`/sequences/create`)}
-                        icon={<FiPlus size={14} />}
-                        // className="bg-green-600 rounded-lg text-lg font-extrabold"
-                        className={pageCreateNewButtonStyles}
+                        icon={<FiPlus size={16} />}
+                        className={createNewButtonStyles}
                     >
                         Create New
                     </IconButton>
                 </div>
-                <Searchbar
-                    placeholder="Search by name..."
-                    query={sequenceQuery}
-                    setQuery={setSequenceQuery}
-                />
-                <div>
-                    <ReusableTable
-                        items={filteredSequences}
-                        standardFields={[
-                            "name",
-                            "description",
-                            "notes",
-                            "created_at",
-                            "exercises",
-                        ]}
-                        getActionButtonsForItem={(item, index) => [
-                            {
-                                title: "View",
-                                action: () => handleViewItemClick(item.id),
-                            },
-                            {
-                                title: "Edit",
-                                action: () => handleEditItemClick(item.id),
-                            },
-                            {
-                                title: "Delete",
-                                action: () => handleDeleteItemClick(index),
-                            },
-                            {
-                                title: "Run",
-                                action: () => handleRunClick(index),
-                            },
-                        ]}
-                        actionsFieldWidthStyle="w-[210px]"
+                {thereAreSequencesToDisplay && (
+                    <Searchbar
+                        placeholder="Search by name..."
+                        query={searchQuery}
+                        setQuery={setSearchQuery}
                     />
-                </div>
+                )}
+                {error && (
+                    <div className="text-red-600 font-semibold mt-2">
+                        {error}
+                    </div>
+                )}
+                {thereAreSequencesToDisplay && (
+                    <div>
+                        <ReusableTable
+                            items={displaySequences}
+                            standardFields={[
+                                "name",
+                                "description",
+                                "notes",
+                                "created_at",
+                                "exercises",
+                            ]}
+                            getActionButtonsForItem={(item, index) => [
+                                {
+                                    title: "View",
+                                    action: () => handleViewItemClick(item.id),
+                                },
+                                {
+                                    title: "Edit",
+                                    action: () => handleEditItemClick(item.id),
+                                },
+                                {
+                                    title: "Delete",
+                                    action: () => handleDeleteItemClick(index),
+                                },
+                                {
+                                    title: "Run",
+                                    action: () => handleRunClick(index),
+                                },
+                            ]}
+                            actionsFieldWidthStyle="w-[210px]"
+                            listType="sequences"
+                        />
+                    </div>
+                )}
+                {fetchResultsAreEmpty && (
+                    <div>
+                        You have not added any sequences. Create a sequence by
+                        clicking the button above.
+                    </div>
+                )}
+
+                {thereAreNoSequencesMatchingQuery && (
+                    <div>
+                        There are no sequences that match your query by name.
+                    </div>
+                )}
             </div>
             {runItem && runDenyModalIsOpen && (
                 <Modal
@@ -180,12 +237,13 @@ const SequencesPage = () => {
                 </Modal>
             )}
             {deleteItem && deleteConfirmModalIsOpen && (
-                <SequenceDeleteConfirmModal
+                <DeleteConfirmModal
                     isModalOpen={deleteConfirmModalIsOpen}
                     setIsModalOpen={setDeleteConfirmModalIsOpen}
                     deleteItem={deleteItem}
                     setDeleteItem={setDeleteItem}
-                    deleteSequence={deleteSequence}
+                    onDelete={deleteSequence}
+                    title="Delete sequence?"
                 />
             )}
         </div>

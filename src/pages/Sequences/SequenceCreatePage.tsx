@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SequenceForm from "../../components/sequences/forms/SequenceForm";
+import SequenceForm from "../../components/forms/SequenceForm";
 import { SubmitHandler } from "react-hook-form";
 import { SequenceFormInputs } from "../../constants/types";
 import { makeSequencePayloadFromFormData } from "../../utils/formHelpers";
@@ -28,7 +28,7 @@ const SequenceCreatePage = () => {
         navigate("/sequences");
     };
     return (
-        <div className="p-4">
+        <div className="h-full">
             <SequenceForm
                 onSubmit={onCreateFormSubmit}
                 formId="create-sequence-form"

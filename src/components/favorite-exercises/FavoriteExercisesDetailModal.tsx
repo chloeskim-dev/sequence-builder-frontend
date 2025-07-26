@@ -1,8 +1,11 @@
 import { SetStateAction } from "react";
 import Modal from "../layouts/Modal";
-import { FavoriteExercise } from "../../constants/types";
-import ReusableDetailsList from "../layouts/ReusableDetailsList";
-import { CleanedUpFavoriteExercise } from "../../utils/sequenceHelpers";
+import ItemFieldsList from "../layouts/ItemFieldsList";
+import {
+    detailsListInsideModalLabelStyles,
+    detailsListInsideModalTextStyles,
+} from "../../constants/tailwindClasses";
+import { CleanedUpFavoriteExercise } from "../../constants/types";
 
 type FavoriteExerciseDetailModalProps = {
     isModalOpen: boolean;
@@ -19,7 +22,7 @@ export default function FavoriteExerciseDetailModal({
     detailItem,
     setDetailItem,
 }: FavoriteExerciseDetailModalProps) {
-    const closeDetailModal = () => {
+    const onModalClose = () => {
         setIsModalOpen(false);
         setDetailItem(null);
     };
@@ -27,7 +30,7 @@ export default function FavoriteExerciseDetailModal({
     return (
         <Modal
             isOpen={isModalOpen}
-            onClose={closeDetailModal}
+            onClose={onModalClose}
             title={"Favorite Exercise Details"}
             buttons={[
                 {
@@ -37,7 +40,7 @@ export default function FavoriteExerciseDetailModal({
                 },
             ]}
         >
-            <ReusableDetailsList
+            <ItemFieldsList
                 fields={[
                     "name",
                     "direction",
@@ -46,6 +49,8 @@ export default function FavoriteExerciseDetailModal({
                     "notes",
                 ]}
                 item={detailItem}
+                textStyles={detailsListInsideModalTextStyles}
+                labelStyles={detailsListInsideModalLabelStyles}
             />
         </Modal>
     );

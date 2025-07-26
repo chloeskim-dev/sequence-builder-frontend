@@ -7,7 +7,7 @@ export const blankSequenceFormInputs: SequenceFormInputs = {
     exercises: [],
 };
 
-export const blankNewExerciseInputs: ExerciseInputs = {
+export const blankExerciseFormInputs: ExerciseInputs = {
     name: "",
     direction: undefined,
     duration_mins: undefined,

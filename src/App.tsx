@@ -9,14 +9,14 @@ import {
 import AuthPage from "./pages/auth/AuthPage";
 import PrivateRoute from "./components/PrivateRoute";
 import DashboardPage from "./pages/dashboard/DashboardPage";
-import SequencesPage from "./pages/Sequences/SequencesPage";
+import SequencesPage from "./pages/sequences/SequencesPage";
 import FavoriteExercisesPage from "./pages/favorite-exercises/FavoriteExercisesPage";
 
 import PageLayout from "./components/layouts/PageLayout";
-import { SequenceDetailPage } from "./pages/Sequences/SequenceDetailPage";
-import SequenceCreatePage from "./pages/Sequences/SequenceCreatePage";
-import SequenceEditPage from "./pages/Sequences/SequenceEditPage";
-import { SequenceRunPage } from "./pages/Sequences/SequenceRunPage";
+import { SequenceDetailPage } from "./pages/sequences/SequenceDetailPage";
+import SequenceCreatePage from "./pages/sequences/SequenceCreatePage";
+import SequenceEditPage from "./pages/sequences/SequenceEditPage";
+import { SequenceRunPage } from "./pages/sequences/SequenceRunPage";
 
 const App = () => {
     const [authorized, setAuthorized] = useState(false);

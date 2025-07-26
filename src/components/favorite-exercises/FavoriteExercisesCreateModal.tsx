@@ -1,76 +1,67 @@
 import { SetStateAction } from "react";
-import Modal from "../layouts/Modal";
 import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
-import { FavoriteExerciseFormInputs } from "../../constants/types";
-import { api } from "../../utils/api";
-import { useUser } from "../../contexts/UserContext";
-import { getUtcNaiveTimestamp } from "../../utils/timeHelpers";
 import { v4 as uuidv4 } from "uuid";
-import { GenericExerciseForm } from "./GenericExerciseForm";
-import { genericExerciseFormFieldConfigs } from "../../constants/exerciseFormFields";
-import {
-    CleanedUpFavoriteExercise,
-    removeNullFieldsFromFavoriteExercises,
-} from "../../utils/sequenceHelpers";
-import { makeBaseFavoriteExercisePayloadFromFormData } from "../../utils/formHelpers";
-import { blankNewExerciseInputs } from "../../constants/initialFormInputs";
+import { useUser } from "../../contexts/UserContext";
+
+import Modal from "../layouts/Modal";
+import { ExerciseForm } from "../forms/ExerciseForm";
+import { exerciseFormFieldConfigs } from "../../constants/formFieldConfigs";
+import { FavoriteExerciseFormInputs } from "../../constants/types";
+import { blankExerciseFormInputs } from "../../constants/initialFormInputs";
+
+import { api } from "../../utils/api";
+import { makeFavoriteExerciseRequestPayloadFromFormData } from "../../utils/favoriteExerciseFormHelpers";
+import { getUtcNaiveTimestamp } from "../../utils/timeHelpers";
 
 type FavoriteExerciseCreateModalProps = {
     isModalOpen: boolean;
     setIsModalOpen: React.Dispatch<SetStateAction<boolean>>;
-    setFavoriteExercises: React.Dispatch<
-        SetStateAction<CleanedUpFavoriteExercise[]>
-    >;
-    fetchFavoriteExercises: () => Promise<any>;
+    resetFavoriteExercisesToDisplay: () => Promise<any>;
 };
 
 export default function FavoriteExerciseCreateModal({
     isModalOpen,
     setIsModalOpen,
-    setFavoriteExercises,
-    fetchFavoriteExercises,
+    resetFavoriteExercisesToDisplay,
 }: FavoriteExerciseCreateModalProps) {
     const { user } = useUser();
     const userId = user?.id ?? null;
 
-    const formInitialValues = blankNewExerciseInputs;
+    const formInitialValues = blankExerciseFormInputs;
 
     const createFavoriteExerciseFormMethods = useForm({
         defaultValues: formInitialValues,
+        mode: "onSubmit", // only validate on submit
+        reValidateMode: "onChange",
     });
+
+    const onModalClose = () => {
+        createFavoriteExerciseFormMethods.reset(formInitialValues);
+        setIsModalOpen(false);
+    };
 
     const onSubmit: SubmitHandler<FavoriteExerciseFormInputs> = async (
         formData
     ) => {
-        const baseFavoriteExercisePayload =
-            makeBaseFavoriteExercisePayloadFromFormData(formData, userId!);
-
-        const createRequestPayload = {
-            ...baseFavoriteExercisePayload,
-            id: uuidv4(),
-            created_at: getUtcNaiveTimestamp(),
-        };
-
         try {
+            const createRequestPayload =
+                makeFavoriteExerciseRequestPayloadFromFormData(
+                    formData,
+                    userId!,
+                    uuidv4(),
+                    getUtcNaiveTimestamp()
+                );
+
             const res = await api.post(
                 `/v1/favorite_exercises/user/${userId}`,
                 createRequestPayload
             );
-            console.log("API response to create request:", res);
+
+            resetFavoriteExercisesToDisplay();
+            onModalClose();
         } catch (err: any) {
             console.error("Error creating favorite_exercise:", err.message);
         }
-
-        let updatedFavoriteExercises = await fetchFavoriteExercises();
-        setFavoriteExercises(
-            removeNullFieldsFromFavoriteExercises(updatedFavoriteExercises)
-        );
-        onModalClose();
-    };
-
-    const onModalClose = () => {
-        setIsModalOpen(false);
-        createFavoriteExerciseFormMethods.reset(formInitialValues);
     };
 
     return (
@@ -97,10 +88,10 @@ export default function FavoriteExerciseCreateModal({
             ]}
         >
             <FormProvider {...createFavoriteExerciseFormMethods}>
-                <GenericExerciseForm
+                <ExerciseForm
                     id="create-favorite-exercise-form"
                     onSubmit={onSubmit}
-                    fieldConfigs={genericExerciseFormFieldConfigs}
+                    fieldConfigs={exerciseFormFieldConfigs}
                 />
             </FormProvider>
         </Modal>
