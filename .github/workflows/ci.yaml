@@ -5,7 +5,7 @@ on: push
 jobs:
   build:
     # Run on raspberry-pi runner
-    runs-on: arc-sequence-builder
+    runs-on: arc-sequence-builder-frontend
     steps:
     - name: checkout repo
       uses: actions/checkout@v4
