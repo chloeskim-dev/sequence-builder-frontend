@@ -13,19 +13,9 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Kaniko build
-      uses: bymarshall/kaniko-action@main
-      with:
-        push: false
-        tags: chloesk:test
-        cache: false
-        use_new_run: true
-
     # Push container to docker
-    #
-    # Runners need to be able to access docker daemon before this will work
-    #- name: Build and push
-    #  uses: docker/build-push-action@v6
-    #  with:
-    #    push: true
-    #    tags: chloesk/sequence-builder-backend:0.0.4
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        push: true
+        tags: chloesk/sequence-builder-frontend:0.0.4
