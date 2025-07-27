@@ -3,7 +3,6 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --production
 COPY . .
-RUN sleep 3600
 RUN npm run build
 
 FROM node:18-alpine AS runner
