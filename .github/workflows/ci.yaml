@@ -21,9 +21,17 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    # Set image metadata
+    - name: Extract Docker image metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: chloesk/sequence-builder-frontend
+
     # Push container to docker
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
         push: true
-        tags: chloesk/sequence-builder-frontend:0.0.4
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
