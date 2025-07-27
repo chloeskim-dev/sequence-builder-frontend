@@ -22,5 +22,5 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
-        push: false
-        tags: test:test
+        push: true
+        tags: chloesk/sequence-builder-frontend:0.0.4
