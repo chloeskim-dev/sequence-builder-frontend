@@ -1,21 +1,3 @@
-export const combineDuration = (splitMinutes: number, splitSeconds: number) => {
-    return splitMinutes * 60 + splitSeconds;
-};
-
-export const splitDuration = (combinedSecs: number) => {
-    return {
-        splitMinutes: Math.floor(combinedSecs / 60),
-        splitSeconds: combinedSecs % 60,
-    };
-};
-
-export const exerciseDataHasDuration = (exerciseData: any): boolean => {
-    return (
-        exerciseData.duration_mins !== undefined ||
-        exerciseData.duration_secs !== undefined
-    );
-};
-
 export function getUtcNaiveTimestamp(): string {
     const now = new Date();
 
@@ -48,8 +30,22 @@ export function formatSecondsToTimeString(totalSeconds: number): string {
     }
 }
 
-// export const normalizeDurations = (minutes: number, seconds: number) => {
-//     const combinedDurationSecs = combineDuration(minutes, seconds);
-//     const splitDurations = splitDuration(combinedDurationSecs);
-//     return splitDurations;
-// };
+interface localTimeStrings {
+    date: string;
+    time: string;
+}
+
+export function formatUtcToLocalTrimmed(utcString: string): localTimeStrings {
+    const trimmed = utcString.split(".")[0].replace(" ", "T") + "Z";
+    const localDate = new Date(trimmed);
+    const yyyy = localDate.getFullYear();
+    const mm = String(localDate.getMonth() + 1).padStart(2, "0");
+    const dd = String(localDate.getDate()).padStart(2, "0");
+    const hh = String(localDate.getHours()).padStart(2, "0");
+    const mi = String(localDate.getMinutes()).padStart(2, "0");
+
+    return {
+        date: `${yyyy}-${mm}-${dd}`,
+        time: `${hh}:${mi}`,
+    };
+}

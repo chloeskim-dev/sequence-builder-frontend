@@ -14,7 +14,7 @@ const Searchbar = ({ placeholder, query, setQuery }: Props) => {
                 value={query}
                 placeholder={placeholder}
                 onChange={(e) => setQuery(e.target.value)}
-                className="text-sm"
+                className="text-sm font-bold text-my-yellow"
             />
         </div>
     );

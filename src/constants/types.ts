@@ -20,7 +20,18 @@ export interface User {
     updated_at: string;
 }
 
-export interface Sequence {
+export interface RawFullSequence {
+    id: string;
+    userId: string;
+    name: string;
+    description: string | null;
+    notes: string | null;
+    created_at: string;
+    updated_at: string;
+    exercises: RawExercise[];
+}
+
+export interface CleanedFullSequence {
     id: string;
     userId: string;
     name: string;
@@ -28,7 +39,18 @@ export interface Sequence {
     notes?: string;
     created_at: string;
     updated_at: string;
-    exercises: Exercise[];
+    exercises: CleanedUpExercise[];
+}
+
+export interface DurationsSequence {
+    id: string;
+    userId: string;
+    name: string;
+    description?: string;
+    notes?: string;
+    created_at: string;
+    updated_at: string;
+    exercises: DurationsExercise[];
 }
 
 export interface SequenceFormInputs {
@@ -60,17 +82,6 @@ export interface ExerciseInputs {
     duration_secs?: number;
     resistance?: string;
     notes?: string;
-}
-
-export interface Exercise {
-    id: string;
-    name: string;
-    direction?: string;
-    duration_secs?: number;
-    resistance?: string;
-    notes?: string;
-    created_at: string;
-    orderIndex: number;
 }
 
 export interface FavoriteExercise {
@@ -132,15 +143,15 @@ export interface FieldConfig {
     inputClassName?: string;
 }
 
-export interface RawFullSequence {
+export interface DurationsExercise {
     id: string;
-    userId: string;
     name: string;
-    description: string | null;
-    notes: string | null;
+    direction?: string;
+    duration_secs: number;
+    resistance?: string;
+    notes?: string;
     created_at: string;
-    updated_at: string;
-    exercises: RawExercise[];
+    orderIndex: number;
 }
 
 export interface RawExercise {
@@ -152,17 +163,6 @@ export interface RawExercise {
     notes: string | null;
     created_at: string;
     orderIndex: number;
-}
-
-export interface CleanedFullSequence {
-    id: string;
-    userId: string;
-    name: string;
-    description?: string;
-    notes?: string;
-    created_at: string;
-    updated_at: string;
-    exercises: CleanedUpExercise[];
 }
 
 export interface CleanedUpExercise {

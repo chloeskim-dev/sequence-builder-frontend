@@ -1,23 +1,27 @@
 import { useState } from "react";
-import { Exercise } from "../../constants/types";
-import { formatUtcToLocalTrimmed } from "../../utils/dateHelpers";
-import { combineDuration, splitDuration } from "../../utils/timeHelpers";
+import { CleanedUpExercise } from "../../constants/types";
 import { ReusableTable } from "./ReusableTable";
 import Modal from "./Modal";
 import {
     commonFlexColStyles,
-    detailsListFieldColStyles,
+    detailsListFieldStyles,
+    detailsListGridColStyles,
     detailsListInsideModalLabelStyles,
     detailsListInsideModalTextStyles,
     durationsPartTextStyles,
+    formGridColStyles,
     responsiveTextStyles,
 } from "../../constants/tailwindClasses";
+import { SortDirection } from "../../utils/listHelpers";
+import { combineDuration, splitDuration } from "../../utils/durationHelpers";
+import { formatUtcToLocalTrimmed } from "../../utils/timeHelpers";
 
 interface ItemFieldsListProps {
     fields: string[];
     item: any;
     labelStyles?: string;
     textStyles?: string;
+    isNestedList?: boolean;
 }
 
 const ItemFieldsList = ({
@@ -25,15 +29,36 @@ const ItemFieldsList = ({
     item,
     labelStyles,
     textStyles,
+    isNestedList,
 }: ItemFieldsListProps) => {
+    if (isNestedList)
+        return (
+            <div className="flex justify-center break-words">
+                <div
+                    className={`flex flex-col gap-y-2 border w-[80%] rounded-xl p-4 mb-4 break-words`}
+                >
+                    {fields.map((field: any) => (
+                        <Field
+                            labelStyles={labelStyles}
+                            textStyles={textStyles}
+                            field={field}
+                            item={item}
+                            isNestedList={isNestedList}
+                        />
+                    ))}
+                </div>
+            </div>
+        );
+
     return (
-        <div className="flex flex-col gap-y-4">
+        <div className={`flex flex-col gap-y-6  break-words`}>
             {fields.map((field: any) => (
                 <Field
                     labelStyles={labelStyles}
                     textStyles={textStyles}
                     field={field}
                     item={item}
+                    isNestedList={isNestedList}
                 />
             ))}
         </div>
@@ -47,10 +72,21 @@ interface FieldProps {
     item: any;
     labelStyles?: string;
     textStyles?: string;
+    isNestedList?: boolean;
 }
 
-const Field = ({ field, item, labelStyles, textStyles }: FieldProps) => {
-    const [detailItem, setDetailItem] = useState<Exercise | null>(null);
+const Field = ({
+    field,
+    item,
+    labelStyles,
+    textStyles,
+    isNestedList,
+}: FieldProps) => {
+    const [sortBy, setSortBy] = useState<string>("name");
+    const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+    const [detailItem, setDetailItem] = useState<CleanedUpExercise | null>(
+        null
+    );
     const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
 
     const isDurationField = field === "duration";
@@ -114,14 +150,30 @@ const Field = ({ field, item, labelStyles, textStyles }: FieldProps) => {
         setDetailItem(null);
     };
 
+    const isExercisesFieldOfSequenceWithAtLeastOneExercise =
+        isExercisesField && item.exercises && item.exercises.length > 0;
+
     return (
-        <div
-            className={`${responsiveTextStyles}  ${detailsListFieldColStyles}`}
-        >
-            <div className={`font-extrabold capitalize ${labelStyles ?? ""}`}>
-                {fieldLabel}
-            </div>
-            <div className="ml-3">
+        <div className={`text-center`}>
+            <div
+                className={`${responsiveTextStyles} ${
+                    isExercisesFieldOfSequenceWithAtLeastOneExercise
+                        ? "flex flex-col"
+                        : "flex flex-col"
+                }`}
+            >
+                {
+                    <div
+                        className={`${labelStyles ?? ""} ${
+                            isExercisesFieldOfSequenceWithAtLeastOneExercise
+                                ? "text-center"
+                                : "text-center"
+                        }`}
+                    >
+                        {fieldLabel}
+                    </div>
+                }
+
                 {!isEmpty ? (
                     <div>
                         {isDateField ? (
@@ -129,7 +181,7 @@ const Field = ({ field, item, labelStyles, textStyles }: FieldProps) => {
                                 <div
                                     className={
                                         textStyles
-                                            ? `${textStyles} break-words`
+                                            ? `${textStyles}`
                                             : "break-words"
                                     }
                                 >
@@ -146,72 +198,63 @@ const Field = ({ field, item, labelStyles, textStyles }: FieldProps) => {
                                 </div>
                             </div>
                         ) : isDurationField ? (
-                            <div className="flex items-end gap-x-0.5">
-                                <div className="flex flex-col items-center">
-                                    <div className={durationsPartTextStyles}>
+                            <div className="flex gap-x-2 justify-center">
+                                <div
+                                    className={
+                                        textStyles
+                                            ? `${textStyles} break-words flex gap-x-0.5`
+                                            : "break-words flex gap-x-0.5"
+                                    }
+                                >
+                                    {durationMinsString}
+                                    <span className={durationsPartTextStyles}>
                                         m
-                                    </div>
-
-                                    <div
-                                        className={
-                                            textStyles
-                                                ? `${textStyles} break-words`
-                                                : "break-words"
-                                        }
-                                    >
-                                        {durationMinsString}
-                                    </div>
+                                    </span>
                                 </div>
-                                <div>:</div>
-                                <div className="flex flex-col items-center">
-                                    <div className={durationsPartTextStyles}>
+                                <div
+                                    className={
+                                        textStyles
+                                            ? `${textStyles} break-words flex gap-x-0.5`
+                                            : "break-words flex gap-x-0.5"
+                                    }
+                                >
+                                    {durationSecsString}
+                                    <span className={durationsPartTextStyles}>
                                         s
-                                    </div>
-                                    <div
-                                        className={
-                                            textStyles
-                                                ? `${textStyles} break-words`
-                                                : "break-words"
-                                        }
-                                    >
-                                        {durationSecsString}
-                                    </div>
+                                    </span>
                                 </div>
                             </div>
                         ) : isExercisesField ? (
                             <div>
                                 {item.exercises.length > 0 ? (
-                                    <div className="mt-2">
-                                        <ReusableTable
-                                            items={item.exercises}
-                                            getActionButtonsForItem={(
-                                                _,
-                                                index
-                                            ) => [
-                                                {
-                                                    title: "View",
-                                                    action: () =>
-                                                        handleViewItemClick(
-                                                            index
-                                                        ),
-                                                },
-                                            ]}
-                                            standardFields={[
-                                                "name",
-                                                "direction",
-                                                "duration",
-                                                "resistance",
-                                                "notes",
-                                            ]}
-                                            actionsFieldWidthStyle="w-[70px]"
-                                            listType="exercises"
-                                        />
+                                    <div>
+                                        {item.exercises.map((exercise: any) => (
+                                            <ItemFieldsList
+                                                fields={[
+                                                    "name",
+                                                    "direction",
+                                                    "duration",
+                                                    "resistance",
+                                                    "notes",
+                                                ]}
+                                                item={exercise}
+                                                textStyles={
+                                                    textStyles
+                                                        ? `${textStyles} break-words`
+                                                        : "break-words"
+                                                }
+                                                labelStyles={`${
+                                                    labelStyles && labelStyles
+                                                }`}
+                                                isNestedList={true}
+                                            />
+                                        ))}
                                     </div>
                                 ) : (
                                     <div
                                         className={
                                             textStyles
-                                                ? `${textStyles} break-words`
+                                                ? `${textStyles}`
                                                 : "break-words"
                                         }
                                     >
@@ -222,9 +265,7 @@ const Field = ({ field, item, labelStyles, textStyles }: FieldProps) => {
                         ) : (
                             <div
                                 className={
-                                    textStyles
-                                        ? `${textStyles} break-words`
-                                        : "break-words"
+                                    textStyles ? `${textStyles}` : "break-words"
                                 }
                             >
                                 {item[field]}
@@ -232,47 +273,41 @@ const Field = ({ field, item, labelStyles, textStyles }: FieldProps) => {
                         )}
                     </div>
                 ) : (
-                    <div
-                        className={
-                            textStyles
-                                ? `${textStyles} break-words`
-                                : "break-words"
-                        }
-                    >
-                        -
+                    <div className={textStyles ? `${textStyles} ` : ""}>-</div>
+                )}
+            </div>
+            <div>
+                {detailItem && isDetailModalOpen && (
+                    // this is only used in Sequence Details Page
+                    <div>
+                        <Modal
+                            isOpen={isDetailModalOpen}
+                            onClose={closeDetailModal}
+                            title={"Exercise Details"}
+                            buttons={[
+                                {
+                                    label: "Close",
+                                    onClick: () => setIsDetailModalOpen(false),
+                                    variant: "secondary",
+                                },
+                            ]}
+                        >
+                            <ItemFieldsList
+                                fields={[
+                                    "name",
+                                    "direction",
+                                    "duration",
+                                    "resistance",
+                                    "notes",
+                                ]}
+                                item={detailItem}
+                                textStyles={detailsListInsideModalTextStyles}
+                                labelStyles={detailsListInsideModalLabelStyles}
+                            />
+                        </Modal>
                     </div>
                 )}
             </div>
-            {detailItem && isDetailModalOpen && (
-                // this is only used in Sequence Details Page
-                <div>
-                    <Modal
-                        isOpen={isDetailModalOpen}
-                        onClose={closeDetailModal}
-                        title={"Exercise Details"}
-                        buttons={[
-                            {
-                                label: "Close",
-                                onClick: () => setIsDetailModalOpen(false),
-                                variant: "secondary",
-                            },
-                        ]}
-                    >
-                        <ItemFieldsList
-                            fields={[
-                                "name",
-                                "direction",
-                                "duration",
-                                "resistance",
-                                "notes",
-                            ]}
-                            item={detailItem}
-                            textStyles={detailsListInsideModalTextStyles}
-                            labelStyles={detailsListInsideModalLabelStyles}
-                        />
-                    </Modal>
-                </div>
-            )}
         </div>
     );
 };

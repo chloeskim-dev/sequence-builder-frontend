@@ -1,19 +1,11 @@
 import { useState, useEffect } from "react";
-import {
-    CleanedFullSequence,
-    RawFullSequence,
-    Sequence,
-} from "../../constants/types";
+import { CleanedFullSequence } from "../../constants/types";
 import { FiPlus } from "react-icons/fi";
 import { IconButton } from "../../components/ui/IconButton";
 import Searchbar from "../../components/ui/Searchbar";
 import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
-import {
-    filterBySearchQuery,
-    getSequenceTotalDurationSecs,
-    removeNullFieldsFromSequences,
-} from "../../utils/sequenceHelpers";
+import { getSequenceTotalDurationSecs } from "../../utils/cleanupHelpers";
 import { useNavigate } from "react-router-dom";
 import { ReusableTable } from "../../components/layouts/ReusableTable";
 import {
@@ -22,68 +14,43 @@ import {
 } from "../../constants/tailwindClasses";
 import Modal from "../../components/layouts/Modal";
 import DeleteConfirmModal from "../../components/DeleteConfirmModal";
+import { SortDirection } from "../../utils/listHelpers";
+import { useSequences } from "../../hooks/useSequences.";
 
 const SequencesPage = () => {
+    const [sortBy, setSortBy] = useState<string>("name");
+    const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
     const [searchQuery, setSearchQuery] = useState("");
-    const [fetchedSequences, setFetchedSequences] = useState<
-        RawFullSequence[] | undefined
-    >(undefined);
-    const [displaySequences, setDisplaySequences] = useState<
-        CleanedFullSequence[] | undefined
-    >(undefined);
     const [deleteConfirmModalIsOpen, setDeleteConfirmModalIsOpen] =
         useState(false);
-    const [deleteItem, setDeleteItem] = useState<Sequence | null>(null);
+    const [deleteItem, setDeleteItem] = useState<CleanedFullSequence | null>(
+        null
+    );
     const [runDenyModalIsOpen, setRunDenyModalIsOpen] = useState(false);
-    const [runItem, setRunItem] = useState<Sequence | null>(null);
-    const [error, setError] = useState("");
+    const [runItem, setRunItem] = useState<CleanedFullSequence | null>(null);
     const { user } = useUser();
     const userId = user?.id ?? null;
 
     const navigate = useNavigate();
 
-    const fetchSequences = async () => {
-        try {
-            const res: RawFullSequence[] = await api.get(
-                `/v1/sequences/user/${userId}/full`
-            ); // backend returns empty array if user has not added any sequences
-            // console.log("Fetched raw sequences from db:\n", res);
-            setFetchedSequences(res);
-        } catch (err: any) {
-            console.error("Error fetching sequences: ", err);
-            setError(
-                "Something went wrong while fetching your sequences.  Please try again later."
-            );
-        }
-    };
+    const {
+        fetchedSequences,
+        setFetchedSequences,
+        fetchSequences,
+        displaySequences,
+        setDisplaySequences,
+        setSequencesToDisplay,
+        error,
+        setError,
+    } = useSequences(userId!);
 
     useEffect(() => {
         fetchSequences();
     }, []);
 
-    const setSequencesToDisplay = async () => {
-        if (fetchedSequences === undefined) {
-            return;
-        }
-        try {
-            const cleanedSequences =
-                removeNullFieldsFromSequences(fetchedSequences);
-            const cleanedSequencesBySearchQuery = filterBySearchQuery(
-                cleanedSequences,
-                searchQuery
-            );
-            setDisplaySequences(cleanedSequencesBySearchQuery);
-        } catch (err: any) {
-            console.error("Error setting display sequences:", err);
-            setError(
-                "Something went wrong while setting sequences to display.  Please try again later."
-            );
-        }
-    };
-
     useEffect(() => {
-        setSequencesToDisplay();
-    }, [searchQuery, fetchedSequences]);
+        setSequencesToDisplay(sortBy, sortDirection, searchQuery);
+    }, [sortBy, sortDirection, searchQuery, fetchedSequences]);
 
     const fetchResultsAreEmpty =
         fetchedSequences !== undefined && fetchedSequences.length === 0;
@@ -155,13 +122,11 @@ const SequencesPage = () => {
                         Create New
                     </IconButton>
                 </div>
-                {thereAreSequencesToDisplay && (
-                    <Searchbar
-                        placeholder="Search by name..."
-                        query={searchQuery}
-                        setQuery={setSearchQuery}
-                    />
-                )}
+                <Searchbar
+                    placeholder="Search by name..."
+                    query={searchQuery}
+                    setQuery={setSearchQuery}
+                />
                 {error && (
                     <div className="text-red-600 font-semibold mt-2">
                         {error}
@@ -198,11 +163,15 @@ const SequencesPage = () => {
                             ]}
                             actionsFieldWidthStyle="w-[210px]"
                             listType="sequences"
+                            sortBy={sortBy}
+                            setSortBy={setSortBy}
+                            sortDirection={sortDirection}
+                            setSortDirection={setSortDirection}
                         />
                     </div>
                 )}
                 {fetchResultsAreEmpty && (
-                    <div>
+                    <div className="text-white">
                         You have not added any sequences. Create a sequence by
                         clicking the button above.
                     </div>

@@ -6,6 +6,7 @@ import { makeSequencePayloadFromFormData } from "../../utils/formHelpers";
 import { useUser } from "../../contexts/UserContext";
 import { api } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
+import PageBottomButton from "../../components/layouts/PageBottomButton";
 
 const SequenceCreatePage = () => {
     const [error, setError] = useState("");
@@ -28,12 +29,32 @@ const SequenceCreatePage = () => {
         navigate("/sequences");
     };
     return (
-        <div className="h-full">
-            <SequenceForm
-                onSubmit={onCreateFormSubmit}
-                formId="create-sequence-form"
-                title="Create Sequence"
-            />
+        <div className="h-full flex flex-col">
+            <div className="flex-1 overflow-y-auto">
+                <SequenceForm
+                    onSubmit={onCreateFormSubmit}
+                    formId="create-sequence-form"
+                    title="Create Sequence"
+                />
+            </div>
+            <div className="h-[100px] flex flex-col items-center justify-center">
+                {/* SEQUENCE FORM ACTIONS */}
+                <div className="flex flex-row gap-x-2 justify-center">
+                    <PageBottomButton
+                        type="submit"
+                        form="create-sequence-form"
+                        appearance="primary"
+                        text="Submit"
+                        // disabled={sequenceFormMethods.formState.isSubmitting}
+                    />
+
+                    <PageBottomButton
+                        onClick={() => navigate("/sequences")}
+                        appearance="secondary"
+                        text="Cancel"
+                    />
+                </div>
+            </div>
         </div>
     );
 };

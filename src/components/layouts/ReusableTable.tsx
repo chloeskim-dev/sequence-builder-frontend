@@ -1,6 +1,7 @@
-import { ReactElement } from "react";
-import { formatUtcToLocalTrimmed } from "../../utils/dateHelpers";
-import { combineDuration, splitDuration } from "../../utils/timeHelpers";
+import { ReactElement, useState } from "react";
+import { IoCaretUp, IoCaretDown } from "react-icons/io5";
+import { formatUtcToLocalTrimmed } from "../../utils/timeHelpers";
+import { combineDuration, splitDuration } from "../../utils/durationHelpers";
 import {
     standardFieldContainerStyles,
     actionFieldContainerStyles,
@@ -15,31 +16,57 @@ import {
     allMainRowsContainerStyles,
     actionButtonStyles,
 } from "../../constants/tailwindClasses";
+import { SortDirection } from "../../utils/listHelpers";
 
 interface HeaderRowProps {
     standardFields: string[];
     actionsFieldWidthStyle: string;
     listType?: string;
+    sortBy: string;
+    setSortBy: React.Dispatch<React.SetStateAction<string>>;
+    sortDirection: SortDirection;
+    setSortDirection: React.Dispatch<React.SetStateAction<SortDirection>>;
+    onEntireRowClick?: (rowItem: number, rowIndex: number) => void;
 }
 
 export const HeaderRow: React.FC<HeaderRowProps> = ({
     standardFields,
     actionsFieldWidthStyle,
+    sortBy,
+    setSortBy,
+    sortDirection,
+    setSortDirection,
+    onEntireRowClick,
 }) => {
+    const updateSort = (field: string) => {
+        setSortBy(field);
+        setSortDirection(
+            sortDirection === null
+                ? "asc"
+                : sortDirection === "asc"
+                ? "dsc"
+                : "asc"
+        );
+    };
+
     const standardFieldsDivs = standardFields.map((field) => {
         const isUpdatedField = field === "updated_at";
         const isCreatedField = field === "created_at";
+        const displayName = isCreatedField
+            ? "created"
+            : isUpdatedField
+            ? "updated"
+            : field;
 
         return (
-            <div
+            <button
                 className={`capitalize ${standardFieldContainerStyles} ${headerRowTextStyles}`}
+                onClick={() => updateSort(field)}
             >
-                {isCreatedField
-                    ? "Created"
-                    : isUpdatedField
-                    ? "Updated"
-                    : field}
-            </div>
+                <div className={`${sortBy === field && "text-red-800"}`}>
+                    {displayName}
+                </div>
+            </button>
         );
     });
 
@@ -49,11 +76,13 @@ export const HeaderRow: React.FC<HeaderRowProps> = ({
             className={`${commonPaddingXForHeaderContainerAndMainRow} ${rightMarginSameWidthAsScrollbarStyle} ${commonFlexRowStyles}`}
         >
             {standardFieldsDivs}
-            <div
-                className={`${actionFieldContainerStyles} ${actionsFieldWidthStyle} ${headerRowTextStyles}`}
-            >
-                Actions
-            </div>
+            {!onEntireRowClick && (
+                <div
+                    className={`${actionFieldContainerStyles} ${actionsFieldWidthStyle} ${headerRowTextStyles}`}
+                >
+                    Actions
+                </div>
+            )}
         </div>
     );
 };
@@ -70,6 +99,8 @@ interface MainRowProps {
     rowItem: any;
     actionButtons: ActionButton[];
     listType?: string;
+    onEntireRowClick?: (rowItem: number) => void;
+    rowIndex: number;
 }
 
 export const MainRow: React.FC<MainRowProps> = ({
@@ -78,6 +109,8 @@ export const MainRow: React.FC<MainRowProps> = ({
     rowItem,
     actionButtons,
     listType,
+    onEntireRowClick,
+    rowIndex,
 }) => {
     const standardFieldsDivs = standardFields.map((field) => {
         const isDurationField = field === "duration";
@@ -132,24 +165,30 @@ export const MainRow: React.FC<MainRowProps> = ({
             : undefined;
 
         return (
-            <div className={standardFieldContainerStyles} key={field}>
+            <div
+                className={standardFieldContainerStyles}
+                key={field}
+                onClick={() => {
+                    if (onEntireRowClick) onEntireRowClick(rowItem);
+                }}
+            >
                 {!isEmpty ? (
-                    <div>
+                    <div className="grid grid-cols-[100px_1fr] lg:block">
                         <div className={mainRowFieldLabelStyles}>
                             {fieldLabel}
                         </div>
                         <div className={mainRowFieldTextStyles}>
                             {isDateField ? (
-                                <div className="flex md:flex-col gap-x-2">
+                                <div className="flex lg:flex-col gap-x-2">
                                     <div className="truncate">{date}</div>
                                     <div className="truncate">{time}</div>
                                 </div>
                             ) : isDurationField ? (
-                                <div className="flex items-end gap-x-0.5 md:justify-center">
+                                <div className="flex items-end gap-x-0.5 lg:justify-center">
                                     <div className="flex flex-col items-center">
                                         <div
                                             className={
-                                                "text-gray-500 text-[10px] -mb-2 -mt-1 md:mt-0"
+                                                "text-gray-500 text-[10px] -mb-2 -mt-1 lg:mt-0"
                                             }
                                         >
                                             m
@@ -160,12 +199,14 @@ export const MainRow: React.FC<MainRowProps> = ({
                                     <div className="flex flex-col items-center">
                                         <div
                                             className={
-                                                "text-gray-500 text-[10px] -mb-2 -mt-1 md:mt-0"
+                                                "text-gray-500 text-[10px] -mb-2 -mt-1 lg:mt-0"
                                             }
                                         >
                                             s
                                         </div>
-                                        <div>{durationStringSecs}</div>
+                                        <div className={mainRowFieldTextStyles}>
+                                            {durationStringSecs}
+                                        </div>
                                     </div>
                                 </div>
                             ) : isExercisesField ? (
@@ -185,7 +226,7 @@ export const MainRow: React.FC<MainRowProps> = ({
                     </div>
                 ) : (
                     <div
-                        className={`hidden md:block ${missingFieldDashStyles}`}
+                        className={`hidden lg:block ${missingFieldDashStyles}`}
                     >
                         -
                     </div>
@@ -220,7 +261,7 @@ export const MainRow: React.FC<MainRowProps> = ({
         <div
             id="mainRowContainer"
             // className={`${commonFlexRowStyles} py-5 md:py-2 bg-my-yellow rounded-xl gap-y-1 ${commonPaddingXForHeaderContainerAndMainRow}`}
-            className={`${commonFlexRowStyles}  py-5 md:py-2 rounded-xl gap-y-1 ${commonPaddingXForHeaderContainerAndMainRow} ${mainRowColorStylesByListType}`}
+            className={`${commonFlexRowStyles}  py-5 lg:py-2 rounded-xl gap-y-1 ${commonPaddingXForHeaderContainerAndMainRow} ${mainRowColorStylesByListType}`}
         >
             {/* non-action fields */}
             {standardFieldsDivs}
@@ -256,6 +297,11 @@ interface ReusableTableProps {
     actionsFieldWidthStyle: string;
     getActionButtonsForItem: (item: any, index: number) => ActionButton[];
     listType?: string;
+    sortBy: string;
+    setSortBy: React.Dispatch<React.SetStateAction<string>>;
+    sortDirection: SortDirection;
+    setSortDirection: React.Dispatch<React.SetStateAction<SortDirection>>;
+    onEntireRowClick?: (rowItem: number) => void;
 }
 
 export const ReusableTable: React.FC<ReusableTableProps> = ({
@@ -264,6 +310,11 @@ export const ReusableTable: React.FC<ReusableTableProps> = ({
     actionsFieldWidthStyle,
     getActionButtonsForItem,
     listType,
+    sortBy,
+    setSortBy,
+    sortDirection,
+    setSortDirection,
+    onEntireRowClick,
 }) => {
     const headerRowColorStylesByListType =
         listType && listType === "sequences"
@@ -279,15 +330,17 @@ export const ReusableTable: React.FC<ReusableTableProps> = ({
             <div className="">
                 {/* Header Row */}
                 <div
-                    // className={`hidden md:block bg-orange-300 rounded-xl py-2 mb-2`}
-                    // className={`hidden md:block bg-gb-blue rounded-xl py-2 mb-2`}
-                    // className={`hidden md:block bg-gb-orange rounded-xl py-2 mb-2`}
-                    className={`hidden md:block ${headerRowColorStylesByListType} rounded-xl py-2 mb-2`}
+                    className={`hidden lg:block ${headerRowColorStylesByListType} rounded-xl py-2 mb-2`}
                 >
                     <HeaderRow
                         standardFields={standardFields}
                         actionsFieldWidthStyle={actionsFieldWidthStyle}
                         listType={listType}
+                        sortBy={sortBy}
+                        setSortBy={setSortBy}
+                        sortDirection={sortDirection}
+                        setSortDirection={setSortDirection}
+                        onEntireRowClick={onEntireRowClick}
                     />
                 </div>
                 {/* Main Rows */}
@@ -303,6 +356,8 @@ export const ReusableTable: React.FC<ReusableTableProps> = ({
                             rowItem={item}
                             actionButtons={getActionButtonsForItem(item, index)}
                             listType={listType}
+                            onEntireRowClick={onEntireRowClick}
+                            rowIndex={index}
                         />
                     ))}
                 </div>

@@ -54,7 +54,7 @@ export default function ExerciseRow({
                     "resistance",
                     "notes",
                 ]}
-                actionsFieldWidthStyle="w-[160px]"
+                actionsFieldWidthStyle="md:w-[160px]"
                 actionButtons={[
                     {
                         title: "View",
@@ -71,6 +71,7 @@ export default function ExerciseRow({
                 ]}
                 rowItem={exercise}
                 listType="exercises"
+                rowIndex={index}
             />
         </div>
     );

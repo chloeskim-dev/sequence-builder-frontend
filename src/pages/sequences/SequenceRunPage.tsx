@@ -11,10 +11,20 @@ import {
 import { IoIosOptions } from "react-icons/io";
 import { VscDebugRestart } from "react-icons/vsc";
 import { formatSecondsToTimeString } from "../../utils/timeHelpers";
+import { DurationsSequence } from "../../constants/types";
 
 export const SequenceRunPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { sequence, initializeDurationsSequence } = useSequence(id);
+    const {
+        sequence,
+        fetchSequence,
+        removeExercisesWithoutDurationFromSequence,
+        error,
+        setError,
+    } = useSequence(id);
+    const [durationsOnlySequence, setDurationsOnlySequence] = useState<
+        DurationsSequence | undefined
+    >(undefined);
     const [isShowingOptions, setIsShowingOptions] = useState(false);
     const [isShowingExercisesList, setIsShowingExercisesList] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -27,11 +37,11 @@ export const SequenceRunPage: React.FC = () => {
     const [isSeeking, setIsSeeking] = useState(false);
 
     const playerStyles =
-        "w-[90%] sm:w-[80%] md:w-[70%] border-4 border-white text-white";
+        "w-[90%] sm:w-[80%] md:w-[70%] max-h-[70%] border-4 border-white text-white";
     const playerContainerStyles =
         "flex-1 flex flex-col w-full h-full items-center justify-center";
     const currentExerciseContainerStyles =
-        "min-w-0 flex-[3] flex flex-col px-6 py-8";
+        "min-w-0 flex-[3] flex flex-col py-8";
     const exercisesListStyles = isShowingExercisesList
         ? "flex-1 md:border-l-2 min-w-0 p-1"
         : "hidden";
@@ -39,39 +49,43 @@ export const SequenceRunPage: React.FC = () => {
         "flex flex-row border-b px-2 gap-x-2 justify-between text-xs py-0.5 text-left align-top w-full";
     const currentExerciseNameStyles =
         "flex-[1] text-[50px] text-center leading-[45px] mb-[30px] break-words";
-    const currentExerciseColumnsStyles = "flex flex-row gap-x-2";
-    const currentExerciseKeyColumnStyles = "flex-1 text-right";
-    const currentExerciseValueColumnStyles = "flex-1";
+    const currentExerciseColumnsStyles = "grid grid-cols-[150px_1fr] gap-2";
+    const currentExerciseKeyColumnStyles = "";
+    const currentExerciseValueColumnStyles = "min-w-0 break-words";
 
     const buttonStyles = "border bg-blue-500 text-white p-1";
     const optionsBoxStyles = isShowingOptions ? "block" : "hidden";
 
     useEffect(() => {
-        if (id) {
-            initializeDurationsSequence();
-        }
-    }, [id, initializeDurationsSequence]);
-
-    // return <GuidedSequencePlayer sequence={sequence} />;
+        if (id) fetchSequence();
+    }, []);
 
     useEffect(() => {
-        if (sequence && currentIndex !== null)
+        if (sequence) {
+            const durationsSequence =
+                removeExercisesWithoutDurationFromSequence(sequence);
+            setDurationsOnlySequence(durationsSequence);
+        }
+    }, [sequence]);
+
+    useEffect(() => {
+        if (durationsOnlySequence && currentIndex !== null)
             setTimeRemaining(
-                sequence.exercises[currentIndex].duration_secs ?? 0
+                durationsOnlySequence.exercises[currentIndex].duration_secs ?? 0
             );
     }, [currentIndex]);
 
     useEffect(() => {
+        const currentSequence = durationsOnlySequence;
         if (
             !isPlaying ||
-            sequence === null ||
+            currentSequence === undefined ||
             currentIndex === null ||
             timeRemaining === null ||
             isSeeking
         )
             return;
 
-        const currentSequence = sequence;
         const currentIdx = currentIndex;
 
         const intervalId = setInterval(() => {
@@ -100,7 +114,7 @@ export const SequenceRunPage: React.FC = () => {
         return () => clearInterval(intervalId);
     }, [isPlaying, currentIndex, sequence?.exercises, isSeeking]);
 
-    if (!sequence) return <p>Loading...</p>;
+    if (!durationsOnlySequence) return <p>Loading...</p>;
 
     const toggleShowOptions = () => {
         setIsShowingOptions(!isShowingOptions);
@@ -115,7 +129,8 @@ export const SequenceRunPage: React.FC = () => {
 
     const handleSkipClick = (indexOfExerciseWhenSkipWasClicked: number) => {
         const clickedSkipOnLastExercise =
-            indexOfExerciseWhenSkipWasClicked === sequence.exercises.length - 1;
+            indexOfExerciseWhenSkipWasClicked ===
+            durationsOnlySequence.exercises.length - 1;
         if (clickedSkipOnLastExercise || currentIndex === null) {
             // console.log("nah fam this is last exercose");
             return;
@@ -139,9 +154,6 @@ export const SequenceRunPage: React.FC = () => {
     };
 
     const handleRestartClick = () => {
-        // setCurrentIndex(0);
-        // setHasEnded(false);
-        // setHasStarted(false);
         setCurrentIndex(0);
     };
 
@@ -149,17 +161,19 @@ export const SequenceRunPage: React.FC = () => {
         setCurrentIndex(index);
     };
 
-    const totalSequenceDurationSecs = sequence.exercises.reduce(
+    const totalSequenceDurationSecs = durationsOnlySequence.exercises.reduce(
         (sum, ex) => sum + (ex.duration_secs ?? 0),
         0
     );
 
     const currentExercise =
-        currentIndex !== null ? sequence.exercises[currentIndex] : undefined;
+        currentIndex !== null
+            ? durationsOnlySequence.exercises[currentIndex]
+            : undefined;
 
     const elapsedSequenceSecs =
         currentIndex !== null
-            ? sequence.exercises
+            ? durationsOnlySequence.exercises
                   .slice(0, currentIndex)
                   .reduce((sum, ex) => sum + (ex.duration_secs ?? 0), 0) +
               (currentExercise?.duration_secs != null && timeRemaining != null
@@ -210,7 +224,8 @@ export const SequenceRunPage: React.FC = () => {
                                 </button>
                                 <button onClick={handleRestartClick}>
                                     {currentIndex ===
-                                        sequence.exercises.length - 1 &&
+                                        durationsOnlySequence.exercises.length -
+                                            1 &&
                                         timeRemaining === 0 && (
                                             <VscDebugRestart />
                                         )}
@@ -223,8 +238,9 @@ export const SequenceRunPage: React.FC = () => {
                         <div className="flex-1 flex gap-x-2 items-center">
                             <div>
                                 {formatSecondsToTimeString(
-                                    sequence!.exercises[currentIndex]!
-                                        .duration_secs! - timeRemaining!
+                                    durationsOnlySequence.exercises[
+                                        currentIndex
+                                    ]!.duration_secs! - timeRemaining!
                                 )}
                             </div>
 
@@ -232,18 +248,20 @@ export const SequenceRunPage: React.FC = () => {
                                 type="range"
                                 min={0}
                                 max={
-                                    sequence.exercises[currentIndex]
-                                        .duration_secs ?? 0
+                                    durationsOnlySequence.exercises[
+                                        currentIndex
+                                    ].duration_secs ?? 0
                                 }
                                 value={
-                                    (sequence.exercises[currentIndex]
-                                        .duration_secs ?? 0) -
-                                    (timeRemaining ?? 0)
+                                    (durationsOnlySequence.exercises[
+                                        currentIndex
+                                    ].duration_secs ?? 0) - (timeRemaining ?? 0)
                                 }
                                 onChange={(e) => {
                                     const duration =
-                                        sequence.exercises[currentIndex]
-                                            .duration_secs ?? 0;
+                                        durationsOnlySequence.exercises[
+                                            currentIndex
+                                        ].duration_secs ?? 0;
                                     const elapsed = Number(e.target.value);
                                     const remaining = Math.max(
                                         0,
@@ -259,8 +277,9 @@ export const SequenceRunPage: React.FC = () => {
                             />
                             <div>
                                 {formatSecondsToTimeString(
-                                    sequence!.exercises[currentIndex]!
-                                        .duration_secs!
+                                    durationsOnlySequence.exercises[
+                                        currentIndex
+                                    ]!.duration_secs!
                                 )}
                             </div>
                         </div>
@@ -290,76 +309,84 @@ export const SequenceRunPage: React.FC = () => {
                 {/*  */}
                 {/*  */}
                 {currentIndex !== null && (
-                    <div className=" flex flex-col md:flex-row md:items-stretch break-words">
+                    <div className=" flex flex-col md:flex-row md:items-stretch break-words h-full">
                         <div className={currentExerciseContainerStyles}>
                             {/* <div>Time Remaining: {timeRemaining}</div> */}
-                            <div className={currentExerciseColumnsStyles}>
-                                {/* <div className={currentExerciseKeyColumnStyles}>
-                                    Name
-                                </div> */}
+                            <div>
                                 <div className={currentExerciseNameStyles}>
-                                    {sequence.exercises[currentIndex].name}
+                                    {
+                                        durationsOnlySequence.exercises[
+                                            currentIndex
+                                        ].name
+                                    }
                                 </div>
                             </div>
-
-                            <div className={currentExerciseColumnsStyles}>
-                                <div className={currentExerciseKeyColumnStyles}>
-                                    Resistance
+                            {/* current exercise details */}
+                            <div className="overflow-y-auto px-8 ">
+                                <div className={currentExerciseColumnsStyles}>
+                                    <div
+                                        className={
+                                            currentExerciseKeyColumnStyles
+                                        }
+                                    >
+                                        Resistance
+                                    </div>
+                                    <div
+                                        className={
+                                            currentExerciseValueColumnStyles
+                                        }
+                                    >
+                                        {durationsOnlySequence.exercises[
+                                            currentIndex
+                                        ].resistance ?? "-"}
+                                    </div>
                                 </div>
-                                <div
-                                    className={currentExerciseValueColumnStyles}
-                                >
-                                    {sequence.exercises[currentIndex]
-                                        .resistance ?? "-"}
+                                <div className={currentExerciseColumnsStyles}>
+                                    <div
+                                        className={
+                                            currentExerciseKeyColumnStyles
+                                        }
+                                    >
+                                        Direction
+                                    </div>
+
+                                    <div
+                                        className={
+                                            currentExerciseValueColumnStyles
+                                        }
+                                    >
+                                        {durationsOnlySequence.exercises[
+                                            currentIndex
+                                        ].direction ?? "-"}
+                                    </div>
+                                </div>
+                                <div className={currentExerciseColumnsStyles}>
+                                    <div
+                                        className={
+                                            currentExerciseKeyColumnStyles
+                                        }
+                                    >
+                                        Notes
+                                    </div>
+
+                                    <div
+                                        className={
+                                            currentExerciseValueColumnStyles
+                                        }
+                                    >
+                                        {durationsOnlySequence.exercises[
+                                            currentIndex
+                                        ].notes ?? "-"}
+                                    </div>
                                 </div>
                             </div>
-                            <div className={currentExerciseColumnsStyles}>
-                                <div className={currentExerciseKeyColumnStyles}>
-                                    Direction
-                                </div>
-
-                                <div
-                                    className={currentExerciseValueColumnStyles}
-                                >
-                                    {sequence.exercises[currentIndex]
-                                        .direction ?? "-"}
-                                </div>
-                            </div>
-                            <div className={currentExerciseColumnsStyles}>
-                                <div className={currentExerciseKeyColumnStyles}>
-                                    Notes
-                                </div>
-
-                                <div
-                                    className={currentExerciseValueColumnStyles}
-                                >
-                                    {sequence.exercises[currentIndex].notes ??
-                                        "-"}
-                                </div>
-                            </div>
-                            {/* <div className={currentExerciseColumnsStyles}>
-                                <div className={currentExerciseKeyColumnStyles}>
-                                    Duration Secs
-                                </div>
-
-                                <div
-                                    className={currentExerciseValueColumnStyles}
-                                >
-                                    {sequence.exercises[currentIndex]
-                                        .duration_secs ?? "-"}
-                                </div>
-                            </div> */}
                         </div>
 
                         <div className={exercisesListStyles}>
                             {/* <div>------SEQUENCE EXERCISES-----</div> */}
-                            {/* <div className="flex flex-row w-[400px]">
-                            <div className="flex-1">NAME</div>
-                            <div className="flex-1">DURATION_SECS</div>
-                        </div> */}
                             <div className="border-2 h-full flex flex-col justify-between">
                                 <div>
-                                    {sequence.exercises.map(
+                                    {durationsOnlySequence.exercises.map(
                                         (exercise, index) => (
                                             <button
                                                 key={index}
@@ -414,7 +441,8 @@ export const SequenceRunPage: React.FC = () => {
 
                 {showNextExercisePreview &&
                     currentIndex !== null &&
-                    currentIndex < sequence.exercises.length - 1 && (
+                    currentIndex <
+                        durationsOnlySequence.exercises.length - 1 && (
                         <div className="">
                             <div>------NEXT EXERCISE PREVIEW-----</div>
                             <div className="flex-1 flex flex-col">
@@ -422,8 +450,9 @@ export const SequenceRunPage: React.FC = () => {
                                     <div className="flex-1">Name</div>
                                     <div className="flex-1">
                                         {
-                                            sequence.exercises[currentIndex + 1]
-                                                .name
+                                            durationsOnlySequence.exercises[
+                                                currentIndex + 1
+                                            ].name
                                         }
                                     </div>
                                 </div>
@@ -431,32 +460,36 @@ export const SequenceRunPage: React.FC = () => {
                                 <div className="flex flex-row">
                                     <div className="flex-1">Resistance</div>
                                     <div className="flex-1">
-                                        {sequence.exercises[currentIndex + 1]
-                                            .resistance ?? "-"}
+                                        {durationsOnlySequence.exercises[
+                                            currentIndex + 1
+                                        ].resistance ?? "-"}
                                     </div>
                                 </div>
                                 <div className="flex flex-row">
                                     <div className="flex-1">Direction</div>
 
                                     <div className="flex-1">
-                                        {sequence.exercises[currentIndex + 1]
-                                            .direction ?? "-"}
+                                        {durationsOnlySequence.exercises[
+                                            currentIndex + 1
+                                        ].direction ?? "-"}
                                     </div>
                                 </div>
                                 <div className="flex flex-row">
                                     <div className="flex-1">Notes</div>
 
                                     <div className="flex-1">
-                                        {sequence.exercises[currentIndex + 1]
-                                            .notes ?? "-"}
+                                        {durationsOnlySequence.exercises[
+                                            currentIndex + 1
+                                        ].notes ?? "-"}
                                     </div>
                                 </div>
                                 <div className="flex flex-row">
                                     <div className="flex-1">Duration Secs</div>
 
                                     <div className="flex-1">
-                                        {sequence.exercises[currentIndex + 1]
-                                            .duration_secs ?? "-"}
+                                        {durationsOnlySequence.exercises[
+                                            currentIndex + 1
+                                        ].duration_secs ?? "-"}
                                     </div>
                                 </div>
                             </div>

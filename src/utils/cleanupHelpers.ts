@@ -1,12 +1,10 @@
 import {
-    CleanedFullSequence,
     CleanedUpExercise,
     CleanedUpFavoriteExercise,
-    Exercise,
     RawExercise,
     RawFavoriteExercise,
     RawFullSequence,
-    Sequence,
+    CleanedFullSequence,
 } from "../constants/types";
 
 export const removeNullFieldsFromExercise = (
@@ -19,11 +17,8 @@ export const removeNullFieldsFromExercise = (
 
 export const removeNullFieldsFromExercises = (
     exercises: RawExercise[]
-): Exercise[] => {
-    const cleanedExercises = exercises.map((exercise) =>
-        removeNullFieldsFromExercise(exercise)
-    );
-    console.log("Removed null fields from exercises.");
+): CleanedUpExercise[] => {
+    const cleanedExercises = exercises.map(removeNullFieldsFromExercise);
     return cleanedExercises;
 };
 
@@ -38,10 +33,9 @@ export const removeNullFieldsFromFavoriteExercise = (
 export const removeNullFieldsFromFavoriteExercises = (
     exercises: RawFavoriteExercise[]
 ): CleanedUpFavoriteExercise[] => {
-    const cleanedExercises = exercises.map((exercise) =>
-        removeNullFieldsFromFavoriteExercise(exercise)
+    const cleanedExercises = exercises.map(
+        removeNullFieldsFromFavoriteExercise
     );
-    console.log("Removed null fields from favorite exercises.");
     return cleanedExercises;
 };
 
@@ -65,22 +59,13 @@ export const removeNullFieldsFromSequence = (
 export const removeNullFieldsFromSequences = (
     sequences: RawFullSequence[]
 ): CleanedFullSequence[] => {
-    const cleanedSequences = sequences.map((seq) =>
-        removeNullFieldsFromSequence(seq)
-    );
-    console.log("Removed null fields from sequences.");
+    const cleanedSequences = sequences.map(removeNullFieldsFromSequence);
     return cleanedSequences;
 };
 
-export const getSequenceTotalDurationSecs = (sequence: Sequence) => {
+export const getSequenceTotalDurationSecs = (sequence: CleanedFullSequence) => {
     return sequence.exercises.reduce(
-        (acc: any, exercise: any) => acc + (exercise.duration_secs ?? 0),
+        (acc: number, exercise: any) => acc + (exercise.duration_secs ?? 0),
         0
-    );
-};
-
-export const filterBySearchQuery = (items: any, searchQuery: string) => {
-    return items.filter((item: any) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 };

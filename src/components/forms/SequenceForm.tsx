@@ -22,7 +22,7 @@ import { IoMdBulb } from "react-icons/io";
 import {
     ExerciseInputs,
     FieldConfig,
-    Sequence,
+    CleanedFullSequence,
     SequenceFormInputs,
 } from "../../constants/types";
 import {
@@ -42,6 +42,8 @@ import {
     formFieldsFlexColStyles,
     responsiveTextStyles,
     formTextAreaInputStyles,
+    formGridColStyles,
+    labelForTextAreaStyles,
 } from "../../constants/tailwindClasses";
 
 import {
@@ -61,12 +63,13 @@ import {
     sequenceFormFieldConfigs,
 } from "../../constants/formFieldConfigs";
 import ItemFieldsList from "../layouts/ItemFieldsList";
+import PageBottomButton from "../layouts/PageBottomButton";
 
 type Props = {
     title: string;
     formId: string;
     onSubmit: SubmitHandler<SequenceFormInputs>;
-    editSequence?: Sequence;
+    editSequence?: CleanedFullSequence;
 };
 
 export default function SequenceForm({
@@ -223,10 +226,13 @@ export default function SequenceForm({
             ];
 
         return (
-            <div key={fc.name}>
+            <div key={fc.name} className={"flex flex-col"}>
                 <label
                     htmlFor={fc.name}
-                    className={`text-my-fg ${commonLabelStyles}`}
+                    className={`text-hmt-dark-option4 mt-1 text-left ${commonLabelStyles} ${
+                        fc.type === "textarea" && labelForTextAreaStyles
+                    }
+                    }`}
                 >
                     {fc.label}
                     {fc.rules?.required && (
@@ -245,7 +251,7 @@ export default function SequenceForm({
                             >
                         )}
                         rows={fc.rows || 3}
-                        className={`${formTextAreaInputStyles} text-my-yellow border-b-my-fg`}
+                        className={`${formTextAreaInputStyles} text-gb-bg`}
                         placeholder={fc.placeholder}
                     />
                 ) : (
@@ -258,7 +264,7 @@ export default function SequenceForm({
                                 keyof SequenceFormInputs
                             >
                         )}
-                        className={`text-my-yellow border-b-my-fg ${formTextInputStyles}`}
+                        className={`${formTextInputStyles} text-gb-bg`}
                         placeholder={fc.placeholder}
                     />
                 )}
@@ -272,51 +278,64 @@ export default function SequenceForm({
         <div className="h-full">
             {/* SEQUENCE FORM */}
             <FormProvider {...sequenceFormMethods}>
-                <div className="flex flex-col h-full">
-                    <div className="flex-1 overflow-y-auto flex flex-col">
+                <div className="flex flex-col h-full items-center">
+                    {/* <div className="grid grid-cols-[150px_1fr]"> */}
+                    <div className="flex-1 overflow-y-auto flex flex-col rounded-xl bg-my-yellow w-[80%]">
                         <form
                             id={formId}
                             onSubmit={sequenceFormMethods.handleSubmit(
                                 onSubmit
                             )}
-                            className={`flex-1 flex flex-col overflow-y-auto px-4 ${responsiveTextStyles}`}
+                            className={`flex-1 flex flex-col overflow-y-auto px-10 py-8 ${responsiveTextStyles}`}
                         >
                             <div className={formFieldsFlexColStyles}>
                                 {sequenceFormFieldConfigs.map(renderFormField)}
 
-                                <div className="flex flex-col gap-y-1 flex-1">
+                                <div className="flex-1 flex flex-col items-center w-full">
                                     <div
-                                        className={`text-my-fg ${commonLabelStyles}`}
+                                        className={
+                                            "flex flex-col w-full justify-center"
+                                        }
                                     >
-                                        Exercises
-                                    </div>
-                                    <div className="flex flex-row gap-2">
-                                        <IconButton
-                                            onClick={() =>
-                                                setAddNewExerciseModalIsOpen(
-                                                    true
-                                                )
-                                            }
-                                            icon={<FiPlus size={16} />}
-                                            className={`${createNewButtonStyles}`}
+                                        <div
+                                            className={`text-hmt-dark-option4  ${commonLabelStyles} `}
                                         >
-                                            Add New
-                                        </IconButton>
-                                        <IconButton
-                                            onClick={() =>
-                                                setAddFromFavoriteExercisesModalIsOpen(
-                                                    true
-                                                )
+                                            Exercises
+                                        </div>
+                                        <div
+                                            className={
+                                                "flex flex-col md:flex-row gap-2"
                                             }
-                                            icon={<FiPlus size={16} />}
-                                            className={`${createNewButtonStyles}`}
                                         >
-                                            Add from Favorites
-                                        </IconButton>
+                                            <IconButton
+                                                onClick={() =>
+                                                    setAddNewExerciseModalIsOpen(
+                                                        true
+                                                    )
+                                                }
+                                                icon={<FiPlus size={16} />}
+                                                className={`${createNewButtonStyles} flex-1`}
+                                            >
+                                                Add New
+                                            </IconButton>
+                                            <IconButton
+                                                onClick={() =>
+                                                    setAddFromFavoriteExercisesModalIsOpen(
+                                                        true
+                                                    )
+                                                }
+                                                icon={<FiPlus size={16} />}
+                                                className={`${createNewButtonStyles} flex-1`}
+                                            >
+                                                Add from Favorites
+                                            </IconButton>
+                                        </div>
                                     </div>
 
                                     {fields.length === 0 ? (
-                                        <div className="text-gray-400 text-sm mt-2">
+                                        <div
+                                            className={`text-hmx-light-option4 font-semibold ${responsiveTextStyles} mt-2`}
+                                        >
                                             No exercises have been added to the
                                             sequence.
                                         </div>
@@ -341,7 +360,7 @@ export default function SequenceForm({
                                             )}
                                             {/* Exercises List Header Row */}
                                             <div
-                                                className={`hidden md:block bg-my-yellow rounded-xl py-2`}
+                                                className={`hidden lg:block bg-my-yellow rounded-xl py-2`}
                                             >
                                                 <div
                                                     id="headerRowContainer"
@@ -437,29 +456,9 @@ export default function SequenceForm({
                             </div>
                         </form>
                     </div>
-
-                    {/* SEQUENCE FORM ACTIONS */}
-                    <div className="mt-6 mb-10 flex flex-row gap-x-2 justify-center">
-                        <button
-                            type="submit"
-                            form={formId}
-                            className="bg-mt-yellow hover:bg-gb-yellow font-extrabold px-4 py-2 rounded"
-                            disabled={
-                                sequenceFormMethods.formState.isSubmitting
-                            }
-                        >
-                            <text className={"uppercase text-xl"}>Submit</text>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={onSequenceFormCancel}
-                            className="bg-gray-300 text-black px-4 py-2 rounded font-extrabold"
-                        >
-                            <text className={"uppercase text-xl"}>Cancel</text>
-                        </button>
-                    </div>
                 </div>
             </FormProvider>
+
             {/* MODALS */}
             {/* ADD NEW EXERCISE MODAL */}
             <Modal
@@ -571,9 +570,25 @@ export default function SequenceForm({
                         "notes",
                     ]}
                     textStyles="font-semibold text-gb-bg"
-                    labelStyles="font-extrabold text-hmt-dark-option4"
+                    labelStyles="text-right capitalize font-extrabold text-hmt-dark-option4"
                 />
             </Modal>
+            {/* SEQUENCE FORM ACTIONS
+            <div className="flex flex-row gap-x-2 justify-center">
+                <PageBottomButton
+                    type="submit"
+                    form={formId}
+                    appearance="primary"
+                    text="Submit"
+                    disabled={sequenceFormMethods.formState.isSubmitting}
+                />
+
+                <PageBottomButton
+                    onClick={onSequenceFormCancel}
+                    appearance="secondary"
+                    text="Cancel"
+                />
+            </div> */}
         </div>
     );
 }

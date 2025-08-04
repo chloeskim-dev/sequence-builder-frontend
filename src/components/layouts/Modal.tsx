@@ -77,7 +77,7 @@ export default function Modal({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div
-                className={`flex flex-col max-h-[80%] px-4 rounded-xl ${middleSectionColorStyles} max-w-[90%] md:max-w-[80%] xl:max-w-[60%] shadow-lg`}
+                className={`flex flex-col max-h-[80%] max-w-[80%] px-4 rounded-xl ${middleSectionColorStyles} break-words shadow-lg`}
             >
                 {title && (
                     <div

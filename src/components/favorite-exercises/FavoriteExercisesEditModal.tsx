@@ -11,8 +11,8 @@ import {
 } from "../../constants/types";
 
 import { api } from "../../utils/api";
-import { makeFavoriteExerciseRequestPayloadFromFormData } from "../../utils/favoriteExerciseFormHelpers";
-import { splitDuration } from "../../utils/timeHelpers";
+import { splitDuration } from "../../utils/durationHelpers";
+import { makeFavoriteExerciseRequestPayloadFromFormData } from "../../utils/formHelpers";
 
 type FavoriteExerciseEditModalProps = {
     isModalOpen: boolean;

@@ -10,8 +10,8 @@ import { FavoriteExerciseFormInputs } from "../../constants/types";
 import { blankExerciseFormInputs } from "../../constants/initialFormInputs";
 
 import { api } from "../../utils/api";
-import { makeFavoriteExerciseRequestPayloadFromFormData } from "../../utils/favoriteExerciseFormHelpers";
 import { getUtcNaiveTimestamp } from "../../utils/timeHelpers";
+import { makeFavoriteExerciseRequestPayloadFromFormData } from "../../utils/formHelpers";
 
 type FavoriteExerciseCreateModalProps = {
     isModalOpen: boolean;

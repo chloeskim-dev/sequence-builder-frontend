@@ -6,16 +6,15 @@ import {
     commonLabelStyles,
     commonTextStyles,
 } from "../../constants/tailwindClasses";
+import PageBottomButton from "../../components/layouts/PageBottomButton";
 
 export const SequenceDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { sequence, initializeSequence } = useSequence(id);
+    const { sequence, fetchSequence, error, setError } = useSequence(id);
 
     useEffect(() => {
-        if (id) {
-            initializeSequence();
-        }
-    }, [id, initializeSequence]);
+        if (id) fetchSequence();
+    }, [id]);
 
     const navigate = useNavigate();
     const onBackButtonClick = () => {
@@ -26,7 +25,7 @@ export const SequenceDetailPage: React.FC = () => {
 
     return (
         <div className="h-full flex flex-col">
-            <div className="flex-1 overflow-y-auto px-4">
+            <div className="flex-1 overflow-y-auto p-4">
                 <ItemFieldsList
                     fields={[
                         "name",
@@ -38,17 +37,15 @@ export const SequenceDetailPage: React.FC = () => {
                     ]}
                     item={sequence}
                     textStyles={`${commonTextStyles} text-my-yellow`}
-                    labelStyles={`${commonLabelStyles} text-my-fg`}
+                    labelStyles={`${commonLabelStyles} capitalize text-my-fg`}
                 />
             </div>
-            <div className="mt-6 mb-10 flex flex-row gap-x-2 justify-center">
-                <button
-                    type="button"
+            <div className="h-[100px] flex flex-col items-center justify-center">
+                <PageBottomButton
                     onClick={onBackButtonClick}
-                    className="bg-mt-yellow hover:bg-gb-yellow font-extrabold px-4 py-2 rounded"
-                >
-                    <text className="uppercase text-xl">Back </text>
-                </button>
+                    text="Back"
+                    appearance="secondary"
+                />
             </div>
         </div>
     );

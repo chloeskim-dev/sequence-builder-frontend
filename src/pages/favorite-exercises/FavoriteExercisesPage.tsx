@@ -13,24 +13,15 @@ import {
     createNewButtonStyles,
     pageOutermostFlexColStyles,
 } from "../../constants/tailwindClasses";
-import {
-    filterBySearchQuery,
-    removeNullFieldsFromFavoriteExercise,
-    removeNullFieldsFromFavoriteExercises,
-} from "../../utils/sequenceHelpers";
-import {
-    CleanedUpFavoriteExercise,
-    RawFavoriteExercise,
-} from "../../constants/types";
+import { removeNullFieldsFromFavoriteExercise } from "../../utils/cleanupHelpers";
+import { CleanedUpFavoriteExercise } from "../../constants/types";
+import { SortDirection } from "../../utils/listHelpers";
+import { useFavoriteExercises } from "../../hooks/useFavoriteExercises";
 
 export default function FavoriteExercisesPage() {
+    const [sortBy, setSortBy] = useState<string>("name");
+    const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
     const [searchQuery, setSearchQuery] = useState<string>("");
-    const [fetchedFavoriteExercises, setFetchedFavoriteExercises] = useState<
-        RawFavoriteExercise[] | undefined
-    >(undefined);
-    const [displayFavoriteExercises, setDisplayFavoriteExercises] = useState<
-        CleanedUpFavoriteExercise[] | undefined
-    >(undefined);
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
@@ -46,62 +37,39 @@ export default function FavoriteExercisesPage() {
     const [deleteItem, setDeleteItem] =
         useState<CleanedUpFavoriteExercise | null>(null);
 
-    const [error, setError] = useState<string>("");
     const { user } = useUser();
     const userId = user?.id ?? null;
 
-    const fetchFavoriteExercises = async () => {
-        try {
-            const res: RawFavoriteExercise[] = await api.get(
-                `/v1/favorite_exercises/user/${userId}`
-            );
-            setFetchedFavoriteExercises(res);
-            return res;
-        } catch (err: any) {
-            console.error("Error fetching favorite exercises:", err);
-            throw err;
-        }
-    };
+    const {
+        fetchFavoriteExercises,
+        fetchedFavoriteExercises,
+        displayFavoriteExercises,
+        setFavoriteExercisesToDisplay,
+        error,
+        setError,
+    } = useFavoriteExercises(userId!);
 
     useEffect(() => {
         fetchFavoriteExercises();
     }, []);
 
-    const setFavoriteExercisesToDisplay = async () => {
-        if (fetchedFavoriteExercises === undefined) {
-            return;
-        }
-        try {
-            const cleanedFavoriteExercises =
-                removeNullFieldsFromFavoriteExercises(fetchedFavoriteExercises);
-            const cleanedFavoriteExercisesMatchingSearchQuery =
-                filterBySearchQuery(cleanedFavoriteExercises, searchQuery);
-            setDisplayFavoriteExercises(
-                cleanedFavoriteExercisesMatchingSearchQuery
-            );
-        } catch (err: any) {
-            console.error("Error setting sequences to display:", err);
-            setError(err.message);
-            throw err;
-        }
-    };
-
     useEffect(() => {
-        setFavoriteExercisesToDisplay();
-    }, [searchQuery, fetchedFavoriteExercises]);
+        setFavoriteExercisesToDisplay(sortBy, sortDirection, searchQuery);
+    }, [sortBy, sortDirection, searchQuery, fetchedFavoriteExercises]);
 
     const resetFavoriteExercisesToDisplay = async () => {
         try {
             setSearchQuery("");
+            setSortBy("name");
+            setSortDirection("asc");
             await fetchFavoriteExercises();
-            setFavoriteExercisesToDisplay();
+            setFavoriteExercisesToDisplay(sortBy, sortDirection, searchQuery);
         } catch (err: any) {
             console.error(
                 "Error refreshing favorite exercises to display:",
                 err
             );
             setError(err.message);
-            throw err;
         }
     };
 
@@ -159,7 +127,7 @@ export default function FavoriteExercisesPage() {
     };
 
     return (
-        <div className="">
+        <div>
             <div className={pageOutermostFlexColStyles}>
                 <div>
                     <IconButton
@@ -202,6 +170,10 @@ export default function FavoriteExercisesPage() {
                             ]}
                             actionsFieldWidthStyle="w-[150px]"
                             listType="favorites"
+                            sortBy={sortBy}
+                            setSortBy={setSortBy}
+                            sortDirection={sortDirection}
+                            setSortDirection={setSortDirection}
                         />
                     </div>
                 )}

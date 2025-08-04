@@ -12,7 +12,7 @@ export default function PageLayout({ children, pageTitle, icon }: Props) {
 
     const _navbarHeightInPixels = 50;
     const _footerHeightInPixels = 30;
-    const _mainTitleHeightInPixels = 100;
+    const _mainTitleHeightInPixels = 80;
 
     const HAMBURGER_ICON_SVG_PATH = (
         <path
@@ -59,29 +59,25 @@ export default function PageLayout({ children, pageTitle, icon }: Props) {
                 </div>
             )}
 
-            {/* Main*/}
-            <main
-                className="flex flex-col w-screen bg-my-bg px-8 overflow-y-auto"
-                style={{
-                    height: "calc(100vh - 80px)", // calculated to make the main scrollable between sticky navbar and footer
-                }}
-            >
-                {/* page title */}
-                {pageTitle && (
-                    <div
-                        // className={`${mainTitleHeightStyleString} font-bold text-[30px] text-my-yellow flex justify-center items-center justify-center`}
-                        className={`h-[50px] font-bold text-[30px] text-my-yellow flex justify-center items-center justify-center`}
-                    >
-                        {pageTitle}
-                        {icon}
-                    </div>
-                )}
+            {/* page title */}
+            {pageTitle && (
+                <div
+                    // className={`${mainTitleHeightStyleString} font-bold text-[30px] text-my-yellow flex justify-center items-center justify-center`}
+                    className={`h-[80px] font-bold text-[30px] bg-my-bg px-8 text-my-yellow flex justify-center items-center justify-center`}
+                >
+                    {pageTitle}
+                    {icon}
+                </div>
+            )}
+
+            {/* Main - the only scrollable part*/}
+            <main className="flex flex-col w-screen bg-my-bg overflow-y-auto">
                 {/* page content */}
                 <div
                     className="flex flex-col"
                     style={{
                         height: pageTitle
-                            ? "calc(100vh - 180px)"
+                            ? "calc(100vh - 160px)"
                             : "calc(100vh - 80px)",
                     }}
                 >

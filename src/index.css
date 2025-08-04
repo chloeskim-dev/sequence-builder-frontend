@@ -64,9 +64,9 @@ code {
 
 input,
 textarea {
-    border-bottom: 1px solid #e1cdac;
+    border-bottom: 2px solid #e1cdac;
     outline: none;
-    padding: 5px 0px;
+    padding: 6px 0px;
     width: 100%;
     color: #e1cdac;
     background-color: transparent;

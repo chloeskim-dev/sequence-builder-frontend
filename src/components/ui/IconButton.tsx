@@ -19,7 +19,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
         <button
             onClick={onClick}
             type={type}
-            className={`flex items-center gap-2 text-sm pl-4 py-2 pr-6 transition uppercase ${className}`}
+            className={`flex items-center justify-center gap-2 text-sm pl-4 py-1 pr-6 transition ${className}`}
         >
             {icon}
             {children}

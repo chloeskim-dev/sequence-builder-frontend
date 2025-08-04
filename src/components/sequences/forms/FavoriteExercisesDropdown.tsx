@@ -1,71 +1,79 @@
 import { useState, useEffect } from "react";
-import { splitDuration } from "../../../utils/timeHelpers";
-import { ExerciseInputs, FavoriteExercise } from "../../../constants/types";
-import { api } from "../../../utils/api";
+import { ExerciseInputs } from "../../../constants/types";
 import { useUser } from "../../../contexts/UserContext";
 import { ReusableTable } from "../../layouts/ReusableTable";
+import { SortDirection } from "../../../utils/listHelpers";
+import { useFavoriteExercises } from "../../../hooks/useFavoriteExercises";
+import { splitDuration } from "../../../utils/durationHelpers";
 
-type FavoriteExercisesDropdownProps = {
+type Props = {
     handleAddFavoriteExercise: (newFavExercise: ExerciseInputs) => void;
 };
 
-function FavoriteExercisesDropdown({
-    handleAddFavoriteExercise,
-}: FavoriteExercisesDropdownProps) {
-    const [favoriteExercises, setFavoriteExercises] = useState<
-        FavoriteExercise[]
-    >([]);
+function FavoriteExercisesDropdown({ handleAddFavoriteExercise }: Props) {
+    const [sortBy, setSortBy] = useState<string>("name");
+    const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
     const { user } = useUser();
     const userId = user?.id ?? null;
 
+    const {
+        fetchFavoriteExercises,
+        fetchedFavoriteExercises,
+        displayFavoriteExercises,
+        setFavoriteExercisesToDisplay,
+        error,
+        setError,
+    } = useFavoriteExercises(userId!);
+
     useEffect(() => {
-        const fetchFavoriteExercises = async () => {
-            try {
-                const res = await api.get(
-                    `/v1/favorite_exercises/user/${userId}`
-                );
-                setFavoriteExercises(res);
-            } catch (err: any) {
-                console.error("Error fetching sequences:", err);
-            }
-        };
         fetchFavoriteExercises();
-    }, [userId]);
+    }, []);
+
+    useEffect(() => {
+        setFavoriteExercisesToDisplay(sortBy, sortDirection, "");
+    }, [sortBy, sortDirection, fetchedFavoriteExercises]);
+
+    const thereAreFavoriteExercisesToDisplay =
+        displayFavoriteExercises !== undefined &&
+        displayFavoriteExercises.length !== 0;
+
+    const onEntireRowClick = (rowItem: any) => {
+        let durations =
+            rowItem.duration_secs === undefined ||
+            rowItem.duration_secs === null
+                ? undefined
+                : splitDuration(rowItem.duration_secs);
+        handleAddFavoriteExercise({
+            ...rowItem,
+            duration_mins: durations ? durations.splitMinutes : undefined,
+            duration_secs: durations ? durations.splitSeconds : undefined,
+        });
+    };
 
     return (
-        <ReusableTable
-            items={favoriteExercises}
-            getActionButtonsForItem={(item, index) => [
-                {
-                    title: "Add",
-                    action: () => {
-                        let durations =
-                            item.duration_secs === undefined ||
-                            item.duration_secs === null
-                                ? undefined
-                                : splitDuration(item.duration_secs);
-                        handleAddFavoriteExercise({
-                            ...item,
-                            duration_mins: durations
-                                ? durations.splitMinutes
-                                : undefined,
-                            duration_secs: durations
-                                ? durations.splitSeconds
-                                : undefined,
-                        });
-                    },
-                },
-            ]}
-            standardFields={[
-                "name",
-                "direction",
-                "duration",
-                "resistance",
-                "notes",
-            ]}
-            actionsFieldWidthStyle="w-[70px]"
-            listType="favorites"
-        />
+        <div>
+            {thereAreFavoriteExercisesToDisplay && (
+                <ReusableTable
+                    items={displayFavoriteExercises}
+                    getActionButtonsForItem={(item, index) => []}
+                    standardFields={[
+                        "name",
+                        "direction",
+                        "duration",
+                        "resistance",
+                        "notes",
+                    ]}
+                    actionsFieldWidthStyle="w-[70px]"
+                    listType="favorites"
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    sortDirection={sortDirection}
+                    setSortDirection={setSortDirection}
+                    onEntireRowClick={onEntireRowClick}
+                />
+            )}
+        </div>
     );
 }
 

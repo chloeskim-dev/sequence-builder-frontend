@@ -1,52 +1,51 @@
 import { useState, useCallback } from "react";
 import { api } from "../utils/api";
-import { removeNullFieldsFromSequence } from "../utils/sequenceHelpers";
-import { CleanedFullSequence, RawFullSequence } from "../constants/types";
+import { removeNullFieldsFromSequence } from "../utils/cleanupHelpers";
+import {
+    CleanedFullSequence,
+    CleanedUpExercise,
+    DurationsSequence,
+    RawFullSequence,
+} from "../constants/types";
 
 export function useSequence(id: string | undefined) {
-    const [sequence, setSequence] = useState<CleanedFullSequence | null>(null); // This sequence is local to the component that uses the hook
+    const [sequence, setSequence] = useState<CleanedFullSequence | undefined>(
+        undefined
+    );
 
-    const initializeSequence = useCallback(async () => {
-        if (!id) return;
+    const [error, setError] = useState<string>("null");
 
+    const fetchSequence = async () => {
         try {
             const res: RawFullSequence = await api.get(
                 `/v1/sequences/${id}/full`
             );
-            console.log("Fetched raw sequence from db:\n", res);
             const cleanedSequence = removeNullFieldsFromSequence(res);
             setSequence(cleanedSequence);
+            setError("");
         } catch (err: any) {
-            console.error("Error initializing sequence: ", err);
-            throw err;
+            console.error("Error fetching favorite exercises:", err);
+            setError(err.message);
         }
-    }, [id]);
+    };
 
-    const initializeDurationsSequence = useCallback(async () => {
-        if (!id) return;
-
-        try {
-            const res = await api.get(`/v1/sequences/${id}/full`);
-            console.log("Fetched raw sequence from db:\n", res);
-
-            const filteredSequence = {
-                ...res,
-                exercises: res.exercises.filter(
-                    (exercise: any) => exercise.duration_secs != null
-                ),
-            };
-
-            setSequence(filteredSequence);
-        } catch (err: any) {
-            console.error("Error initializing sequence: ", err);
-            throw err;
-        }
-    }, [id]);
+    const removeExercisesWithoutDurationFromSequence = (
+        sequence: CleanedFullSequence
+    ) => {
+        return {
+            ...sequence,
+            exercises: sequence.exercises.filter(
+                (exercise: CleanedUpExercise) => exercise.duration_secs != null
+            ),
+        } as DurationsSequence;
+    };
 
     return {
         sequence,
         setSequence,
-        initializeSequence,
-        initializeDurationsSequence,
+        fetchSequence,
+        error,
+        setError,
+        removeExercisesWithoutDurationFromSequence,
     };
 }
