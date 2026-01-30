@@ -1,0 +1,68 @@
+// gray
+$super-light-gray: #f9f9f9;
+$light-gray: #f7f7f7;
+$gray: #e6e6e6;
+$dark-gray: #b7b7b7;
+$gray-border: #6b6b6b;
+$gray-shadow: #dddddd;
+
+// // Light theme
+// $light-theme: (
+//     bg: #fff,
+//     text: #382b22,
+//     // pink
+//     light-pink: #fff0f0,
+//     pink: #ffe9e9,
+//     dark-pink: #f9c4d2,
+//     pink-border: #b18597,
+//     pink-shadow: #ffe3e2,
+//     // green
+//     light-green: #f0fff4,
+//     green: #e6ffed,
+//     dark-green: #b7e4c7,
+//     green-border: #6b8e77,
+//     green-shadow: #ddf5e0,
+//     // yellow
+//     light-yellow: #fffdf0,
+//     yellow: #fff9e6,
+//     dark-yellow: #f9e4b7,
+//     yellow-border: #b1a277,
+//     yellow-shadow: #fff6dd,
+//     // blue
+//     light-blue: #f0f7ff,
+//     blue: #e6f2ff,
+//     dark-blue: #b7d4eb,
+//     blue-border: #6b8ca5,
+//     blue-shadow: #ddefff,
+//     // gray
+//     super-light-gray: #f9f9f9,
+//     light-gray: #f7f7f7,
+//     gray: #e6e6e6,
+//     dark-gray: #b7b7b7,
+//     gray-border: #6b6b6b,
+//     gray-shadow: #dddddd,
+//     // red
+//     light-red: #ffeaea,
+//     red: #e87c76,
+//     dark-red: #b84d48,
+//     red-border: #8a3632,
+//     red-shadow: #ffd6d6,
+// );
+
+// // Dark theme
+// $dark-theme: (
+//     bg: #fff,
+//     text: #382b22,
+//     light-pink: #fff0f0,
+//     pink: #ffe9e9,
+//     dark-pink: #f9c4d2,
+//     pink-border: #b18597,
+//     pink-shadow: #ffe3e2,
+// );
+
+// // Convert a theme map into CSS variables
+// @mixin theme-vars($theme-map) {
+//     @each $key, $value in $theme-map {
+//         --#{$key}: #{$value};
+//     }
+// }

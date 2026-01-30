@@ -22,6 +22,25 @@ module.exports = {
             },
 
             colors: {
+                gray: {
+                    1: "#f8f9fa",
+                    2: "#f0f2f4",
+                    3: "#dee2e6",
+                    4: "#ced4da",
+                    5: "#adb5bd",
+                    6: "#6c757d",
+                    7: "#495057",
+                    8: "#343a40",
+                    9: "#212529",
+                },
+
+                nv: {
+                    bg: "#262626",
+                    yellow: "#fabd2e",
+                    yorange: "#ffae00",
+                    green: "#afaf00",
+                    blue: "#87afaf",
+                },
                 gb: {
                     bg: "#1e1e1e",
                     fg: "#ebdbb2",
@@ -40,7 +59,7 @@ module.exports = {
                     fg: "#d4be98",
                     cyan: "#89b482",
                     black: "#665c54",
-                    gray: "#504945",
+                    gray: "#a8a3a3",
                     magenta: "#d3869b",
                     red: "#ea6962",
                     green: "#a9b665",
@@ -131,6 +150,9 @@ module.exports = {
                     pink: "#D3879B",
                     green: "#8DB982",
                     fg: "#E1CDAC",
+                    peach: "#e88873",
+                    pblue: "#bfd7ff",
+                    // pblue: "#d7e3fc",
                 },
                 "my-lt": {
                     bg: "#EBE6D2",

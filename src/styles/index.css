@@ -1,0 +1,90 @@
+@import url("https://fonts.googleapis.com/css2?family=Cousine:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+/* @import "./_variables.scss"; */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* 
+* {
+    outline: 0.5px solid red;
+} */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family:
+        "Cousine",
+        -apple-system,
+        "Helvetica Neue",
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* === SCROLLBAR === */
+
+/* Target the scrollbar */
+::-webkit-scrollbar {
+    width: 20px;
+}
+
+/* Custom fixed-width scrollbar */
+.scrollbar-custom {
+    scrollbar-width: 20px; /* Firefox */
+}
+
+/* WebKit (Chrome, Safari) */
+.scrollbar-custom::-webkit-scrollbar {
+    width: 20px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+    background: #dcdcdc;
+    border-radius: 10px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+    background-color: #a9a9a9; /* orange-red */
+    border-radius: 10px; /* rounded corners */
+    border: 3px solid #dcdcdc; /* optional padding */
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: #888888;
+}
+
+.scrollbar-padded {
+    padding-right: 12px;
+}
+
+/* === INPUTS === */
+
+input,
+textarea,
+select {
+    border-bottom: 2px solid #d8a657;
+    padding: 6px 0px;
+    width: 100%;
+    outline: none;
+    background-color: transparent;
+    transition: all 0.3s ease;
+    &:focus {
+        box-shadow: 0 0 0 2px rgb(246, 201, 80);
+    }
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #bdb7b7;
+}

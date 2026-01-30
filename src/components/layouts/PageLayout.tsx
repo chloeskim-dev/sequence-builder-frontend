@@ -1,16 +1,19 @@
 import { ReactNode, useState } from "react";
 import { NavLinks } from "../NavLinks";
+import styles from "./pagelayout.module.scss";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
     children: ReactNode;
     pageTitle?: String;
-    icon?: ReactNode;
 };
 
-export default function PageLayout({ children, pageTitle, icon }: Props) {
+export default function PageLayout({ children, pageTitle }: Props) {
     const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
 
-    const _navbarHeightInPixels = 50;
+    const navigate = useNavigate();
+
+    const _navbarHeightInPixels = 70;
     const _footerHeightInPixels = 30;
     const _mainTitleHeightInPixels = 80;
 
@@ -30,67 +33,82 @@ export default function PageLayout({ children, pageTitle, icon }: Props) {
         />
     );
     return (
-        <div className="flex flex-col h-screen w-screen">
+        <div className="bg-gray-3 flex flex-col h-screen w-full min-w-[320px] relative">
             {/* Navbar */}
-            <nav
-                className={`h-[50px] bg-my-bg2 text-my-fg px-4 flex items-center justify-between border-b border-mt-fg`}
-            >
-                <div className="text-lg font-bold">Sequence Builder Pro</div>
-                <div className="hidden md:flex space-x-6">
-                    <NavLinks setIsHamburgerOpen={setIsHamburgerOpen} />
+            <nav className={`h-[45px] px-[20px] flex items-center`}>
+                <div className={`flex w-full items-center justify-between`}>
+                    {/* App Name (Navigates to Dashboard) */}
+                    <button
+                        className="text-lg font-bold my-auto"
+                        onClick={() => {
+                            navigate("/dashboard");
+                        }}
+                    >
+                        Workout Class Builder
+                    </button>
+
+                    {/* Desktop Navlinks */}
+                    <div className="hidden md:flex space-x-8">
+                        <NavLinks
+                            setIsHamburgerOpen={setIsHamburgerOpen}
+                            isForMobile={false}
+                        />
+                    </div>
+
+                    {/* Button to Open / Hide Mobile Navlinks */}
+                    <button
+                        className="md:hidden my-auto"
+                        onClick={() => setIsHamburgerOpen(!isHamburgerOpen)}
+                        aria-label="Toggle Menu"
+                    >
+                        <svg
+                            className="w-6 h-6 fill-current"
+                            viewBox="0 0 24 24"
+                        >
+                            {isHamburgerOpen
+                                ? CLOSE_ICON_SVG_PATH
+                                : HAMBURGER_ICON_SVG_PATH}
+                        </svg>
+                    </button>
                 </div>
-                <button
-                    className="md:hidden"
-                    onClick={() => setIsHamburgerOpen(!isHamburgerOpen)}
-                    aria-label="Toggle Menu"
-                >
-                    <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                        {isHamburgerOpen
-                            ? CLOSE_ICON_SVG_PATH
-                            : HAMBURGER_ICON_SVG_PATH}
-                    </svg>
-                </button>
+
+                {/* Mobile Navlinks */}
+                <div className="">
+                    {isHamburgerOpen && (
+                        <div
+                            className={`bg-gray-3 bg-opacity-95 md:hidden top-[45px] right-[20px] px-[30px] py-3 space-y-4 absolute z-50 }`}
+                        >
+                            <NavLinks
+                                setIsHamburgerOpen={setIsHamburgerOpen}
+                                isForMobile={true}
+                            />
+                        </div>
+                    )}
+                </div>
             </nav>
 
-            {/* Mobile menu */}
-            {isHamburgerOpen && (
-                <div className="md:hidden flex flex-col bg-my-bg2 text-my-fg px-4 py-2 space-y-2">
-                    <NavLinks setIsHamburgerOpen={setIsHamburgerOpen} />
-                </div>
-            )}
-
-            {/* page title */}
-            {pageTitle && (
+            <main
+                style={{
+                    height: "calc(100vh - 45px)",
+                }}
+                className="flex flex-col w-full px-[20px]"
+            >
+                {/* Main (Scrollable) */}
                 <div
-                    // className={`${mainTitleHeightStyleString} font-bold text-[30px] text-my-yellow flex justify-center items-center justify-center`}
-                    className={`h-[80px] font-bold text-[30px] bg-my-bg px-8 text-my-yellow flex justify-center items-center justify-center`}
+                    className={`flex flex-col w-full gap-4 h-full bg-gray-2  mb-[20px] py-[20px] ${styles["floating"]} overflow-y-auto scrollbar-padded scrollbar-custom`}
                 >
-                    {pageTitle}
-                    {icon}
-                </div>
-            )}
-
-            {/* Main - the only scrollable part*/}
-            <main className="flex flex-col w-screen bg-my-bg overflow-y-auto">
-                {/* page content */}
-                <div
-                    className="flex flex-col"
-                    style={{
-                        height: pageTitle
-                            ? "calc(100vh - 160px)"
-                            : "calc(100vh - 80px)",
-                    }}
-                >
-                    {children}
+                    {/* page title */}
+                    {pageTitle && (
+                        <div
+                            className={`font-bold text-center text-[30px] px-8 text-my-bg flex justify-center items-center justify-center`}
+                        >
+                            {pageTitle}
+                        </div>
+                    )}
+                    {/* page content */}
+                    <div className="w-full flex-1">{children}</div>
                 </div>
             </main>
-
-            {/* Footer */}
-            <footer
-                className={`h-[30px] flex flex-row justify-center items-center bg-my-bg2 border-t border-mt-fg text-my-fg text-xs font-bold text-center`}
-            >
-                © 2025 Sequence Builder Pro
-            </footer>
         </div>
     );
 }

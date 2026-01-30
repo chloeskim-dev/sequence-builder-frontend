@@ -1,8 +1,12 @@
 // Page Layout
-export const pageOutermostFlexColStyles = "mx-4 flex flex-col gap-y-4";
+export const pageOutermostFlexColStyles =
+    "mx-4 flex flex-col gap-y-4 items-center h-full";
 
-// Font size
+// Text
 export const responsiveTextStyles = "text-sm md:text-md xl:text-lg";
+export const infoTextStyles = "text-hmx-light-option4 font-semibold";
+export const warningTextStyles = "text-my-red font-semibold";
+export const errorTextStyles = "text-red-600 font-semibold";
 
 // Reusable Table
 export const headerRowTextStyles =
@@ -19,8 +23,6 @@ export const standardFieldContainerStyles =
     "flex-1 flex-shrink-0 overflow-hidden";
 export const actionsFieldWidthStyle = "w-[250px]";
 export const actionFieldContainerStyles = `lg:w-[250px]`;
-export const actionButtonsContainerStyle =
-    "flex gap-x-2 lg:justify-center mt-1 lg:mt-0";
 export const rightMarginSameWidthAsScrollbarStyle = "mr-[12px]"; // scrollbar for main rows container is set to exactly 12px
 export const commonPaddingXForHeaderContainerAndMainRow = "px-6 lg:px-8";
 export const commonFlexRowStyles =
@@ -35,33 +37,50 @@ export const sequenceExercisesListHeadRowStyles =
 export const sequenceExerciseActionsColumnWidth = "w-[80px]";
 
 // Buttons
-export const createNewButtonStyles = `${responsiveTextStyles} bg-hmx-dark-aqua rounded text-white font-extrabold`;
+export const createNewButtonStyles = `text-[16px] bg-my-green rounded text-nv-bg font-extrabold py-2`;
 export const dashboardButtonTextStyles =
     "bg-gb-yellow text-lg font-extrabold px-6 py-2 flex items-center justify-center gap-3 rounded-xl";
 
 // ItemFieldsList
 export const detailsListFieldStyles = "";
-export const detailsListInsideModalTextStyles = "font-semibold text-gb-bg";
-export const detailsListInsideModalLabelStyles =
-    "capitalize font-extrabold text-hmt-dark-option4";
+// export const defaultItemFieldsListTextStyles = "font-semibold text-nv-green";
+// export const defaultItemFieldsListLabelStyles =
+//     "capitalize font-extrabold text-nv-yellow";
+export const defaultItemFieldsListTextStyles = "text-gb-bg";
+export const defaultItemFieldsListLabelStyles =
+    // "capitalize font-bold text-hmt-dark-option4";
+    "capitalize font-bold text-gray-500";
 
 // Delete Confirm Modal
 export const deleteItemNameHighlightTextStyles = "font-extrabold text-my-red";
-export const deleteConfirmModalTextStyles =
-    "flex flex-col gap-y-2 font-semibold text-hmt-dark-option2 text-center break-words";
+export const deleteConfirmModalTextStyles = `flex flex-col gap-y-2 text-sm text-hmt-dark-option2 font-semibold text-center break-words`;
 
 // Form related
 export const labelForTextAreaStyles = "";
 export const formGridColStyles = "grid grid-cols-2 gap-4 items-center";
 export const detailsListGridColStyles = "grid grid-cols-2 gap-4";
-export const commonLabelStyles = "font-extrabold";
-export const commonTextStyles = "font-semibold ";
-export const formTextInputStyles = `${commonTextStyles} ${responsiveTextStyles} w-full truncate border-b-hmt-dark-option4`;
-export const formTextAreaInputStyles = `${commonTextStyles} ${responsiveTextStyles} w-full truncate border-b-hmt-dark-option4`;
+export const commonLabelStyles = `font-extrabold text-gray-5 ${responsiveTextStyles}`;
+export const commonTextStyles = "";
+export const formTextInputStyles = `${commonTextStyles} ${responsiveTextStyles} w-full truncate border-gray-5 focus:shadow-none`;
+export const formTextAreaInputStyles = `${commonTextStyles} ${responsiveTextStyles} w-full truncate border-b-gray-5 focus:shadow-none`;
 export const formFieldsFlexColStyles = "flex-1 flex flex-col space-y-6";
 export const errorMessageStyles = "text-gb-red text-sm font-bold mt-1";
-export const durationsPartTextStyles = `${responsiveTextStyles} text-hmt-dark-option4 font-bold`;
+export const durationsPartTextStyles = `${responsiveTextStyles} font-bold text-gray-6"`;
 
 // Etc
 export const fieldColumnStyles = "self-start";
 export const commonFlexColStyles = "flex flex-col gap-y-0.5";
+
+export const sequencesTableGridColStyles =
+    "lg:grid-cols-[minmax(100px,_1fr)_minmax(100px,_1fr)_minmax(100px,_1fr)_minmax(100px,_1fr)_minmax(100px,_1fr)_270px]";
+// action button width = 47.63px
+// gap between action buttons = 10px
+// last col === action buttons col, so the last col width should be set to
+// = ( # action buttons - 1 ) * ( 10px ) + ( # of action buttons ) * (47.63px)
+
+export const favoriteExercisesTableGridColStyles =
+    "lg:grid-cols-[minmax(100px,_1fr)_minmax(100px,_1fr)_minmax(50px,_1fr)_minmax(100px,_1fr)_minmax(100px,_1fr)_185px]";
+export const favoriteExercisesDropdownTableGridColStyles =
+    "lg:grid-cols-[minmax(100px,_1fr)_minmax(100px,_1fr)_minmax(50px,_1fr)_minmax(100px,_1fr)_minmax(100px,_1fr)_0px]";
+export const sequenceFormExerciseGridColStyles =
+    "lg:grid-cols-[minmax(70px,_1fr)_minmax(70px,_1fr)_minmax(50px,_1fr)_minmax(70px,_1fr)_minmax(70px,_1fr)_175px]";

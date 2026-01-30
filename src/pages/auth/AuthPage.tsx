@@ -4,6 +4,7 @@ import { useUser } from "../../contexts/UserContext";
 import { safeFetch, HttpError } from "../../utils/api";
 import Modal from "../../components/layouts/Modal";
 import { formTextInputStyles } from "../../constants/tailwindClasses";
+import Button from "../../components/ui/Button/Button";
 
 interface AuthPageProps {
   authorizeUser: () => void;
@@ -23,7 +24,9 @@ interface SignupPayload {
 
 const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
 
-const AuthPage = ({ authorizeUser }: AuthPageProps) => {
+const AuthPage: React.FC<AuthPageProps> = ({
+  authorizeUser,
+}: AuthPageProps) => {
   const [isSignup, setIsSignup] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -50,9 +53,6 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
   useEffect(() => {
     clearErrors();
   }, [isSignup, clearErrors]);
-
-  const errorTextStyles = "text-red-500 text-sm mt-1";
-  const inputStyles = `${formTextInputStyles} text-gb-bg border-b-hmt-dark-option4`;
 
   const signup = async ({ username, password, email }: SignupPayload) => {
     const payload: SignupPayload = {
@@ -133,109 +133,152 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
     setIsSignup(false);
   };
 
+  const labelStyles = "font-bold";
+  const errorTextStyles = "text-mt-red text-sm mt-1 font-bold";
+  const inputStyles = `font-bold border-2 border-hmt-dark-option4 rounded-lg px-2 py-2 text-gray-500 bg-white w-full`;
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gb-bg">
-      <div className="bg-gb-yellow p-6 rounded-xl shadow-md w-80">
-        <h2 className="text-xl font-semibold mb-4">
+    <div
+      className="h-screen w-screen min-w-[320px] flex flex-col items-center justify-center bg-gray-100 text-hmt-dark-option4"
+      style={{ color: "#382b22" }}
+    >
+      <div
+        className="flex flex-col gap-7 rounded-xl p-5 bg-gray-2 w-[310px]"
+        style={{ borderWidth: "2px", borderColor: "#6b6b6b" }}
+      >
+        {/* Form Title */}
+        <h2 className="text-xl font-semibold">
           {isSignup ? "Sign Up" : "Log In"}
         </h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
-          {isSignup && (
-            <input
-              id="emailInput"
-              className={inputStyles}
-              placeholder="Email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Invalid email format",
-                },
-              })}
-            />
-          )}
-          {errors.email && (
-            <p id="emailInputErrorText" className={errorTextStyles}>
-              {errors.email.message}
-            </p>
-          )}
+        {/* Form (Inputs + Submit Button) */}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+          {/* Inputs */}
+          <div className="flex flex-col gap-2">
+            {/* Email Input - only for Signup */}
+            {isSignup && (
+              <div className="flex flex-col">
+                <label className={labelStyles} htmlFor="emailInput">
+                  Email
+                </label>
+                <input
+                  id="emailInput"
+                  className={inputStyles}
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Invalid email format",
+                    },
+                  })}
+                />
+                {errors.email && (
+                  <p id="emailInputErrorText" className={errorTextStyles}>
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
+            )}
 
-          <input
-            id="identifierInput"
-            className={inputStyles}
-            placeholder={isSignup ? "Username" : "Email or Username"}
-            {...register("identifier", {
-              required: isSignup
-                ? "Username is required"
-                : "Username or email is required",
-              ...(isSignup && {
-                minLength: {
-                  value: 3,
-                  message: "Username must be at least 3 characters",
-                },
-              }),
-            })}
-          />
-          {errors.identifier && (
-            <p id="identifierInputErrorText" className={errorTextStyles}>
-              {errors.identifier.message}
-            </p>
-          )}
-          <div className="relative w-full">
-            <input
-              id="passwordInput"
-              className={inputStyles}
-              placeholder="Password"
-              type={showPassword ? "text" : "password"}
-              {...register("password", {
-                required: "Password is required",
-                ...(isSignup && {
-                  minLength: {
-                    value: 6,
-                    message: "Password must be at least 6 characters",
-                  },
-                }),
-              })}
-            />
-            <button
-              id="showPasswordToggleButton"
-              type="button"
-              onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gb-blue"
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
+            {/* Identifier Input  (Username for Signup.  Email/Username for Login.) */}
+            <div className="flex flex-col">
+              <label className={labelStyles} htmlFor="identifierInput">
+                {isSignup ? "Username" : "Email or Username"}
+              </label>
+              <input
+                className={inputStyles}
+                id="identifierInput"
+                {...register("identifier", {
+                  required: isSignup
+                    ? "Username is required"
+                    : "Username or email is required",
+                  ...(isSignup && {
+                    minLength: {
+                      value: 3,
+                      message: "Username must be at least 3 characters",
+                    },
+                  }),
+                })}
+              />
+              {/* Identifier Error */}
+              {errors.identifier && (
+                <p id="identifierInputErrorText" className={errorTextStyles}>
+                  {errors.identifier.message}
+                </p>
+              )}
+            </div>
+
+            {/* Password Input */}
+            <div className="flex flex-col">
+              <div className="flex gap-2 items-end">
+                <div className="flex-1">
+                  <label className={labelStyles} htmlFor="passwordInput">
+                    Password
+                  </label>
+                  <div className="flex items-start gap-2">
+                    <input
+                      id="passwordInput"
+                      className={inputStyles}
+                      type={showPassword ? "text" : "password"}
+                      {...register("password", {
+                        required: "Password is required",
+                        ...(isSignup && {
+                          minLength: {
+                            value: 6,
+                            message: "Password must be at least 6 characters",
+                          },
+                        }),
+                      })}
+                    />
+                  </div>
+                </div>
+                {/* Show Password Button */}
+                <div>
+                  <Button
+                    text={showPassword ? "Hide" : "Show"}
+                    buttonType="compact"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  ></Button>
+                </div>
+              </div>
+              {/* Password Error */}
+              {errors.password && (
+                <div id="passwordInputErrorText" className={errorTextStyles}>
+                  {errors.password.message}
+                </div>
+              )}
+            </div>
           </div>
-          {errors.password && (
-            <p id="passwordInputErrorText" className={errorTextStyles}>
-              {errors.password.message}
-            </p>
-          )}
-
-          <button
+          {/* Submit Button */}
+          <Button
+            text={isSignup ? "Sign Up" : "Log In"}
             type="submit"
-            className="w-full bg-my-green font-extrabold py-1.5 rounded-xl"
-          >
-            {isSignup ? "Sign Up" : "Log In"}
-          </button>
+            buttonType="standard"
+          />
         </form>
+        {/* -- End Form -- */}
 
+        {/* Signup / Login Error */}
         {error && (
-          <div className="w-full text-center text-red-600 text-xs font-semibold mt-2">
-            {error}
+          <div className="w-full text-center">
+            <div className={errorTextStyles}>{error}</div>
           </div>
         )}
 
-        <button
-          className="w-full text-mt-bg text-center text-sm font-semibold mt-2 text-my-blue"
-          onClick={toggleForm}
-        >
-          {isSignup
-            ? "Already have an account? Log in"
-            : "Don't have an account? Sign up"}
-        </button>
+        {/* Form Toggle */}
+        <div className="grid grid-cols-[1fr_1fr] items-center gap-2">
+          <div className="text-sm text-center font-bold text-gray-400">
+            {isSignup ? "Already have an account?" : "Don't have an account?"}
+          </div>
+          <Button
+            onClick={toggleForm}
+            text={isSignup ? "Log in" : "Sign up"}
+            buttonType="compact"
+          ></Button>
+        </div>
       </div>
+
+      {/* Signup Success Modal */}
       {signupSuccessModalIsOpen && (
         <Modal
           isOpen={signupSuccessModalIsOpen}
@@ -245,7 +288,7 @@ const AuthPage = ({ authorizeUser }: AuthPageProps) => {
             {
               label: "Ok",
               onClick: closeSignupSuccessmModal,
-              variant: "secondary",
+              buttonType: "compact",
             },
           ]}
         >

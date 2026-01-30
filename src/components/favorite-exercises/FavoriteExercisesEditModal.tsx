@@ -94,9 +94,9 @@ export default function FavoriteExerciseEditModal({
             title="Edit your favorite exercise."
             buttons={[
                 {
-                    label: "Save Changes",
+                    label: "submit",
                     onClick: () => {}, // Empty onClick for submit buttons
-                    variant: "primary",
+                    buttonType: "compact",
                     type: "submit",
                     form: "edit-favorite-exercise-form",
                     disabled:
@@ -105,7 +105,7 @@ export default function FavoriteExerciseEditModal({
                 {
                     label: "Cancel",
                     onClick: onModalClose,
-                    variant: "secondary",
+                    buttonType: "compact",
                 },
             ]}
         >

@@ -1,9 +1,11 @@
 import { ReactNode } from "react";
+import Button, { ButtonType } from "../ui/Button/Button";
+import styles from "../../styles/global.module.scss";
 
 interface ModalButton {
     label: string;
     onClick: () => void;
-    variant?: "primary" | "secondary" | "danger";
+    buttonType?: ButtonType;
     disabled?: boolean;
     type?: "button" | "submit" | "reset";
     form?: string;
@@ -48,69 +50,60 @@ export default function Modal({
 }: Props) {
     if (!isOpen) return null;
 
-    const getButtonStyles = (variant: ModalButton["variant"] = "primary") => {
-        const baseStyles =
-            "px-4 py-2 font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
-
-        switch (variant) {
-            case "primary":
-                return `${baseStyles} bg-my-blue text-white hover:bg-mt-blue rounded `;
-            case "secondary":
-                return `${baseStyles} bg-gray-200 text-gray-800 hover:bg-gray-300 rounded `;
-            case "danger":
-                return `${baseStyles} bg-my-red text-white hover:bg-gb-red rounded `;
-            default:
-                return `${baseStyles} bg-blue-600 text-white hover:bg-blue-700 rounded `;
-        }
-    };
-
     const defaultButtons: ModalButton[] = showCloseButton
-        ? [{ label: "Close", onClick: onClose, variant: "secondary" }]
+        ? [{ label: "Close", onClick: onClose, buttonType: "compact" }]
         : [];
 
     const modalButtons = buttons.length > 0 ? buttons : defaultButtons;
 
-    const topSectionColorStyles = "bg-my-yellow";
-    const middleSectionColorStyles = "bg-my-yellow";
-    const bottomSectionColorStyles = "bg-my-yellow";
+    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) {
+            // console.log("closing modal!");
+            onClose();
+        }
+    };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            onClick={handleOverlayClick}
+        >
             <div
-                className={`flex flex-col max-h-[80%] max-w-[80%] px-4 rounded-xl ${middleSectionColorStyles} break-words shadow-lg`}
+                className={`flex flex-col max-h-[80%] max-w-[90%] md:max-w-[85%] lg:max-w-[80%] xl:max-w-[70%] 2xl:max-w-[60%] rounded-xl break-words p-4 ${styles["raised"]}`}
             >
-                {title && (
-                    <div
-                        className={`${topSectionColorStyles} text-my-bg py-4 border-hmt-light-option3 flex gap-x-8`}
-                    >
-                        {/* <h2 className="text-my-green text-xl font-semibold"> */}
-                        <h2 className="text-xl font-semibold text-center flex-1 ml-2">
-                            {title}
-                        </h2>
-                        <CloseIcon onClick={onClose} />
-                    </div>
-                )}
-
-                <div className="py-2 flex-1 overflow-y-auto">
-                    <div className="px-6">{children}</div>
+                {/* Close Icon */}
+                <div className="flex justify-end">
+                    <CloseIcon onClick={onClose} />
                 </div>
 
+                {/* Note: Close icon has width of 24px (w-6 tailwind). The mx of the title and children should be this + a lil extra */}
+
+                {/* Modal Title */}
+                {title && (
+                    <h2 className="text-xl font-semibold text-center mb-4 mx-8">
+                        {title}
+                    </h2>
+                )}
+
+                {/* Modal Content */}
+                <div className="flex-1 scrollbar-padded scrollbar-custom overflow-y-auto mx-8">
+                    <div className="">{children}</div>
+                </div>
+
+                {/* Modal Buttons */}
                 {modalButtons.length > 0 && (
                     <div
-                        className={`${bottomSectionColorStyles} py-4 border-hmt-light-option3 flex justify-center`}
+                        className={`mb-2 mt-6 border-hmt-light-option3 flex justify-center`}
                     >
                         <div className="flex gap-3">
                             {modalButtons.map((button, index) => (
-                                <button
-                                    key={index}
+                                <Button
                                     type={button.type || "button"}
                                     onClick={button.onClick}
-                                    disabled={button.disabled}
-                                    className={getButtonStyles(button.variant)}
+                                    buttonType={button.buttonType}
+                                    text={button.label}
                                     form={button.form}
-                                >
-                                    {button.label}
-                                </button>
+                                />
                             ))}
                         </div>
                     </div>

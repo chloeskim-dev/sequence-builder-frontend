@@ -2,8 +2,8 @@ import { SetStateAction } from "react";
 import Modal from "../layouts/Modal";
 import ItemFieldsList from "../layouts/ItemFieldsList";
 import {
-    detailsListInsideModalLabelStyles,
-    detailsListInsideModalTextStyles,
+    defaultItemFieldsListLabelStyles,
+    defaultItemFieldsListTextStyles,
 } from "../../constants/tailwindClasses";
 import { CleanedUpFavoriteExercise } from "../../constants/types";
 
@@ -36,7 +36,7 @@ export default function FavoriteExerciseDetailModal({
                 {
                     label: "Close",
                     onClick: () => setIsModalOpen(false),
-                    variant: "secondary",
+                    buttonType: "compact",
                 },
             ]}
         >
@@ -49,8 +49,8 @@ export default function FavoriteExerciseDetailModal({
                     "notes",
                 ]}
                 item={detailItem}
-                textStyles={detailsListInsideModalTextStyles}
-                labelStyles={detailsListInsideModalLabelStyles}
+                textStyles={defaultItemFieldsListTextStyles}
+                labelStyles={defaultItemFieldsListLabelStyles}
             />
         </Modal>
     );

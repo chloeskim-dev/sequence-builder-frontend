@@ -1,0 +1,65 @@
+// raised (and bordered)
+@import "./_variables.scss";
+
+@mixin raised($light, $border, $before-bg) {
+    position: relative;
+    outline: none;
+    border: 0;
+    text-decoration: none;
+    font-size: inherit;
+    background: $light;
+    border-bottom: 2px solid $border;
+    border-radius: 0.75em;
+    transform-style: preserve-3d;
+
+    &::before {
+        position: absolute;
+        content: "";
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: $before-bg;
+        border-radius: inherit;
+        transform: translate3d(0, 4px, -1em);
+    }
+}
+
+// bordered
+
+@mixin bordered($light, $border) {
+    position: relative;
+    outline: none;
+    border: 0;
+    vertical-align: middle;
+    text-decoration: none;
+    font-size: inherit;
+    border-radius: 0.75em;
+    background: $light;
+    border: 2px solid $border;
+    transform-style: preserve-3d;
+}
+
+.raised--gray {
+    @include raised($light-gray, $gray-border, $light-gray);
+}
+
+.bordered--gray {
+    @include bordered($light-gray, $gray-border);
+}
+
+.raised {
+    outline: none;
+    // outline: 2px solid red; // works
+    background: white;
+    border-radius: 0.75em; // slightly smaller radius
+    border-left: 2px solid $gray-border;
+    border-right: 2px solid $gray-border;
+    // lighter top border
+    border-top: 2px solid lighten($gray-border, 10%);
+    // darker bottom border
+    border-bottom: 8px solid darken($light-gray, 0%);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+}

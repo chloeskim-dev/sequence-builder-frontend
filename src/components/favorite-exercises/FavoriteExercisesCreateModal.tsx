@@ -14,86 +14,84 @@ import { getUtcNaiveTimestamp } from "../../utils/timeHelpers";
 import { makeFavoriteExerciseRequestPayloadFromFormData } from "../../utils/formHelpers";
 
 type FavoriteExerciseCreateModalProps = {
-    isModalOpen: boolean;
-    setIsModalOpen: React.Dispatch<SetStateAction<boolean>>;
-    resetFavoriteExercisesToDisplay: () => Promise<any>;
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<SetStateAction<boolean>>;
+  resetFavoriteExercisesToDisplay: () => Promise<any>;
 };
 
 export default function FavoriteExerciseCreateModal({
-    isModalOpen,
-    setIsModalOpen,
-    resetFavoriteExercisesToDisplay,
+  isModalOpen,
+  setIsModalOpen,
+  resetFavoriteExercisesToDisplay,
 }: FavoriteExerciseCreateModalProps) {
-    const { user } = useUser();
-    const userId = user?.id ?? null;
+  const { user } = useUser();
+  const userId = user?.id ?? null;
 
-    const formInitialValues = blankExerciseFormInputs;
+  const formInitialValues = blankExerciseFormInputs;
 
-    const createFavoriteExerciseFormMethods = useForm({
-        defaultValues: formInitialValues,
-        mode: "onSubmit", // only validate on submit
-        reValidateMode: "onChange",
-    });
+  const createFavoriteExerciseFormMethods = useForm({
+    defaultValues: formInitialValues,
+    mode: "onSubmit", // only validate on submit
+    reValidateMode: "onChange",
+  });
 
-    const onModalClose = () => {
-        createFavoriteExerciseFormMethods.reset(formInitialValues);
-        setIsModalOpen(false);
-    };
+  const onModalClose = () => {
+    createFavoriteExerciseFormMethods.reset(formInitialValues);
+    setIsModalOpen(false);
+  };
 
-    const onSubmit: SubmitHandler<FavoriteExerciseFormInputs> = async (
-        formData
-    ) => {
-        try {
-            const createRequestPayload =
-                makeFavoriteExerciseRequestPayloadFromFormData(
-                    formData,
-                    userId!,
-                    uuidv4(),
-                    getUtcNaiveTimestamp()
-                );
+  const onSubmit: SubmitHandler<FavoriteExerciseFormInputs> = async (
+    formData,
+  ) => {
+    try {
+      const createRequestPayload =
+        makeFavoriteExerciseRequestPayloadFromFormData(
+          formData,
+          userId!,
+          uuidv4(),
+          getUtcNaiveTimestamp(),
+        );
 
-            const res = await api.post(
-                `/v1/favorite_exercises/user/${userId}`,
-                createRequestPayload
-            );
+      const res = await api.post(
+        `/v1/favorite_exercises/user/${userId}`,
+        createRequestPayload,
+      );
 
-            resetFavoriteExercisesToDisplay();
-            onModalClose();
-        } catch (err: any) {
-            console.error("Error creating favorite_exercise:", err.message);
-        }
-    };
+      resetFavoriteExercisesToDisplay();
+      onModalClose();
+    } catch (err: any) {
+      console.error("Error creating favorite_exercise:", err.message);
+    }
+  };
 
-    return (
-        <Modal
-            isOpen={isModalOpen}
-            onClose={onModalClose}
-            title="Create a new favorite exercise."
-            buttons={[
-                {
-                    label: "Create New",
-                    onClick: () => {}, // Empty onClick for submit buttons
-                    variant: "primary",
-                    type: "submit",
-                    form: "create-favorite-exercise-form",
-                    disabled:
-                        createFavoriteExerciseFormMethods.formState
-                            .isSubmitting,
-                },
-                {
-                    label: "Cancel",
-                    onClick: onModalClose,
-                    variant: "secondary",
-                },
-            ]}
-        >
-            <FormProvider {...createFavoriteExerciseFormMethods}>
-                <ExerciseForm
-                    id="create-favorite-exercise-form"
-                    onSubmit={onSubmit}
-                    fieldConfigs={exerciseFormFieldConfigs}
-                />
-            </FormProvider>
-        </Modal>
-    );
+  return (
+    <Modal
+      isOpen={isModalOpen}
+      onClose={onModalClose}
+      title="Create a new favorite exercise."
+      buttons={[
+        {
+          label: "submit",
+          onClick: () => {}, // Empty onClick for submit buttons
+          buttonType: "compact",
+          type: "submit",
+          form: "create-favorite-exercise-form",
+          disabled: createFavoriteExerciseFormMethods.formState.isSubmitting,
+        },
+        {
+          label: "Cancel",
+          onClick: onModalClose,
+          buttonType: "compact",
+        },
+      ]}
+    >
+      <FormProvider {...createFavoriteExerciseFormMethods}>
+        <ExerciseForm
+          id="create-favorite-exercise-form"
+          onSubmit={onSubmit}
+          fieldConfigs={exerciseFormFieldConfigs}
+        />
+      </FormProvider>
+    </Modal>
+  );
 }

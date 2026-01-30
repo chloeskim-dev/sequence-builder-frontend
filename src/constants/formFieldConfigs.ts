@@ -31,8 +31,8 @@ export const exerciseFormFieldConfigs: FieldConfig[] = [
         label: "Minutes",
         type: "number",
         rules: {
-            min: { value: 0, message: "Cannot be negative" },
-            max: { value: 999, message: "Must be less than 1000" },
+            min: { value: 0, message: "Minutes cannot be negative" },
+            max: { value: 999, message: "Minutes must be less than 1000" },
         },
     },
     {
@@ -40,8 +40,8 @@ export const exerciseFormFieldConfigs: FieldConfig[] = [
         label: "Seconds",
         type: "number",
         rules: {
-            min: { value: 0, message: "Cannot be negative" },
-            max: { value: 999, message: "Must be less than 1000" },
+            min: { value: 0, message: "Seconds cannot be negative" },
+            max: { value: 999, message: "Seconds must be less than 1000" },
         },
     },
 
@@ -102,7 +102,7 @@ export const sequenceFormFieldConfigs: FieldConfig[] = [
         name: "notes",
         label: "Notes",
         type: "textarea",
-        rows: 3,
+        rows: 2,
         placeholder: "ex. Need resistance bands.",
         rules: {
             maxLength: {

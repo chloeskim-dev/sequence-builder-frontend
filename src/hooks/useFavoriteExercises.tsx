@@ -1,71 +1,105 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { api } from "../utils/api";
 import {
-    CleanedUpFavoriteExercise,
-    RawFavoriteExercise,
+  CleanedUpFavoriteExercise,
+  RawFavoriteExercise,
 } from "../constants/types";
 import {
-    filterBySearchQuery,
-    sortByField,
-    SortDirection,
+  filterBySearchQuery,
+  sortByField,
+  SortDirection,
 } from "../utils/listHelpers";
 import { removeNullFieldsFromFavoriteExercises } from "../utils/cleanupHelpers";
 
 export function useFavoriteExercises(userId: string) {
-    const [fetchedFavoriteExercises, setFetchedFavoriteExercises] = useState<
-        RawFavoriteExercise[] | undefined
-    >(undefined);
-    const [error, setError] = useState<string | undefined>(undefined);
-    const [displayFavoriteExercises, setDisplayFavoriteExercises] = useState<
-        CleanedUpFavoriteExercise[] | undefined
-    >(undefined);
+  const [fetchedFavoriteExercises, setFetchedFavoriteExercises] = useState<
+    RawFavoriteExercise[] | undefined
+  >(undefined);
+  const [displayFavoriteExercises, setDisplayFavoriteExercises] = useState<
+    CleanedUpFavoriteExercise[] | undefined
+  >(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
 
-    const fetchFavoriteExercises = async () => {
-        try {
-            const res: RawFavoriteExercise[] = await api.get(
-                `/v1/favorite_exercises/user/${userId}`
-            );
-            setFetchedFavoriteExercises(res);
-            setError("");
-        } catch (err: any) {
-            console.error("Error fetching favorite exercises:", err);
-            setError(err.message);
-        }
-    };
+  const fetchFavoriteExercises = useCallback(async () => {
+    if (!userId) return;
 
-    const setFavoriteExercisesToDisplay = async (
-        sortBy: string,
-        sortDirection: SortDirection,
-        searchQuery: string
-    ) => {
-        if (fetchedFavoriteExercises === undefined) {
-            return;
-        }
-        try {
-            const sorted = sortByField(
-                fetchedFavoriteExercises,
-                sortBy,
-                sortDirection
-            );
-            const sortedCleaned = removeNullFieldsFromFavoriteExercises(sorted);
-            const filteredSortedCleaned = filterBySearchQuery(
-                sortedCleaned,
-                searchQuery
-            );
-            setDisplayFavoriteExercises(filteredSortedCleaned);
-            setError("");
-        } catch (err: any) {
-            console.error("Error setting favorite exercises to display:", err);
-            setError(err.message);
-        }
-    };
+    try {
+      const res: RawFavoriteExercise[] = await api.get(
+        `/v1/favorite_exercises/user/${userId}`,
+      );
+      setFetchedFavoriteExercises(res);
+      setError("");
+    } catch (err: any) {
+      console.error("Error fetching favorite exercises:", err);
+      setError(err.message);
+    }
+  }, [userId]);
 
-    return {
-        fetchFavoriteExercises,
-        fetchedFavoriteExercises,
-        displayFavoriteExercises,
-        setFavoriteExercisesToDisplay,
-        error,
-        setError,
-    };
+  const setFavoriteExercisesToDisplay = useCallback(
+    (sortBy: string, sortDirection: SortDirection, searchQuery: string) => {
+      if (!fetchedFavoriteExercises) return;
+
+      try {
+        const sorted = sortByField(
+          fetchedFavoriteExercises,
+          sortBy,
+          sortDirection,
+        );
+        const sortedCleaned = removeNullFieldsFromFavoriteExercises(sorted);
+        const filteredSortedCleaned = filterBySearchQuery(
+          sortedCleaned,
+          searchQuery,
+        );
+        setDisplayFavoriteExercises(filteredSortedCleaned);
+        setError("");
+      } catch (err: any) {
+        console.error("Error setting favorite exercises to display:", err);
+        setError(err.message);
+      }
+    },
+    [fetchedFavoriteExercises],
+  );
+
+  const deleteFavoriteExercise = useCallback(
+    async (exerciseId: string, onAfterDelete?: () => void) => {
+      try {
+        await api.delete(`/v1/favorite_exercises/${exerciseId}`);
+        // refetch favorite exercises after deletion
+        fetchFavoriteExercises();
+
+        // optional callback (e.g., reset searchQuery or close modal)
+        if (onAfterDelete) onAfterDelete();
+
+        setError("");
+      } catch (err: any) {
+        console.error("Error deleting sequence:", err);
+        setError(
+          "Something went wrong while deleting your sequence. Please try again later.",
+        );
+      }
+    },
+    [fetchFavoriteExercises],
+  );
+
+  const fetchFavoriteExercise = useCallback(async (exerciseId: string) => {
+    const fetchedFavoriteExercise = await api.get(
+      `/v1/favorite_exercises/${exerciseId}`,
+    );
+    return fetchedFavoriteExercise;
+  }, []);
+
+  return {
+    // fetch
+    fetchFavoriteExercise,
+    fetchFavoriteExercises,
+    fetchedFavoriteExercises,
+    // display
+    displayFavoriteExercises,
+    setFavoriteExercisesToDisplay,
+    //delete
+    deleteFavoriteExercise,
+    // error
+    error,
+    setError,
+  };
 }

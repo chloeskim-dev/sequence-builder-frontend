@@ -1,235 +1,259 @@
 import { useState, useEffect } from "react";
 import Searchbar from "../../components/ui/Searchbar";
-import { FiPlus } from "react-icons/fi";
 import FavoriteExerciseEditModal from "../../components/favorite-exercises/FavoriteExercisesEditModal";
 import FavoriteExerciseCreateModal from "../../components/favorite-exercises/FavoriteExercisesCreateModal";
-import { IconButton } from "../../components/ui/IconButton";
-import { api } from "../../utils/api";
 import { useUser } from "../../contexts/UserContext";
 import FavoriteExerciseDetailModal from "../../components/favorite-exercises/FavoriteExercisesDetailModal";
 import DeleteConfirmModal from "../../components/DeleteConfirmModal";
-import { ReusableTable } from "../../components/layouts/ReusableTable";
+import { CompactTable } from "../../components/layouts/CompactTable";
+import { infoTextStyles } from "../../constants/tailwindClasses";
 import {
-    createNewButtonStyles,
-    pageOutermostFlexColStyles,
+  favoriteExercisesTableGridColStyles,
+  pageOutermostFlexColStyles,
 } from "../../constants/tailwindClasses";
 import { removeNullFieldsFromFavoriteExercise } from "../../utils/cleanupHelpers";
 import { CleanedUpFavoriteExercise } from "../../constants/types";
 import { SortDirection } from "../../utils/listHelpers";
 import { useFavoriteExercises } from "../../hooks/useFavoriteExercises";
+import Button from "../../components/ui/Button/Button";
 
-export default function FavoriteExercisesPage() {
-    const [sortBy, setSortBy] = useState<string>("name");
-    const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
-    const [searchQuery, setSearchQuery] = useState<string>("");
+export const FavoriteExercisesPage: React.FC = () => {
+  const [sortBy, setSortBy] = useState<string>("name");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
-    const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-    const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] =
-        useState<boolean>(false);
+  const [createModalIsOpen, setCreateModalIsOpen] = useState<boolean>(false);
+  const [detailModalIsOpen, setDetailModalIsOpen] = useState<boolean>(false);
+  const [editModalIsOpen, setEditModalIsOpen] = useState<boolean>(false);
+  const [deleteModalIsOpen, setDeleteConfirmModalIsOpen] =
+    useState<boolean>(false);
 
-    const [detailItem, setDetailItem] =
-        useState<CleanedUpFavoriteExercise | null>(null);
-    const [editItem, setEditItem] = useState<CleanedUpFavoriteExercise | null>(
-        null
+  const [itemToDetail, setItemToDetail] =
+    useState<CleanedUpFavoriteExercise | null>(null);
+  const [itemToEdit, setItemToEdit] =
+    useState<CleanedUpFavoriteExercise | null>(null);
+  const [itemToDelete, setItemToDelete] =
+    useState<CleanedUpFavoriteExercise | null>(null);
+
+  const { user } = useUser();
+  const userId = user?.id ?? null;
+
+  const {
+    // fetch
+    fetchFavoriteExercise,
+    fetchFavoriteExercises,
+    fetchedFavoriteExercises,
+    // display
+    displayFavoriteExercises,
+    setFavoriteExercisesToDisplay,
+    // delete
+    deleteFavoriteExercise,
+    // error
+    setError,
+  } = useFavoriteExercises(userId!);
+
+  useEffect(() => {
+    if (!userId) return;
+    fetchFavoriteExercises();
+  }, [userId, fetchFavoriteExercises]);
+
+  useEffect(() => {
+    setFavoriteExercisesToDisplay(sortBy, sortDirection, searchQuery);
+  }, [
+    sortBy,
+    sortDirection,
+    searchQuery,
+    fetchedFavoriteExercises,
+    setFavoriteExercisesToDisplay,
+  ]);
+
+  const resetFavoriteExercisesToDisplay = async () => {
+    try {
+      setSearchQuery("");
+      setSortBy("name");
+      setSortDirection("asc");
+      await fetchFavoriteExercises();
+      setFavoriteExercisesToDisplay(sortBy, sortDirection, searchQuery);
+    } catch (err: any) {
+      console.error("Error refreshing favorite exercises to display:", err);
+      setError(err.message);
+    }
+  };
+
+  // convenience booleans
+
+  const userHasNoFavoriteExercises =
+    fetchedFavoriteExercises !== undefined &&
+    fetchedFavoriteExercises.length === 0;
+
+  const userHasFavoriteExercisesButNoneMatchQuery =
+    fetchedFavoriteExercises !== undefined &&
+    fetchedFavoriteExercises.length !== 0 &&
+    displayFavoriteExercises !== undefined &&
+    displayFavoriteExercises.length === 0;
+
+  const thereAreFavoriteExercisesToDisplay =
+    displayFavoriteExercises !== undefined &&
+    displayFavoriteExercises.length !== 0;
+
+  // info and error texts
+
+  const userHasNoFavoriteExercisesInfoText =
+    "There are no favorite exercises in your collection currently.";
+  const userHasFavoriteExercisesButNoneMatchQueryInfoText =
+    "There are no favorite exercises in your collection that match your search.";
+
+  // action button click handlers
+
+  const handleViewItemClick = (index: number) => {
+    if (!thereAreFavoriteExercisesToDisplay) return;
+    setItemToDetail(displayFavoriteExercises[index]);
+    setDetailModalIsOpen(true);
+  };
+
+  const handleEditItemClick = async (index: number) => {
+    if (!thereAreFavoriteExercisesToDisplay) return;
+    const exerciseId = displayFavoriteExercises[index].id;
+    const fetchedFavoriteExercise = await fetchFavoriteExercise(exerciseId);
+
+    setItemToEdit(
+      removeNullFieldsFromFavoriteExercise(fetchedFavoriteExercise),
     );
-    const [deleteItem, setDeleteItem] =
-        useState<CleanedUpFavoriteExercise | null>(null);
+    setEditModalIsOpen(true);
+  };
 
-    const { user } = useUser();
-    const userId = user?.id ?? null;
+  const handleDeleteItemClick = async (index: number) => {
+    if (!thereAreFavoriteExercisesToDisplay) return;
+    setItemToDelete(displayFavoriteExercises[index]);
+    setDeleteConfirmModalIsOpen(true);
+  };
 
-    const {
-        fetchFavoriteExercises,
-        fetchedFavoriteExercises,
-        displayFavoriteExercises,
-        setFavoriteExercisesToDisplay,
-        error,
-        setError,
-    } = useFavoriteExercises(userId!);
+  const deleteUponConfirmation = async () => {
+    if (!itemToDelete) return;
+    deleteFavoriteExercise(itemToDelete.id, () => {
+      setSearchQuery("");
+      setDeleteConfirmModalIsOpen(false);
+    });
+  };
 
-    useEffect(() => {
-        fetchFavoriteExercises();
-    }, []);
+  // unique action button creator for favorite exercises
+  const getActionButtonsForFavoriteExercise = (_item: any, index: number) => [
+    <Button
+      buttonType="compact"
+      text="view"
+      onClick={() => handleViewItemClick(index)}
+    />,
+    <Button
+      buttonType="compact"
+      text="edit"
+      onClick={() => handleEditItemClick(index)}
+    />,
+    <Button
+      buttonType="compact"
+      text="del"
+      onClick={() => handleDeleteItemClick(index)}
+    />,
+  ];
 
-    useEffect(() => {
-        setFavoriteExercisesToDisplay(sortBy, sortDirection, searchQuery);
-    }, [sortBy, sortDirection, searchQuery, fetchedFavoriteExercises]);
-
-    const resetFavoriteExercisesToDisplay = async () => {
-        try {
-            setSearchQuery("");
-            setSortBy("name");
-            setSortDirection("asc");
-            await fetchFavoriteExercises();
-            setFavoriteExercisesToDisplay(sortBy, sortDirection, searchQuery);
-        } catch (err: any) {
-            console.error(
-                "Error refreshing favorite exercises to display:",
-                err
-            );
-            setError(err.message);
-        }
-    };
-
-    const fetchResultsAreEmpty =
-        fetchedFavoriteExercises !== undefined &&
-        fetchedFavoriteExercises.length === 0;
-
-    const thereAreNoFavoriteExercisesMatchingQuery =
-        fetchedFavoriteExercises !== undefined &&
-        fetchedFavoriteExercises.length !== 0 &&
-        displayFavoriteExercises !== undefined &&
-        displayFavoriteExercises.length === 0;
-
-    const thereAreFavoriteExercisesToDisplay =
-        displayFavoriteExercises !== undefined &&
-        displayFavoriteExercises.length !== 0;
-
-    const handleViewItemClick = (index: number) => {
-        if (!thereAreFavoriteExercisesToDisplay) return;
-        setDetailItem(displayFavoriteExercises[index]);
-        setIsDetailModalOpen(true);
-    };
-
-    const handleEditItemClick = async (index: number) => {
-        if (!thereAreFavoriteExercisesToDisplay) return;
-        const favoriteExerciseId = displayFavoriteExercises[index].id;
-        const fetchedFavoriteExercise = await api.get(
-            `/v1/favorite_exercises/${favoriteExerciseId}`
-        );
-        console.log("!!!!!!!!!!!!!!!!!!!!");
-        console.log(fetchedFavoriteExercise.duration_secs);
-        setEditItem(
-            removeNullFieldsFromFavoriteExercise(fetchedFavoriteExercise)
-        );
-        setIsEditModalOpen(true);
-    };
-
-    const handleDeleteItemClick = async (index: number) => {
-        if (!thereAreFavoriteExercisesToDisplay) return;
-        setDeleteItem(displayFavoriteExercises[index]);
-        setIsDeleteConfirmModalOpen(true);
-    };
-
-    const deleteExercise = async (exerciseId: string) => {
-        try {
-            const res = await api.delete(
-                `/v1/favorite_exercises/${exerciseId}`
-            );
-            setSearchQuery("");
-            fetchFavoriteExercises();
-            setIsDeleteConfirmModalOpen(false);
-        } catch (err: any) {
-            setError("Something went wrong.");
-        }
-    };
-
-    return (
-        <div>
-            <div className={pageOutermostFlexColStyles}>
-                <div>
-                    <IconButton
-                        onClick={() => setIsCreateModalOpen(true)}
-                        icon={<FiPlus size={16} />}
-                        className={createNewButtonStyles}
-                    >
-                        Create New
-                    </IconButton>
-                </div>
-                <Searchbar
-                    placeholder="Search by name..."
-                    query={searchQuery}
-                    setQuery={setSearchQuery}
-                />
-                {thereAreFavoriteExercisesToDisplay && (
-                    <div>
-                        <ReusableTable
-                            items={displayFavoriteExercises}
-                            getActionButtonsForItem={(item, index) => [
-                                {
-                                    title: "View",
-                                    action: () => handleViewItemClick(index),
-                                },
-                                {
-                                    title: "Edit",
-                                    action: () => handleEditItemClick(index),
-                                },
-                                {
-                                    title: "Delete",
-                                    action: () => handleDeleteItemClick(index),
-                                },
-                            ]}
-                            standardFields={[
-                                "name",
-                                "direction",
-                                "duration",
-                                "resistance",
-                                "notes",
-                            ]}
-                            actionsFieldWidthStyle="w-[150px]"
-                            listType="favorites"
-                            sortBy={sortBy}
-                            setSortBy={setSortBy}
-                            sortDirection={sortDirection}
-                            setSortDirection={setSortDirection}
-                        />
-                    </div>
-                )}
-                {fetchResultsAreEmpty && (
-                    <div>
-                        You have not added any favorite exercises. Create a
-                        favorite exercise by clicking the button above.
-                    </div>
-                )}
-
-                {thereAreNoFavoriteExercisesMatchingQuery && (
-                    <div>
-                        There are no favorite exercises that match your query by
-                        name.
-                    </div>
-                )}
-            </div>
-            <FavoriteExerciseCreateModal
-                isModalOpen={isCreateModalOpen}
-                setIsModalOpen={setIsCreateModalOpen}
-                resetFavoriteExercisesToDisplay={
-                    resetFavoriteExercisesToDisplay
-                }
-            />
-
-            {detailItem && isDetailModalOpen && (
-                <FavoriteExerciseDetailModal
-                    isModalOpen={isDetailModalOpen}
-                    setIsModalOpen={setIsDetailModalOpen}
-                    detailItem={detailItem}
-                    setDetailItem={setDetailItem}
-                />
-            )}
-
-            {editItem && isEditModalOpen && (
-                <FavoriteExerciseEditModal
-                    isModalOpen={isEditModalOpen}
-                    setIsModalOpen={setIsEditModalOpen}
-                    editItem={editItem}
-                    setEditItem={setEditItem}
-                    resetFavoriteExercisesToDisplay={
-                        resetFavoriteExercisesToDisplay
-                    }
-                />
-            )}
-
-            {deleteItem && isDeleteConfirmModalOpen && (
-                <DeleteConfirmModal
-                    isModalOpen={isDeleteConfirmModalOpen}
-                    setIsModalOpen={setIsDeleteConfirmModalOpen}
-                    deleteItem={deleteItem}
-                    setDeleteItem={setDeleteItem}
-                    onDelete={deleteExercise}
-                    title="Delete Favorite Exercise?"
-                />
-            )}
+  return (
+    <div>
+      <div className={pageOutermostFlexColStyles}>
+        <div
+          className={`flex flex-col gap-5 justify-between items-center w-full px-2`}
+        >
+          {/* Create New Button */}
+          <Button
+            className="-mt-[10px]"
+            onClick={() => setCreateModalIsOpen(true)}
+            text="Create New"
+            buttonType="standard"
+          />
         </div>
-    );
-}
+
+        {/* Searchbar */}
+        <Searchbar
+          placeholder="Search by name..."
+          query={searchQuery}
+          setQuery={setSearchQuery}
+        />
+
+        {/* Favorite Exercises Table */}
+        {thereAreFavoriteExercisesToDisplay && (
+          <CompactTable
+            items={displayFavoriteExercises}
+            getActionButtonsForItem={getActionButtonsForFavoriteExercise}
+            standardFields={[
+              "name",
+              "direction",
+              "duration",
+              "resistance",
+              "notes",
+            ]}
+            listType="favorites"
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            sortDirection={sortDirection}
+            setSortDirection={setSortDirection}
+            gridColStyles={favoriteExercisesTableGridColStyles}
+          />
+        )}
+
+        {/* No Favorite Exercises Added Message */}
+        {userHasNoFavoriteExercises && (
+          <div className={`${infoTextStyles}`}>
+            {userHasNoFavoriteExercisesInfoText}
+          </div>
+        )}
+
+        {/* No Favorite Exercises Matching Query Message */}
+        {userHasFavoriteExercisesButNoneMatchQuery && (
+          <div className={`${infoTextStyles}`}>
+            {userHasFavoriteExercisesButNoneMatchQueryInfoText}
+          </div>
+        )}
+      </div>
+
+      {/* Create Modal */}
+      <FavoriteExerciseCreateModal
+        isModalOpen={createModalIsOpen}
+        setIsModalOpen={setCreateModalIsOpen}
+        resetFavoriteExercisesToDisplay={resetFavoriteExercisesToDisplay}
+      />
+
+      {/* Detail Modal */}
+      {itemToDetail && detailModalIsOpen && (
+        <FavoriteExerciseDetailModal
+          isModalOpen={detailModalIsOpen}
+          setIsModalOpen={setDetailModalIsOpen}
+          detailItem={itemToDetail}
+          setDetailItem={setItemToDetail}
+        />
+      )}
+
+      {/* Edit Modal */}
+      {itemToEdit && editModalIsOpen && (
+        <FavoriteExerciseEditModal
+          isModalOpen={editModalIsOpen}
+          setIsModalOpen={setEditModalIsOpen}
+          editItem={itemToEdit}
+          setEditItem={setItemToEdit}
+          resetFavoriteExercisesToDisplay={resetFavoriteExercisesToDisplay}
+        />
+      )}
+
+      {/* Delete Modal */}
+      {itemToDelete && deleteModalIsOpen && (
+        <DeleteConfirmModal
+          isModalOpen={deleteModalIsOpen}
+          setIsModalOpen={setDeleteConfirmModalIsOpen}
+          deleteItem={itemToDelete}
+          setDeleteItem={setItemToDelete}
+          onDelete={deleteUponConfirmation}
+          title="Delete Favorite Exercise?"
+        />
+      )}
+    </div>
+  );
+};
+
+export default FavoriteExercisesPage;
