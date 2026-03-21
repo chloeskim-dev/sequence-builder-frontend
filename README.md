@@ -2,8 +2,8 @@
 
 - "/"
 - "/dashboard"
-- "/settings" [todo!]
-- "/help" [todo!]
+- "/settings"
+- "/help"
 - "/sequences"
 - "/favorite-exercises"
 
