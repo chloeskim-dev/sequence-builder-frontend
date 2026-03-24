@@ -59,11 +59,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
-    console.log("REACT_APP_API_URL:", REACT_APP_API_URL);
+    console.log("REACT_APP_API_URL**********************:", REACT_APP_API_URL);
 
     useEffect(() => {
         checkAuthStatus();
-        console.log("REACT_APP_API_URL:", REACT_APP_API_URL);
+        console.log("REACT_APP_API_URL*************:", REACT_APP_API_URL);
     }, [REACT_APP_API_URL]);
 
     const checkAuthStatus = async () => {
