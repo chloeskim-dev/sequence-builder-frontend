@@ -59,9 +59,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
+    console.log("REACT_APP_API_URL:", REACT_APP_API_URL);
+
     useEffect(() => {
         checkAuthStatus();
-    }, []);
+        console.log("REACT_APP_API_URL:", REACT_APP_API_URL);
+    }, [REACT_APP_API_URL]);
 
     const checkAuthStatus = async () => {
         try {
@@ -124,7 +127,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 });
             }
         } catch (err: any) {
-            console.log(err);
+            console.log("err logging in:", err);
             throw err;
         }
     };

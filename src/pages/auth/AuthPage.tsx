@@ -60,6 +60,9 @@ const AuthPage: React.FC<AuthPageProps> = ({
             email,
             password,
         };
+
+        console.log(payload);
+
         const endpoint = "/v1/users";
         const fetchOptions = {
             method: "POST",
