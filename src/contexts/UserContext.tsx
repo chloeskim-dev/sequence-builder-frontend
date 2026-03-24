@@ -31,7 +31,7 @@ interface LoginSuccessResponseJson {
 }
 
 function isLoginSuccessResponseJson(
-    data: any
+    data: any,
 ): data is LoginSuccessResponseJson {
     return (
         typeof data === "object" &&
@@ -103,7 +103,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         try {
             const { response, data } = await safeFetch(
                 `${REACT_APP_API_URL}${endpoint}`,
-                fetchOptions
+                fetchOptions,
             );
 
             console.log("Status:", response.status);
@@ -124,6 +124,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 });
             }
         } catch (err: any) {
+            console.log(err);
             throw err;
         }
     };
@@ -136,7 +137,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 const res = await api.post(
                     "/v1/auth/logout",
                     {},
-                    { token: getRefreshToken() }
+                    { token: getRefreshToken() },
                 );
             }
         } catch (error) {
